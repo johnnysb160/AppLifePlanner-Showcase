@@ -1,0 +1,402 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="AllocationsPortfolioSummary.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+.lp-portfolio-summary {
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
+}
+
+.lp-portfolio-spinner {
+  color: var(--lp-text-muted);
+}
+
+.lp-portfolio-card-grid {
+  align-items: stretch;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  min-width: 0;
+  width: min(100%, calc(100vw - 3rem));
+}
+
+.lp-portfolio-card-grid > .lp-card {
+  min-width: 0;
+  width: auto;
+}
+
+.lp-portfolio-chart-card {
+  overflow: hidden;
+  min-width: 0;
+  padding: 0.9rem;
+}
+
+.lp-portfolio-overview-card {
+  border-left: 4px solid var(--lp-accent);
+}
+
+.lp-portfolio-card-header {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.lp-portfolio-card-header h2 {
+  color: var(--lp-text-primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.lp-portfolio-card-header p {
+  color: var(--lp-text-muted);
+  font-size: 0.68rem;
+  margin: 0.1rem 0 0;
+}
+
+.lp-portfolio-card-header a {
+  color: var(--lp-accent);
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.lp-portfolio-overview {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.lp-portfolio-overview-item {
+  border-radius: 0.5rem;
+  color: inherit;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  row-gap: 0.1rem;
+  column-gap: 0.4rem;
+  padding: 0.25rem 0.5rem;
+  text-decoration: none;
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.lp-portfolio-overview-item:hover,
+.lp-portfolio-overview-item:focus-visible {
+  background: var(--lp-surface-muted);
+  color: inherit;
+  outline: none;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+  .lp-portfolio-overview-item span {
+    grid-column: 1 / -1;
+    color: var(--lp-text-muted);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+.lp-portfolio-overview-item strong {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lp-portfolio-overview-item small {
+  color: var(--lp-text-muted);
+  font-size: 0.64rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lp-portfolio-overview-invested strong {
+  color: var(--lp-accent);
+}
+
+.lp-portfolio-overview-current strong,
+.lp-portfolio-overview-profit strong {
+  color: var(--lp-success);
+}
+
+.lp-portfolio-overview-loss strong {
+  color: var(--lp-danger);
+}
+
+.lp-portfolio-mix {
+  align-items: center;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 96px minmax(0, 1fr);
+}
+
+.lp-portfolio-pie {
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.16), inset 0 0 0 1px rgba(15, 23, 42, 0.05);
+  height: 92px;
+  justify-self: center;
+  width: 92px;
+}
+
+.lp-portfolio-segments {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.lp-portfolio-segment,
+.lp-portfolio-currencies a {
+  align-items: center;
+  color: var(--lp-text-secondary);
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.lp-portfolio-segment {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.lp-portfolio-segment:hover,
+.lp-portfolio-currencies a:hover {
+  color: var(--lp-accent);
+}
+
+.lp-portfolio-segment-dot {
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 0.45rem;
+  width: 0.45rem;
+}
+
+.lp-portfolio-segment-name,
+.lp-portfolio-currencies span:not(.lp-portfolio-segment-dot) {
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lp-portfolio-segment strong,
+.lp-portfolio-bar strong {
+  color: var(--lp-text-primary);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.lp-portfolio-segment small {
+  color: var(--lp-text-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.lp-portfolio-mix-card .lp-portfolio-segment small {
+  display: none;
+}
+
+.lp-portfolio-bars {
+  display: grid;
+  gap: 0.48rem;
+}
+
+.lp-portfolio-bar {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--lp-text-secondary);
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: minmax(38px, 0.85fr) minmax(0, 1.15fr) auto;
+  padding: 0;
+  text-align: left;
+  text-decoration: none;
+}
+
+.lp-portfolio-bar:hover {
+  color: var(--lp-accent);
+  text-decoration: none;
+}
+
+.lp-portfolio-bar-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lp-portfolio-bar-track {
+  background: var(--lp-surface-muted);
+  border-radius: 999px;
+  height: 0.46rem;
+  overflow: hidden;
+}
+
+.lp-portfolio-bar-track span {
+  background: linear-gradient(90deg, var(--lp-accent), var(--lp-success));
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  min-width: 0.25rem;
+}
+
+.lp-portfolio-stack {
+  border-radius: 999px;
+  display: flex;
+  height: 0.9rem;
+  margin-bottom: 0.65rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.lp-portfolio-stack a {
+  display: block;
+  min-width: 0.35rem;
+}
+
+.lp-portfolio-stack span {
+  display: block;
+  height: 100%;
+}
+
+.lp-portfolio-currencies {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.lp-portfolio-currencies a {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.lp-portfolio-currencies strong {
+  color: var(--lp-text-primary);
+  font-size: 0.7rem;
+}
+
+.lp-portfolio-expirations {
+  border-top: 1px solid var(--lp-border);
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+}
+
+.lp-portfolio-expirations-title {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.lp-portfolio-expirations-title span {
+  color: var(--lp-text-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.lp-portfolio-expirations-title a {
+  color: var(--lp-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.lp-portfolio-expiration {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--lp-text-secondary);
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 0.12rem 0;
+  width: 100%;
+}
+
+.lp-portfolio-expiration span {
+  color: var(--lp-text-muted);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.lp-portfolio-expiration strong {
+  color: var(--lp-text-primary);
+  font-size: 0.7rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lp-portfolio-empty {
+  color: var(--lp-text-muted);
+  font-size: 0.78rem;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.lp-portfolio-empty-compact {
+  padding: 0.25rem 0;
+  text-align: left;
+}
+
+@media (max-width: 991.98px) {
+  .lp-portfolio-summary {
+    max-width: none;
+  }
+
+  .lp-portfolio-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lp-portfolio-mix {
+    grid-template-columns: 116px minmax(0, 1fr);
+  }
+
+  .lp-portfolio-pie {
+    height: 104px;
+    width: 104px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .lp-portfolio-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-portfolio-mix {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-portfolio-pie {
+    height: 118px;
+    width: 118px;
+  }
+
+  .lp-portfolio-segment {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .lp-portfolio-segment strong {
+    display: none;
+  }
+}

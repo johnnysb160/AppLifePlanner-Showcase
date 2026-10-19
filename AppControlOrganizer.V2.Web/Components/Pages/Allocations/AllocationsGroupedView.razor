@@ -1,0 +1,246 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="AllocationsGroupedView.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@using AppControlOrganizer.V2.Web.Services.Financial
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+                    <strong>@Loc["Portfolio"]</strong>
+                    @if (HasMultipleCurrencies)
+                    {
+                        <span class="badge bg-warning text-dark ms-2">@Loc["Mixed currencies"]</span>
+                    }
+                </div>
+                <div class="text-end">
+                    <div class="small text-muted">@Loc["Approx. BRL (quotes)"]</div>
+                    <div class="fw-bold">@ValuesVis.Mask(Helper.FormatBrl(TotalCurrentApproxBrl))</div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                @if (!Groups.Any())
+                {
+                    <div class="text-muted">@Loc["No data."]</div>
+                }
+                else
+                {
+                    <div class="row g-3">
+                        @foreach (var typeGroup in Groups)
+                        {
+                            <div class="col-12">
+                                <div class="card border">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <a class="badge bg-secondary text-decoration-none"
+                                               href="@GetTypeHref(typeGroup.Type)"
+                                               title='@Loc["Filter by type"]'>@typeGroup.TypeName</a>
+                                            <a class="text-muted small text-decoration-none"
+                                               href="@GetTypeHref(typeGroup.Type)"
+                                               title='@Loc["View allocations"]'>@typeGroup.Count @Loc["items"]</a>
+                                            @if (typeGroup.HasMixedCurrencies)
+                                            {
+                                                <span class="badge bg-warning text-dark">@Loc["mixed"]</span>
+                                            }
+                                        </div>
+                                        <div class="fw-bold">@ValuesVis.Mask(Allocations.FormatMoneySafe(typeGroup.Currency, typeGroup.CurrentTotal))</div>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            @foreach (var acc in typeGroup.ByAccount)
+                                            {
+                                                string collapseId = $"acc_{typeGroup.Type}_{acc.AccountId}";
+                                                <div class="col-12">
+                                                    <div class="card">
+                                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                                            <button class="btn btn-sm btn-link text-decoration-none p-0"
+                                                                    type="button"
+                                                                    data-bs-toggle="collapse"
+                                                                    data-bs-target="@($"#{collapseId}")"
+                                                                    aria-expanded="false"
+                                                                    aria-controls="@collapseId">
+                                                                <img src="@Helper.GetLogoDataUriOrDefault(acc.AccountLogo)" width="16" height="16" class="me-2" alt="Logo" />
+                                                                <strong>@acc.AccountName</strong>
+                                                                <span class="badge bg-light text-dark ms-2">@acc.Count</span>
+                                                                @if (acc.HasMixedCurrencies)
+                                                                {
+                                                                    <span class="badge bg-warning text-dark ms-2">@Loc["mixed"]</span>
+                                                                }
+                                                            </button>
+
+                                                            <div class="text-end">
+                                                                <a class="small text-decoration-none d-block"
+                                                                   href="@GetAccountHref(acc.AccountId)"
+                                                                   title='@Loc["Open account"]'>@Loc["Open account"]</a>
+                                                                <a class="fw-bold text-decoration-none"
+                                                                   href="@GetAccountTypeHref(acc.AccountId, typeGroup.Type)"
+                                                                   title='@Loc["Filter by account"]'>@ValuesVis.Mask(Allocations.FormatMoneySafe(acc.Currency, acc.CurrentTotal))</a>
+                                                            </div>
+                                                        </div>
+
+                                                        <div id="@collapseId" class="collapse">
+                                                            <div class="card-body p-0">
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-sm table-hover mb-0">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <th>@Loc["Name"]</th>
+                                                                                <th class="text-end">@Loc["Qty"]</th>
+                                                                                <th class="text-end">@Loc["Buy"]</th>
+                                                                                <th class="text-end">@Loc["Current"]</th>
+                                                                                <th class="text-end">@Loc["Invested"]</th>
+                                                                                <th class="text-end">@Loc["Now"]</th>
+                                                                                <th class="text-center">@Loc["Actions"]</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach (AllocationEntity item in acc.Items)
+                                                                            {
+                                                                                AllocationQuotePriceResult pricing = PricingService.Calculate(item, LatestQuotes);
+                                                                                decimal unitPrice = pricing.UnitPriceInAllocationCurrency;
+                                                                                FinancialAllocationPosition position = FinancialPositionCalculator.CalculateAllocationPosition(
+                                                                                    item,
+                                                                                    LatestQuotes,
+                                                                                    PricingService,
+                                                                                    FinancialFactsService.ResolvePurpose);
+                                                                                decimal investedApplied = position.AppliedNativeAmount;
+                                                                                AllocationBrlConversionResult unitBrl = PricingService.ConvertAmountToBrl(item, unitPrice, LatestQuotes);
+                                                                                bool showUnitInBrl = unitBrl.IsConvertible && item.Currency != Currency.BRL;
+                                                                                decimal pBrl = 0m;
+                                                                                bool canComputeProfitBrl = position.CurrentIsConvertible && position.AppliedIsConvertible;
+                                                                                if (canComputeProfitBrl)
+                                                                                {
+                                                                                    pBrl = position.CurrentAmountBrl - position.AppliedAmountBrl;
+                                                                                }
+                                                                                string pricingTooltip = BuildPricingTooltip(pricing);
+
+                                                                                <tr class="lp-group-row-clickable"
+                                                                                    role="button"
+                                                                                    title='@Loc["Open allocation"]'
+                                                                                    @onclick="() => OpenItemAsync(item)">
+                                                                                    <td>
+                                                                                        <strong>@item.Name</strong>
+                                                                                        @if (!string.IsNullOrWhiteSpace(item.Initials))
+                                                                                        {
+                                                                                            <br />
+
+                                                                                            <a class="text-muted text-decoration-none"
+                                                                                               href="@GetSearchHref(item.Initials)"
+                                                                                               title='@Loc["Search by ticker"]'
+                                                                                               @onclick:stopPropagation="true">@item.Initials</a>
+                                                                                        }
+                                                                                        @if (item.ExpirationDate.HasValue)
+                                                                                        {
+                                                                                            <a class="badge bg-info ms-2 text-decoration-none"
+                                                                                               href="@GetUpcomingHref()"
+                                                                                               title='@Loc["Upcoming maturities"]'
+                                                                                               @onclick:stopPropagation="true">@Loc["matures"] @item.ExpirationDate.Value.ToString("d", Loc.Culture)</a>
+                                                                                        }
+                                                                                    </td>
+                                                                                    <td class="text-end">@FormatQuantity(item.Quantity)</td>
+                                                                                    <td class="text-end">@ValuesVis.Mask(Helper.FormatCurrency(item.Currency, item.BuyUnitValue))</td>
+                                                                                    <td class="text-end" title="@pricingTooltip">
+                                                                                        @if (showUnitInBrl)
+                                                                                        {
+                                                                                            @ValuesVis.Mask(Helper.FormatBrl(unitBrl.AmountBrl))
+                                                                                            <a class="badge bg-success ms-1 text-decoration-none"
+                                                                                               style="font-size: 0.6rem;"
+                                                                                               href="@GetQuoteHref(item)"
+                                                                                               title="@pricingTooltip"
+                                                                                               @onclick:stopPropagation="true">Q</a>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            @ValuesVis.Mask(Helper.FormatCurrency(item.Currency, unitPrice))
+                                                                                            @if (pricing.UsedQuote && !pricing.UsedFallback)
+                                                                                            {
+                                                                                                <a class="badge bg-success ms-1 text-decoration-none"
+                                                                                                   style="font-size: 0.6rem;"
+                                                                                                   href="@GetQuoteHref(item)"
+                                                                                                   title="@pricingTooltip"
+                                                                                                   @onclick:stopPropagation="true">Q</a>
+                                                                                            }
+                                                                                            else if (pricing.UsedFallback)
+                                                                                            {
+                                                                                                bool hasAutoCalcG = !string.IsNullOrEmpty(item.ProfitType)
+                                                                                                                   && item.ProfitPercentage.HasValue
+                                                                                                                   && item.ProfitDate.HasValue;
+                                                                                                if (hasAutoCalcG)
+                                                                                                {
+                                                                                                    <button type="button"
+                                                                                                            class="badge bg-info text-dark ms-1 border-0"
+                                                                                                            style="font-size: 0.6rem;"
+                                                                                                            title="@BuildAutoCalcTooltip(item)"
+                                                                                                            @onclick="() => OpenItemAsync(item)"
+                                                                                                            @onclick:stopPropagation="true">Auto</button>
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    <button type="button"
+                                                                                                            class="badge bg-warning text-dark ms-1 border-0"
+                                                                                                            style="font-size: 0.6rem;"
+                                                                                                            title="@Loc["Manual fallback value"]"
+                                                                                                            @onclick="() => OpenItemAsync(item)"
+                                                                                                            @onclick:stopPropagation="true">F</button>
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    </td>
+                                                                                    <td class="text-end">@ValuesVis.Mask(Helper.FormatCurrency(item.Currency, investedApplied))</td>
+                                                                                    <td class="text-end @(!canComputeProfitBrl ? "text-muted" : (pBrl < 0m ? "text-danger" : "text-success")) fw-bold">
+                                                                                        @if (position.CurrentIsConvertible)
+                                                                                        {
+                                                                                            @ValuesVis.Mask(Helper.FormatBrl(position.CurrentAmountBrl))
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <span class="text-muted" title="@LocalizeNote(position.Note)">—</span>
+                                                                                        }
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        <button class="btn btn-sm btn-outline-primary me-1"
+                                                                                                @onclick="() => OnEdit.InvokeAsync(item)"
+                                                                                                @onclick:stopPropagation="true"
+                                                                                                title='@Loc["Edit"]'>
+                                                                                            <i class="bi bi-pencil"></i>
+                                                                                        </button>
+                                                                                        <WriteGuard>
+                                                                                            <button class="btn btn-sm btn-outline-danger"
+                                                                                                    @onclick="() => OnDelete.InvokeAsync(item)"
+                                                                                                    @onclick:stopPropagation="true"
+                                                                                                    title='@Loc["Delete"]'>
+                                                                                                <i class="bi bi-trash"></i>
+                                                                                            </button>
+                                                                                        </WriteGuard>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>

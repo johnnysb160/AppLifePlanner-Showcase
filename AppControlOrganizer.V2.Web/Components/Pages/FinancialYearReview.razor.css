@@ -1,0 +1,816 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="FinancialYearReview.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+.year-review-page {
+  color: var(--lp-text-primary);
+}
+
+.year-review-select {
+  max-width: 136px;
+  min-width: 112px;
+}
+
+.year-review-loading,
+.year-review-empty {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  padding: 18px;
+}
+
+.year-review-empty {
+  color: var(--lp-text-secondary);
+  text-decoration: none;
+}
+
+.year-review-empty > span {
+  align-items: center;
+  background: #eff6ff;
+  border-radius: 10px;
+  color: #2563eb;
+  display: inline-flex;
+  flex: 0 0 42px;
+  height: 42px;
+  justify-content: center;
+}
+
+.year-review-empty div {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+}
+
+.year-review-empty small {
+  color: var(--lp-text-muted);
+}
+
+.year-review-command {
+  border: 1px solid rgba(226, 232, 240, .95);
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, .8fr);
+  overflow: hidden;
+  padding: 0;
+}
+
+.year-review-command-main {
+  background: linear-gradient(135deg, #0f172a 0%, #14345c 58%, #155e75 100%);
+  color: #fff;
+  min-width: 0;
+  padding: 22px;
+}
+
+.year-review-eyebrow,
+.year-review-panel-header span,
+.year-review-command-strip small,
+.year-review-side-metrics span,
+.year-review-investment-card span {
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.year-review-eyebrow,
+.year-review-command-strip small {
+  color: rgba(255, 255, 255, .58);
+}
+
+.year-review-command-main h2 {
+  font-size: 1.28rem;
+  font-weight: 850;
+  margin: 4px 0;
+}
+
+.year-review-command-main p {
+  color: rgba(255, 255, 255, .68);
+  font-size: .82rem;
+  margin: 0 0 14px;
+}
+
+.year-review-command-value {
+  display: block;
+  font-size: 2.55rem;
+  font-weight: 900;
+  letter-spacing: -.03em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.year-review-command-value.positive,
+.year-review-month .positive,
+.year-review-investment-card .positive {
+  color: #22c55e;
+}
+
+.year-review-command-value.negative,
+.year-review-month .negative,
+.year-review-investment-card .negative {
+  color: #ef4444;
+}
+
+.year-review-command-strip {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.year-review-command-strip div {
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 10px;
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px;
+}
+
+.year-review-command-strip strong {
+  font-size: .86rem;
+  overflow-wrap: anywhere;
+}
+
+.year-review-command-side {
+  align-content: center;
+  display: grid;
+  gap: 13px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  padding: 18px 18px 18px 0;
+}
+
+.year-review-gauge {
+  --pct: 0;
+  --tone: #2563eb;
+  align-items: center;
+  aspect-ratio: 1;
+  background: conic-gradient(var(--tone) calc(var(--pct) * 1%), #e5e7eb 0);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  min-height: 138px;
+  padding: 10px;
+}
+
+.year-review-gauge > div {
+  align-items: center;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .1);
+  display: flex;
+  flex-direction: column;
+  height: 78%;
+  justify-content: center;
+  min-width: 0;
+  text-align: center;
+  width: 78%;
+}
+
+.year-review-gauge strong {
+  color: var(--lp-text-primary);
+  font-size: 1.12rem;
+  font-weight: 850;
+}
+
+.year-review-gauge span {
+  color: var(--lp-text-muted);
+  font-size: .66rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.year-review-side-metrics {
+  display: grid;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+.year-review-side-metrics div {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid var(--lp-border);
+  border-radius: 9px;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 9px 10px;
+}
+
+.year-review-side-metrics span,
+.year-review-panel-header span,
+.year-review-investment-card span {
+  color: var(--lp-text-muted);
+}
+
+.year-review-side-metrics strong {
+  font-size: .82rem;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.year-review-dashboard-grid {
+  align-items: stretch;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, .85fr);
+}
+
+.year-review-panel {
+  min-width: 0;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.year-review-panel-wide {
+  min-height: 282px;
+}
+
+.year-review-panel-header {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.year-review-panel-header h2 {
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 2px 0 0;
+}
+
+.year-review-month-bars {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  margin-top: 14px;
+  min-height: 188px;
+}
+
+.year-review-line-chart {
+  background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+  border: 1px solid var(--lp-border);
+  border-radius: 12px;
+  min-width: 0;
+  padding: 10px 10px 8px;
+}
+
+.year-review-line-chart svg {
+  display: block;
+  height: 190px;
+  width: 100%;
+}
+
+.year-review-line-chart line,
+.year-review-line-chart polyline {
+  vector-effect: non-scaling-stroke;
+}
+
+.year-review-line-chart .zero {
+  stroke: #cbd5e1;
+  stroke-dasharray: 5 5;
+  stroke-width: 1;
+}
+
+.year-review-line-chart .income-area,
+.year-review-line-chart .expense-area {
+  fill: none;
+  opacity: .14;
+  stroke-width: 16;
+}
+
+.year-review-line-chart .income-area {
+  stroke: #22c55e;
+}
+
+.year-review-line-chart .expense-area {
+  stroke: #ef4444;
+}
+
+.year-review-line-chart .income-line,
+.year-review-line-chart .expense-line,
+.year-review-line-chart .result-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.year-review-line-chart .income-line {
+  stroke: #16a34a;
+  stroke-width: 3;
+}
+
+.year-review-line-chart .expense-line {
+  stroke: #ef4444;
+  stroke-width: 3;
+}
+
+.year-review-line-chart .result-line {
+  stroke: #2563eb;
+  stroke-width: 2.4;
+}
+
+.year-review-line-months {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.year-review-line-months span {
+  color: var(--lp-text-muted);
+  font-size: .62rem;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.year-review-month {
+  align-items: center;
+  color: var(--lp-text-secondary);
+  display: grid;
+  gap: 8px;
+  grid-template-rows: auto 1fr auto;
+  min-width: 0;
+  text-align: center;
+  text-decoration: none;
+}
+
+.year-review-month-label {
+  color: var(--lp-text-muted);
+  font-size: .7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.year-review-month-track {
+  align-items: end;
+  background: #f1f5f9;
+  border-radius: 8px;
+  display: grid;
+  gap: 2px;
+  grid-template-columns: 1fr 1fr;
+  height: 138px;
+  overflow: hidden;
+  padding: 4px;
+}
+
+.year-review-month-track span {
+  border-radius: 5px 5px 2px 2px;
+  min-height: 4px;
+}
+
+.year-review-month-track .income,
+.year-review-legend .income {
+  background: #22c55e;
+}
+
+.year-review-month-track .expense,
+.year-review-legend .expense {
+  background: #ef4444;
+}
+
+.year-review-legend .result {
+  background: #2563eb;
+}
+
+.year-review-month strong {
+  font-size: .7rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.year-review-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.year-review-legend span {
+  align-items: center;
+  color: var(--lp-text-muted);
+  display: inline-flex;
+  font-size: .78rem;
+  gap: 6px;
+}
+
+.year-review-legend i {
+  border-radius: 999px;
+  height: 9px;
+  width: 9px;
+}
+
+.year-review-rank-list,
+.year-review-category-list,
+.year-review-split-list {
+  display: grid;
+  gap: 9px;
+}
+
+.year-review-rank-list a,
+.year-review-category-list a,
+.year-review-split-list div {
+  align-items: center;
+  border: 1px solid var(--lp-border);
+  border-radius: 8px;
+  color: var(--lp-text-primary);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+  padding: 9px 10px;
+  text-decoration: none;
+}
+
+.year-review-rank-list a:hover,
+.year-review-category-list a:hover {
+  background: var(--lp-surface-muted);
+  color: var(--lp-text-primary);
+}
+
+.year-review-rank-list span,
+.year-review-category-list span,
+.year-review-split-list span {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  min-width: 0;
+}
+
+.year-review-rank-list strong,
+.year-review-category-list > a > strong,
+.year-review-split-list strong {
+  font-size: .78rem;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.year-review-category-dashboard {
+  align-items: center;
+  background: linear-gradient(135deg, #fff7ed, #fff 55%, #f8fafc);
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 104px minmax(0, 1fr);
+  margin-bottom: 12px;
+  padding: 12px;
+}
+
+.year-review-donut {
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, .12);
+  display: grid;
+  height: 96px;
+  place-items: center;
+  width: 96px;
+}
+
+.year-review-donut div {
+  align-items: center;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  height: 66px;
+  justify-content: center;
+  width: 66px;
+}
+
+.year-review-donut strong {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.year-review-donut span,
+.year-review-category-leader span {
+  color: var(--lp-text-muted);
+  font-size: .62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.year-review-category-leader {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.year-review-category-leader strong {
+  font-size: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.year-review-category-leader small,
+.year-review-category-list small {
+  color: var(--lp-text-muted);
+  font-size: .7rem;
+}
+
+.year-review-category-list a {
+  grid-template-columns: minmax(0, 1fr) minmax(76px, 124px) auto;
+}
+
+.year-review-category-list span:first-child {
+  align-items: flex-start;
+  display: grid;
+  gap: 2px;
+}
+
+.year-review-category-list strong {
+  min-width: 0;
+}
+
+.year-review-category-meter {
+  background: #e5e7eb;
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.year-review-category-meter span {
+  background: var(--category-tone, #ef4444);
+  height: 100%;
+}
+
+.year-review-worth-stack {
+  border-radius: 999px;
+  display: flex;
+  height: 14px;
+  margin-bottom: 12px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.year-review-worth-stack span {
+  display: block;
+  min-width: 4px;
+}
+
+.year-review-investment-card {
+  align-items: center;
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  margin-bottom: 12px;
+  padding: 12px;
+}
+
+.year-review-investment-card div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.year-review-investment-card strong {
+  font-size: .95rem;
+  overflow-wrap: anywhere;
+}
+
+.year-review-investment-card i {
+  color: var(--lp-text-muted);
+}
+
+.year-review-muted {
+  color: var(--lp-text-muted);
+  padding: 10px 0;
+}
+
+.year-review-warning {
+  align-items: center;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  color: #92400e;
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.year-review-analysis {
+  max-width: none;
+}
+
+.year-review-investments-detail {
+  padding: 16px;
+}
+
+.year-review-position-chart {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.year-review-position-chart article {
+  border: 1px solid var(--lp-border);
+  border-radius: 10px;
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  padding: 11px;
+}
+
+.year-review-position-name,
+.year-review-position-values,
+.year-review-position-meta {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.year-review-position-name strong {
+  color: var(--lp-text-primary);
+  font-size: .86rem;
+}
+
+.year-review-position-name span,
+.year-review-position-meta span,
+.year-review-position-meta small,
+.year-review-position-values span {
+  color: var(--lp-text-muted);
+  font-size: .7rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.year-review-position-values strong,
+.year-review-position-meta strong {
+  font-size: .78rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.year-review-return-chart {
+  background: #e5e7eb;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.year-review-return-chart span {
+  display: block;
+  height: 100%;
+}
+
+.year-review-return-chart.positive span {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+.year-review-return-chart.negative span {
+  background: linear-gradient(90deg, #dc2626, #fb7185);
+}
+
+.year-review-position-values .positive,
+.year-review-position-meta .positive {
+  color: #15803d;
+}
+
+.year-review-position-values .negative,
+.year-review-position-meta .negative {
+  color: #dc2626;
+}
+
+.year-review-analysis-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.year-review-analysis-grid article {
+  align-items: flex-start;
+  background: #f8fafc;
+  border: 1px solid var(--lp-border);
+  border-radius: 10px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 28px minmax(0, 1fr);
+  min-width: 0;
+  padding: 12px;
+}
+
+.year-review-analysis-grid i {
+  font-size: 1rem;
+  margin-top: 2px;
+}
+
+.year-review-analysis-grid article.positive i {
+  color: #15803d;
+}
+
+.year-review-analysis-grid article.negative i {
+  color: #dc2626;
+}
+
+.year-review-analysis-grid article.warning i {
+  color: #d97706;
+}
+
+.year-review-analysis-grid article.neutral i {
+  color: #2563eb;
+}
+
+.year-review-analysis-grid strong {
+  display: block;
+  font-size: .82rem;
+  margin-bottom: 4px;
+}
+
+.year-review-analysis-grid p {
+  color: var(--lp-text-secondary);
+  font-size: .84rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 1199.98px) {
+  .year-review-command,
+  .year-review-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .year-review-command-side {
+    padding: 0 18px 18px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .year-review-command-main {
+    padding: 18px;
+  }
+
+  .year-review-command-value {
+    font-size: 2rem;
+  }
+
+  .year-review-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .year-review-command-strip,
+  .year-review-command-side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .year-review-gauge {
+    aspect-ratio: auto;
+    justify-self: center;
+    min-height: 132px;
+    width: min(160px, 100%);
+  }
+
+  .year-review-side-metrics {
+    grid-column: 1 / -1;
+  }
+
+  .year-review-month-bars {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .year-review-line-chart {
+    overflow: hidden;
+  }
+
+  .year-review-line-chart svg {
+    height: 150px;
+  }
+
+  .year-review-line-months span:nth-child(even) {
+    display: none;
+  }
+
+  .year-review-category-dashboard,
+  .year-review-category-list a,
+  .year-review-investment-card {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .year-review-donut {
+    justify-self: center;
+  }
+
+  .year-review-investment-card i {
+    display: none;
+  }
+
+  .year-review-position-chart {
+    grid-template-columns: 1fr;
+  }
+}

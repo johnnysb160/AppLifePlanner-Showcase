@@ -1,0 +1,56 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="ModalBase.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@if (IsVisible)
+{
+    <!-- Modal backdrop - handles click-outside-to-close -->
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" @onclick="OnBackdropClick" @onkeydown="OnKeyDown">
+        <!-- Modal dialog - stop propagation to prevent backdrop click when clicking inside -->
+        <div class="modal-dialog @SizeClass" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <!-- Modal header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" @onclick="RequestClose" aria-label="Close"></button>
+                </div>
+                <!-- Modal body - render child content -->
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+                <!-- Modal footer - render custom footer or default close button -->
+                @if (FooterContent != null)
+                {
+                    <div class="modal-footer">
+                        @FooterContent
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation dialog for unsaved changes -->
+    @if (showConfirmClose)
+    {
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.7); z-index: 1060;">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title">Confirm Close</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>You have unsaved changes. Do you want to close and discard changes?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CancelClose">Cancel</button>
+                        <button type="button" class="btn btn-danger" @onclick="ConfirmClose">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

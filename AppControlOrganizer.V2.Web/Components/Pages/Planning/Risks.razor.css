@@ -1,0 +1,225 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="Risks.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+/* ── Page content wrapper ────────────────────────────────────────────── */
+.lp-page-content {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* ── Page header ─────────────────────────────────────────────────────── */
+.lp-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.lp-page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--lp-text-primary);
+  letter-spacing: -0.02em;
+}
+
+/* ── Action bar ──────────────────────────────────────────────────────── */
+.lp-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ── Ghost / Primary buttons ─────────────────────────────────────────── */
+.lp-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-surface);
+  color: var(--lp-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+  .lp-btn-ghost:hover:not(:disabled) {
+    background: var(--lp-surface-muted);
+    color: var(--lp-text-primary);
+    border-color: #cbd5e1;
+  }
+
+  .lp-btn-ghost:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+.lp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  border: none;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+  .lp-btn-primary:hover:not(:disabled) {
+    background: var(--lp-accent-hover);
+  }
+
+/* ── Modal ───────────────────────────────────────────────────────────── */
+.lp-modal-header {
+  background: linear-gradient(135deg, var(--lp-bg-dark) 0%, var(--lp-bg-dark-2) 100%);
+  border-bottom: none;
+  padding: 1.1rem 1.25rem;
+}
+
+.lp-modal-footer {
+  border-top: 1px solid var(--lp-border);
+  padding: 0.85rem 1.25rem;
+  gap: 0.5rem;
+}
+
+.lp-modal-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--lp-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lp-modal-input {
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  color: var(--lp-text-primary);
+  font-size: 0.875rem;
+}
+
+  .lp-modal-input:focus {
+    border-color: var(--lp-accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  }
+
+.lp-modal-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-surface);
+  color: var(--lp-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+  .lp-modal-btn-cancel:hover:not(:disabled) {
+    background: var(--lp-surface-muted);
+    color: var(--lp-text-primary);
+  }
+
+  .lp-modal-btn-cancel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+.lp-modal-btn-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.4rem;
+  border: none;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+  .lp-modal-btn-save:hover:not(:disabled) {
+    background: var(--lp-accent-hover);
+  }
+
+  .lp-modal-btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+/* ── Action buttons ──────────────────────────────────────────────────── */
+.lp-tx-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--lp-radius-sm);
+  border: 1px solid var(--lp-border);
+  background: transparent;
+  color: var(--lp-text-muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  padding: 0;
+}
+
+  .lp-tx-action-btn:hover:not(:disabled) {
+    background: var(--lp-surface-muted);
+    color: var(--lp-text-primary);
+    border-color: #cbd5e1;
+  }
+
+  .lp-tx-action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+.lp-tx-action-btn-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--lp-danger);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+/* ── Mobile risk card ────────────────────────────────────────────────── */
+.risk-mob-card {
+  padding: 0.75rem 0.25rem;
+}
+
+/* ── Mobile overrides ────────────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+  .lp-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lp-action-bar {
+    width: 100%;
+  }
+
+  .lp-page-title {
+    font-size: 1.25rem;
+  }
+}

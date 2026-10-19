@@ -1,0 +1,56 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="FinancialDetailsPopover.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+<div class="financial-details-popover" role="tooltip" aria-label="@AriaLabel">
+  <div class="financial-details-head">
+    <span>@Header</span>
+    <strong>@HeaderValue</strong>
+  </div>
+  @if (Rows.Count > 0)
+  {
+    <div class="financial-details-list">
+      @foreach (FinancialDetailsPopoverRow row in Rows)
+      {
+        <div class="financial-detail-row @row.Tone">
+          <span class="financial-detail-icon"><i class="bi @row.IconClass"></i></span>
+          <span class="financial-detail-main">
+            <strong>@row.Title</strong>
+            <small>@row.Detail</small>
+          </span>
+          <span class="financial-detail-amount">@row.Amount</span>
+        </div>
+      }
+    </div>
+  }
+  else if (!string.IsNullOrWhiteSpace(EmptyMessage))
+  {
+    <div class="financial-details-empty">@EmptyMessage</div>
+  }
+</div>
+
+@code {
+  /// <summary>Gets or sets the accessible popover label.</summary>
+  [Parameter]
+  public string AriaLabel { get; set; } = string.Empty;
+
+  /// <summary>Gets or sets the header label.</summary>
+  [Parameter]
+  public string Header { get; set; } = string.Empty;
+
+  /// <summary>Gets or sets the header value.</summary>
+  [Parameter]
+  public string HeaderValue { get; set; } = string.Empty;
+
+  /// <summary>Gets or sets the empty message.</summary>
+  [Parameter]
+  public string EmptyMessage { get; set; } = string.Empty;
+
+  /// <summary>Gets or sets rows shown inside the popover.</summary>
+  [Parameter]
+  public IReadOnlyList<FinancialDetailsPopoverRow> Rows { get; set; } = [];
+}

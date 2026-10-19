@@ -1,0 +1,57 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="SearchableDropdown.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@typeparam TValue
+
+@* dropdownContainerRef is used by OnAfterRenderAsync to measure the
+   element's viewport position via JS and write --dd-top / --dd-left /
+   --dd-width as CSS custom properties on this element.  The menu then
+   reads those variables through CSS inheritance so it renders at the
+   correct viewport coordinates with position:fixed — completely outside
+   any parent stacking context. *@
+<div @ref="dropdownContainerRef"
+     class="position-relative searchable-dropdown @(isOpen ? "is-open" : "")"
+     @onfocusout="OnFocusOut"
+     @onfocusin="OnFocusIn">
+    <div class="input-group">
+        <input type="text"
+               class="form-control @CssClass"
+               placeholder="@Placeholder"
+               @bind="searchText"
+               @bind:event="oninput"
+               @bind:after="OnSearchChanged"
+               @onfocus="OnInputFocus"
+               @onkeydown="OnKeyDown"
+               disabled="@Disabled"
+               autocomplete="off" />
+        @if (ShowClearButton && HasValueOrText())
+        {
+            <button type="button" class="btn btn-outline-secondary" @onclick="ClearValue" @onclick:stopPropagation="true" disabled="@Disabled" tabindex="-1">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        }
+    </div>
+
+    @if (isOpen && FilteredItems.Any())
+    {
+        @* position:fixed + CSS vars set by JS → menu always renders above every
+           other element on the page regardless of ancestor stacking contexts. *@
+        <div class="dropdown-menu show searchable-dropdown-menu"
+             style="position:fixed;top:var(--dd-top,100%);left:var(--dd-left,0);width:var(--dd-width,100%);max-height:250px;overflow-y:auto;margin:0;">
+            @foreach (DropdownItem<TValue> item in FilteredItems)
+            {
+                <button type="button"
+                        class="dropdown-item @(EqualityComparer<TValue>.Default.Equals(item.Value, Value) ? "active" : "")"
+                        @onclick="() => SelectItem(item)"
+                        @onclick:stopPropagation="true">
+                    @item.Text
+                </button>
+            }
+        </div>
+    }
+</div>

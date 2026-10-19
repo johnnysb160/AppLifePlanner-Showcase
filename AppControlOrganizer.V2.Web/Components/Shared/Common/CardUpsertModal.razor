@@ -1,0 +1,226 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="CardUpsertModal.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@inherits UpsertModalBase
+@if (Visible)
+{
+    <div class="modal fade show d-block"
+         tabindex="-1"
+         style="background-color: rgba(0,0,0,0.5);"
+         @onclick="RequestClose"
+         @onkeydown="HandleKeyDown">
+
+        <div class="modal-dialog modal-lg modal-fullscreen-sm-down" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header lp-modal-header">
+                    <h5 class="modal-title text-white">@(IsEditing ? Loc["Edit Card"] : Loc["New Card"])</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="RequestClose" disabled="@IsSaving"></button>
+                </div>
+
+                <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+                    <LocalizedDataAnnotationsValidator />
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">@Loc["Holder Name"] *</label>
+                                <InputText class="form-control" @bind-Value="Model.HolderName" @oninput="MarkDirty" />
+                                <ValidationMessage For="() => Model.HolderName" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">@Loc["Account"] *</label>
+                                <SearchableDropdown TValue="int"
+                                                    Items="@AccountItems"
+                                                    @bind-Value="Model.AccountId"
+                                                    EmptyValue="0"
+                                                    Placeholder='@Loc["Select account..."]'
+                                                    ShowClearButton="true"
+                                                    OnChange="MarkDirty" />
+                                <ValidationMessage For="() => Model.AccountId" />
+
+                                @{
+                                    var selected = (Model.AccountId > 0 && AccountsLookup != null)
+                                    ? AccountsLookup.FirstOrDefault(a => a.Id == Model.AccountId)
+                                    : null;
+                                }
+                                @if (selected != null)
+                                {
+                                    <div class="mt-1">
+                                        <small class="text-muted">
+                                            <img src="@Helper.GetLogoDataUriOrDefault(selected.Logo)" width="16" height="16" class="me-1" alt="Logo" />
+                                            @selected.Name
+                                        </small>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">@Loc["Type"] *</label>
+                                <SearchableDropdown TValue="CardType"
+                                                    Items="@CardTypeItems"
+                                                    @bind-Value="Model.CardType"
+                                                    Placeholder='@Loc["Select type..."]'
+                                                    ShowClearButton="true"
+                                                    OnChange="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">@Loc["Flag"] *</label>
+                                <SearchableDropdown TValue="CardFlag"
+                                                    Items="@CardFlagItems"
+                                                    @bind-Value="Model.Flag"
+                                                    Placeholder='@Loc["Select flag..."]'
+                                                    ShowClearButton="true"
+                                                    OnChange="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">@Loc["Currency"] *</label>
+                                <SearchableDropdown TValue="Currency"
+                                                    Items="@CurrencyItems"
+                                                    @bind-Value="Model.Currency"
+                                                    Placeholder='@Loc["Select currency..."]'
+                                                    ShowClearButton="true"
+                                                    OnChange="MarkDirty" />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">@Loc["Transaction Currencies"]</label>
+                                <div class="border rounded p-2">
+                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                        @foreach (Currency selectedCurrency in Model.TransactionCurrencies)
+                                        {
+                                            <span class="badge bg-info d-flex align-items-center">
+                                                @selectedCurrency.GetDisplayName()
+                                                <button type="button"
+                                                        class="btn-close btn-close-white ms-1"
+                                                        style="font-size: 0.6rem;"
+                                                        @onclick="() => RemoveTransactionCurrency(selectedCurrency)"
+                                                        @onclick:stopPropagation="true"
+                                                        disabled="@IsSaving">
+                                                </button>
+                                            </span>
+                                        }
+                                        @if (!Model.TransactionCurrencies.Any())
+                                        {
+                                            <small class="text-muted">@Loc["No currencies selected"]</small>
+                                        }
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (Currency availableCurrency in Enum.GetValues<Currency>())
+                                        {
+                                            bool isSelected = Model.TransactionCurrencies.Contains(availableCurrency);
+                                            <button type="button"
+                                                    class="btn btn-sm @(isSelected ? "btn-info" : "btn-outline-secondary")"
+                                                    @onclick="() => ToggleTransactionCurrency(availableCurrency)"
+                                                    @onclick:stopPropagation="true"
+                                                    disabled="@IsSaving">
+                                                @availableCurrency.ToString()
+                                            </button>
+                                        }
+                                    </div>
+
+                                    @if (Model.TransactionCurrencies.Any())
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger mt-2"
+                                                @onclick="ClearTransactionCurrencies"
+                                                @onclick:stopPropagation="true"
+                                                disabled="@IsSaving">
+                                            <i class="bi bi-x-circle me-1"></i>@Loc["Clear All"]
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">@Loc["Number"]</label>
+                                <InputText class="form-control" @bind-Value="Model.Number" @oninput="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">CVV</label>
+                                <InputText class="form-control" @bind-Value="Model.SecurityCode" @oninput="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">@Loc["Validity"]</label>
+                                <InputDate class="form-control" @bind-Value="Model.Validity" @onchange="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <InputCheckbox class="form-check-input" @bind-Value="Model.HasLimit" @onchange="MarkDirty" />
+                                    <label class="form-check-label">@Loc["Has Limit"]</label>
+                                </div>
+                            </div>
+
+                            @if (Model.HasLimit)
+                            {
+                                <div class="col-md-3">
+                                    <label class="form-label">@Loc["Limit Value"]</label>
+                                    <InputNumber class="form-control" @bind-Value="Model.LimitValue" @oninput="MarkDirty" />
+                                </div>
+                            }
+
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <InputCheckbox class="form-check-input" @bind-Value="Model.HasInvoice" @onchange="MarkDirty" />
+                                    <label class="form-check-label">@Loc["Has Invoice"]</label>
+                                </div>
+                            </div>
+
+                            @if (Model.HasInvoice)
+                            {
+                                <div class="col-md-3">
+                                    <label class="form-label">@Loc["Closing Day"]</label>
+                                    <InputNumber class="form-control" @bind-Value="Model.InvoiceClosingDay" @oninput="MarkDirty" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">@Loc["Payment Day"]</label>
+                                    <InputNumber class="form-control" @bind-Value="Model.InvoicePaymentDay" @oninput="MarkDirty" />
+                                </div>
+                            }
+
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <InputCheckbox class="form-check-input" @bind-Value="Model.Status" @onchange="MarkDirty" />
+                                    <label class="form-check-label">@Loc["Active"]</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer lp-modal-footer">
+                        <button type="button" class="lp-modal-btn-cancel" @onclick="RequestClose" disabled="@IsSaving">
+                            @Loc["Cancel"]
+                        </button>
+
+                        <AuthorizeView Context="authContext">
+                            <Authorized>
+                                <button type="submit" class="lp-modal-btn-save" disabled="@IsSaving">
+                                    @if (IsSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                    }
+                                    @Loc["Save"]
+                                </button>
+                            </Authorized>
+                            <NotAuthorized>
+                                <button type="submit" class="lp-modal-btn-save" disabled="true">
+                                    @Loc["Log in to Save"]
+                                </button>
+                            </NotAuthorized>
+                        </AuthorizeView>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,37 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="NotFound.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/{*uri}"
+@using Microsoft.AspNetCore.Http
+
+<PageTitle>@Loc["Page not found"] - Life Planner</PageTitle>
+
+<section class="text-center py-5">
+  <h1 class="h3 mb-2">@Loc["Page not found"]</h1>
+  <p class="text-muted mb-4">@Loc["The address you opened does not exist or was moved."]</p>
+  <a class="btn btn-primary" href="/">@Loc["Back to Today"]</a>
+</section>
+
+@code {
+  [CascadingParameter]
+  private HttpContext? HttpContext { get; set; }
+
+  /// <summary>Gets or sets the unmatched request path captured by the catch-all route.</summary>
+  [Parameter]
+  public string? Uri { get; set; }
+
+  /// <inheritdoc />
+  protected override void OnInitialized()
+  {
+    // Answer unknown addresses with a real 404 so crawlers, monitors and clients still see the error.
+    if (HttpContext is not null && !HttpContext.Response.HasStarted)
+    {
+      HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+    }
+  }
+}

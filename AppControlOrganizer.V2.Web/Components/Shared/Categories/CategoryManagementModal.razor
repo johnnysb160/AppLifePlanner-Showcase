@@ -1,0 +1,241 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="CategoryManagementModal.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@*
+    CategoryManagementModal.razor - Modal for managing categories with full CRUD support.
+    Predefined categories can be edited (name/icon) but not deleted.
+    User-defined categories support full Add/Edit/Delete operations.
+*@
+
+@if (IsVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" @onclick="() => Hide()">
+        <div class="modal-dialog modal-lg modal-fullscreen-sm-down" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header lp-modal-header">
+                    <h5 class="modal-title text-white">
+                        <i class="bi bi-tags me-2"></i>@Loc["Categories"]
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="Hide"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show mb-3">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@errorMessage
+                            <button type="button" class="btn-close" @onclick="() => errorMessage = string.Empty"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show mb-3">
+                            <i class="bi bi-check-circle me-2"></i>@successMessage
+                            <button type="button" class="btn-close" @onclick="() => successMessage = string.Empty"></button>
+                        </div>
+                    }
+
+                    @* Toolbar *@
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="lp-btn-primary" @onclick="ShowAddForm" disabled="@(isLoading || showForm)">
+                            <i class="bi bi-plus-circle me-1"></i>@Loc["Add Category"]
+                        </button>
+                        <span class="cat-count-label">@categories.Count @Loc["categories"]</span>
+                    </div>
+
+                    @* Add/Edit Form (inline) *@
+                    @if (showForm)
+                    {
+                        <div class="lp-card cat-form-card mb-3">
+                            <div class="cat-form-header">
+                                <i class="bi @(isEditMode ? "bi-pencil" : "bi-plus-circle") me-2"></i>
+                                @(isEditMode ? @Loc["Edit Category"] : @Loc["Add Category"])
+                            </div>
+                            <div class="cat-form-body">
+                                <div class="row g-3">
+                                    <div class="col-md-5">
+                                        <label class="lp-modal-label">@Loc["Name"] <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control lp-modal-input" @bind="formName" @bind:event="oninput" maxlength="100" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="lp-modal-label">@Loc["Type"]</label>
+                                        <SearchableDropdown TValue="bool"
+                                                            Items="@IsIncomeItems"
+                                                            @bind-Value="formIsIncome"
+                                                            ShowClearButton="false"
+                                                            Disabled="@(isEditMode && editingCategory?.IsPredefined == true)"
+                                                            Placeholder='@Loc["Select type..."]' />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="lp-modal-label">@Loc["Icon"]</label>
+                                        <div class="d-flex align-items-center">
+                                            <div style="min-width: 0; flex: 1;" class="me-3">
+                                                <SearchableDropdown TValue="string"
+                                                                    Items="@IconDropdownItems"
+                                                                    @bind-Value="formIconCss"
+                                                                    ShowClearButton="false"
+                                                                    Placeholder='@Loc["Select icon..."]' />
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2 small text-muted">@Loc["Preview"]</span>
+                                                <i class="@formIconCss fs-4" style="color: var(--lp-accent);"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 d-flex gap-2">
+                                    <button class="lp-modal-btn-save" @onclick="SaveCategory" disabled="@isSaving">
+                                        @if (isSaving)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-1"></span>
+                                        }
+                                        @Loc["Save"]
+                                    </button>
+                                    <button class="lp-modal-btn-cancel" @onclick="CancelForm" disabled="@isSaving">@Loc["Cancel"]</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (isLoading)
+                    {
+                        <div class="d-flex justify-content-center my-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 50px;">@Loc["Icon"]</th>
+                                        <th>@Loc["Category"]</th>
+                                        <th style="width: 100px;">@Loc["Type"]</th>
+                                        <th style="width: 120px;" class="text-end">@Loc["Usage"]</th>
+                                        <th style="width: 120px;" class="text-center">@Loc["Actions"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (CategoryDisplayDto cat in categories)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a class="cat-row-link" href="@GetCategoryTransactionsHref(cat)" title='@Loc["View transactions"]'>
+                                                    <i class="@cat.IconCss" style="color: var(--lp-text-muted);"></i>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a class="cat-row-link" href="@GetCategoryTransactionsHref(cat)">
+                                                    @cat.Name
+                                                </a>
+                                                @if (cat.IsPredefined)
+                                                {
+                                                    <span class="cat-lock-badge ms-1" title="Predefined category">
+                                                        <i class="bi bi-lock-fill"></i>
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (cat.IsIncome)
+                                                {
+                                                    <a class="lp-tx-badge lp-tx-badge-in cat-row-link" href="@GetCategoryTransactionsHref(cat)">@Loc["Income"]</a>
+                                                }
+                                                else
+                                                {
+                                                    <a class="lp-tx-badge lp-tx-badge-out cat-row-link" href="@GetCategoryTransactionsHref(cat)">@Loc["Expense"]</a>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <a class="cat-usage-badge cat-row-link" href="@GetCategoryTransactionsHref(cat)">@cat.UsageCount @Loc["transactions"]</a>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="lp-tx-action-btn me-1"
+                                                        @onclick="() => ShowEditForm(cat)"
+                                                        title='@Loc["Edit"]'
+                                                        disabled="@showForm">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                @if (!cat.IsPredefined)
+                                                {
+                                                    <button class="lp-tx-action-btn lp-tx-action-btn-danger"
+                                                            @onclick="() => ConfirmDelete(cat)"
+                                                            title='@Loc["Delete"]'
+                                                            disabled="@showForm">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="lp-tx-action-btn" disabled title='@Loc["Predefined categories cannot be deleted"]'>
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer lp-modal-footer">
+                    <button type="button" class="lp-modal-btn-cancel" @onclick="Hide">@Loc["Close"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* Delete confirmation modal *@
+@if (showDeleteConfirm && categoryToDelete != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.7); z-index: 1060;">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header lp-modal-header">
+                    <h5 class="modal-title text-white">@Loc["Confirm Delete"]</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    @if (categoryToDelete.UsageCount > 0)
+                    {
+                        <div class="alert alert-warning mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            @Loc["Category is in use by"] <strong>@categoryToDelete.UsageCount</strong> @Loc["transaction(s) and cannot be deleted."]
+                            <div class="mt-2">
+                                <a class="alert-link" href="@GetCategoryTransactionsHref(categoryToDelete)">
+                                    @Loc["View transactions"]
+                                </a>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p>@Loc["Are you sure you want to delete"] <strong>@categoryToDelete.Name</strong>?</p>
+                    }
+                </div>
+                <div class="modal-footer lp-modal-footer">
+                    <button type="button" class="lp-modal-btn-cancel" @onclick="CancelDelete">@Loc["Cancel"]</button>
+                    @if (categoryToDelete.UsageCount == 0)
+                    {
+                        <button type="button" class="lp-modal-btn-delete" @onclick="DeleteCategory" disabled="@isSaving">
+                            @if (isSaving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            @Loc["Delete"]
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

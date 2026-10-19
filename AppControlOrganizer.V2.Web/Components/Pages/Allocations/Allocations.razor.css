@@ -1,0 +1,202 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="Allocations.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+/* ── Page header ─────────────────────────────────────────────────────── */
+.lp-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.lp-page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--lp-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.lp-page-subtitle {
+  font-size: 0.875rem;
+  color: var(--lp-text-secondary);
+  margin-top: 0.125rem;
+}
+
+/* ── Action bar ──────────────────────────────────────────────────────── */
+.lp-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+/* ── View mode toggle ────────────────────────────────────────────────── */
+.lp-view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  overflow: hidden;
+}
+
+.lp-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.38rem 0.62rem;
+  border: none;
+  border-right: 1px solid var(--lp-border);
+  background: var(--lp-surface);
+  color: var(--lp-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+  .lp-view-btn:last-child {
+    border-right: none;
+  }
+
+  .lp-view-btn:hover:not(.lp-view-btn-active) {
+    background: var(--lp-surface-muted);
+    color: var(--lp-text-primary);
+  }
+
+.lp-view-btn-active {
+  background: var(--lp-accent);
+  color: #fff;
+}
+
+/* ── Ghost / Primary buttons ─────────────────────────────────────────── */
+.lp-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.42rem 0.68rem;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-surface);
+  color: var(--lp-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+  .lp-btn-ghost:hover:not(:disabled) {
+    background: var(--lp-surface-muted);
+    color: var(--lp-text-primary);
+    border-color: #cbd5e1;
+  }
+
+.lp-btn-ghost-active {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: var(--lp-accent);
+  color: var(--lp-accent);
+}
+
+.lp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.42rem 0.75rem;
+  border: none;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+  .lp-btn-primary:hover:not(:disabled) {
+    background: var(--lp-accent-hover);
+  }
+
+/* ── Filter form label ───────────────────────────────────────────────── */
+.lp-form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--lp-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lp-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.lp-filter-clear {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-surface);
+  color: var(--lp-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+}
+
+  .lp-filter-clear:hover {
+    background: var(--lp-surface-muted);
+    color: var(--lp-text-primary);
+  }
+
+.lp-group-row-clickable {
+  cursor: pointer;
+}
+
+  .lp-group-row-clickable:hover {
+    background: var(--lp-surface-muted);
+  }
+
+.lp-dashboard-position-btn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+  .lp-dashboard-position-btn:hover .progress-bar {
+    filter: brightness(1.08);
+  }
+
+  .lp-dashboard-position-btn:hover .text-truncate {
+    color: var(--lp-accent) !important;
+  }
+
+.lp-dashboard-expiration-row {
+  cursor: pointer;
+}
+
+@media (max-width: 767.98px) {
+  .lp-page-header {
+    flex-wrap: wrap;
+  }
+
+  .lp-action-bar {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .lp-action-label {
+    display: none;
+  }
+}

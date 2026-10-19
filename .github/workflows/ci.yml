@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore AppControlOrganizer.V2.sln -p:EnableWindowsTargeting=true
+
+      - name: Build
+        run: dotnet build AppControlOrganizer.V2.sln --configuration Release --no-restore --nologo -p:EnableWindowsTargeting=true
+
+      - name: Test
+        run: dotnet test AppControlOrganizer.V2.sln --configuration Release --no-build --nologo -p:EnableWindowsTargeting=true
+
+      - name: Audit dependencies
+        run: dotnet list AppControlOrganizer.V2.sln package --vulnerable --include-transitive

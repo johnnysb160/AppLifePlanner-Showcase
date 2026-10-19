@@ -1,0 +1,680 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="Transactions.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/transactions"
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer
+
+<PageTitle>@Loc["Transactions"] - Life Planner</PageTitle>
+
+<!-- Page header -->
+<div class="lp-page-header mb-4">
+  <div>
+    <h1 class="lp-page-title mb-0 d-flex align-items-center">
+      <i class="bi bi-cash-stack me-2"></i>@Loc["Transactions"]
+    </h1>
+    <p class="lp-page-subtitle mb-0">@Loc["Income and expenses"]</p>
+  </div>
+  <div class="lp-action-bar" hidden="@isLoading">
+    <button type="button"
+            disabled="@isSaving"
+            class="lp-btn-ghost"
+            @onclick="RefreshTransactions"
+            title='@Loc["Refresh"]'>
+      <i class="bi bi-arrow-clockwise"></i><span class="d-none d-xl-inline ms-1">@Loc["Refresh"]</span>
+    </button>
+    <WriteGuard>
+      <button type="button"
+              class="lp-btn-ghost"
+              @onclick="OpenImportFlow"
+              title='@Loc["Import"]'>
+        <i class="bi bi-upload"></i><span class="d-none d-xl-inline ms-1">@Loc["Import"]</span>
+      </button>
+    </WriteGuard>
+    <AuthorizeView Context="authContext">
+      <Authorized>
+        <button type="button"
+                class="lp-btn-ghost"
+                @onclick="OpenCategoriesModal"
+                title='@Loc["Categories"]'>
+          <i class="bi bi-tags"></i><span class="d-none d-xl-inline ms-1">@Loc["Categories"]</span>
+        </button>
+      </Authorized>
+    </AuthorizeView>
+    <WriteGuard>
+      <ImapSyncButton OnSynced="RefreshTransactions" />
+    </WriteGuard>
+    <button type="button"
+            class="lp-btn-ghost"
+            onclick="window.location.href='accounts'"
+            title='@Loc["Accounts"]'>
+      <i class="bi bi-bank"></i><span class="d-none d-xl-inline ms-1">@Loc["Accounts"]</span>
+    </button>
+    <button type="button"
+            class="lp-btn-ghost"
+            onclick="window.location.href='finance/year-review'"
+            title='@Loc["Financial year"]'>
+      <i class="bi bi-calendar-range"></i><span class="d-none d-xl-inline ms-1">@Loc["Financial year"]</span>
+    </button>
+    <button type="button"
+            class="lp-btn-ghost @(showFilters ? "lp-btn-ghost-active" : "")"
+            @onclick="() => showFilters = !showFilters"
+            title='@Loc["Filters"]'>
+      <i class="bi bi-funnel"></i><span class="d-none d-xl-inline ms-1">@Loc["Filters"]</span>
+    </button>
+    <WriteGuard>
+      <button type="button" class="lp-btn-primary" @onclick="ShowCreateModal">
+        <i class="bi bi-plus-circle me-1"></i>@Loc["New Transaction"]
+      </button>
+    </WriteGuard>
+  </div>
+</div>
+
+@if (isLoading)
+{
+  <div class="d-flex justify-content-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+}
+else
+{
+  if (!transactions.Any())
+  {
+    <div class="lp-card lp-empty-action-card mb-4">
+      <div class="lp-empty-icon">
+        <i class="bi bi-receipt"></i>
+      </div>
+      <div>
+        <h2>@Loc["No transactions found for the selected period."]</h2>
+        <p>@Loc["Use the current filters, create a manual entry, or import a statement when the month needs more context."]</p>
+        <div class="lp-empty-actions">
+          <WriteGuard>
+            <button type="button" class="lp-btn-primary" @onclick="ShowCreateModal">
+              <i class="bi bi-plus-circle me-1"></i>@Loc["New Transaction"]
+            </button>
+            <button type="button" class="lp-btn-ghost" @onclick="OpenImportFlow">
+              <i class="bi bi-upload me-1"></i>@Loc["Import"]
+            </button>
+          </WriteGuard>
+          @if (HasActiveFilters())
+          {
+            <button type="button" class="lp-btn-ghost" @onclick="ClearAllFilters">
+              <i class="bi bi-eraser me-1"></i>@Loc["Clear filters"]
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Filters -->
+  @if (showFilters)
+  {
+    <div class="lp-card mb-4 filter-card">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-2">
+          <label class="form-label lp-form-label">@Loc["Month"]</label>
+          <SearchableDropdown TValue="int?"
+                              Items="@MonthFilterItems"
+                              @bind-Value="selectedMonth"
+                              @bind-Value:after="OnFiltersChanged"
+                              Placeholder='@Loc["Month"]' />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label lp-form-label">@Loc["Year"]</label>
+          <SearchableDropdown TValue="int?"
+                              Items="@YearFilterItems"
+                              @bind-Value="selectedYear"
+                              @bind-Value:after="OnFiltersChanged"
+                              Placeholder='@Loc["Year"]' />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label lp-form-label">@Loc["Day"]</label>
+          <SearchableDropdown TValue="int?"
+                              Items="@DayFilterItems"
+                              @bind-Value="selectedDay"
+                              @bind-Value:after="OnFiltersChanged"
+                              Placeholder='@Loc["All"]' />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label lp-form-label">@Loc["Category"]</label>
+          <SearchableDropdown TValue="string"
+                              Items="@CategoryFilterItems"
+                              @bind-Value="selectedCategory"
+                              @bind-Value:after="OnFiltersChanged"
+                              EmptyValue='@("")'
+                              Placeholder='@Loc["All"]' />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label lp-form-label">@Loc["Type"]</label>
+          <SearchableDropdown TValue="string"
+                              Items="@TypeFilterItems"
+                              @bind-Value="selectedType"
+                              @bind-Value:after="OnFiltersChanged"
+                              EmptyValue='@("")'
+                              Placeholder='@Loc["All"]' />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label lp-form-label">@Loc["Account"]</label>
+          <SearchableDropdown TValue="int?"
+                              Items="@AccountFilterItems"
+                              @bind-Value="selectedAccountId"
+                              @bind-Value:after="OnFiltersChanged"
+                              Placeholder='@Loc["All"]' />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label lp-form-label">@Loc["Source"]</label>
+          <SearchableDropdown TValue="string"
+                              Items="@SourceKindFilterItems"
+                              @bind-Value="selectedSourceKind"
+                              @bind-Value:after="OnFiltersChanged"
+                              EmptyValue='@("")'
+                              Placeholder='@Loc["All"]' />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label lp-form-label">@Loc["Planning"]</label>
+          <SearchableDropdown TValue="string"
+                              Items="@PlanningImpactFilterItems"
+                              @bind-Value="selectedPlanningImpact"
+                              @bind-Value:after="OnFiltersChanged"
+                              EmptyValue='@("")'
+                              Placeholder='@Loc["All"]' />
+        </div>
+        <div class="col-md-3">
+          <button class="lp-btn-ghost w-100" @onclick="GoToCurrentMonth">
+            <i class="bi bi-calendar-today me-1"></i>@Loc["Current Month"]
+          </button>
+        </div>
+        @if (HasActiveFilters())
+        {
+          <div class="col-12">
+            <div class="lp-filter-chip-row">
+              @if (selectedDay.HasValue)
+              {
+                <button type="button" class="lp-filter-chip" @onclick='() => ClearFilter("day")'>
+                  <i class="bi bi-calendar-day"></i>@Loc["Day"] @selectedDay <span aria-hidden="true">×</span>
+                </button>
+              }
+              @if (!string.IsNullOrEmpty(selectedCategory) && Enum.TryParse<Category>(selectedCategory, out Category selectedCategoryEnum))
+              {
+                <a class="lp-filter-chip lp-filter-chip-link" href="@GetTransactionsHref(category: selectedCategoryEnum)">
+                  <i class="@GetCategoryIconCss(selectedCategoryEnum)"></i>@Loc[selectedCategoryEnum.GetDisplayName()]
+                </a>
+                <button type="button" class="lp-filter-chip lp-filter-chip-clear" @onclick='() => ClearFilter("category")' title='@Loc["Clear category filter"]'>
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              }
+              @if (selectedCategoryId.HasValue)
+              {
+                <button type="button" class="lp-filter-chip" @onclick='() => ClearFilter("category")'>
+                  <i class="bi bi-tags"></i>@GetSelectedCategoryName() <span aria-hidden="true">×</span>
+                </button>
+              }
+              @if (!string.IsNullOrEmpty(selectedType))
+              {
+                <button type="button" class="lp-filter-chip" @onclick='() => ClearFilter("type")'>
+                  <i class="bi bi-arrow-left-right"></i>@GetTypeLabel(selectedType) <span aria-hidden="true">×</span>
+                </button>
+              }
+              @if (selectedAccountId.HasValue)
+              {
+                <a class="lp-filter-chip lp-filter-chip-link" href="@GetAccountHref(selectedAccountId.Value)">
+                  <i class="bi bi-bank"></i>@GetAccountName(selectedAccountId)
+                </a>
+                <button type="button" class="lp-filter-chip lp-filter-chip-clear" @onclick='() => ClearFilter("account")' title='@Loc["Clear account filter"]'>
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              }
+              @if (!string.IsNullOrEmpty(selectedSourceKind) && Enum.TryParse<TransactionSourceKind>(selectedSourceKind, out TransactionSourceKind selectedSourceEnum))
+              {
+                <button type="button" class="lp-filter-chip" @onclick='() => ClearFilter("source")'>
+                  <i class="bi bi-box-arrow-in-down"></i>@Loc[GetSourceKindLabel(selectedSourceEnum)] <span aria-hidden="true">×</span>
+                </button>
+              }
+              @if (!string.IsNullOrEmpty(selectedPlanningImpact) && Enum.TryParse<TransactionPlanningImpact>(selectedPlanningImpact, out TransactionPlanningImpact selectedPlanningEnum))
+              {
+                <a class="lp-filter-chip lp-filter-chip-link" href="plan#finance">
+                  <i class="bi bi-compass"></i>@Loc[GetPlanningImpactLabel(selectedPlanningEnum)]
+                </a>
+                <button type="button" class="lp-filter-chip lp-filter-chip-clear" @onclick='() => ClearFilter("planning")' title='@Loc["Clear planning filter"]'>
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              }
+              <button type="button" class="lp-filter-chip lp-filter-chip-muted" @onclick="ClearAllFilters">
+                <i class="bi bi-eraser"></i>@Loc["Clear filters"]
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-4">
+      <a class="lp-card lp-summary-card lp-summary-income lp-summary-link h-100" href="@GetTransactionsHref(true)">
+        <div class="lp-summary-card-layout">
+          <div class="lp-summary-icon lp-summary-icon-income">
+            <i class="bi bi-arrow-down-circle-fill"></i>
+          </div>
+          <div class="lp-summary-content">
+            <div class="lp-summary-heading">
+              <div class="lp-summary-label">@Loc["Operating income"]</div>
+              @if (!isLoadingSummary)
+              {
+                <div class="lp-summary-meta">
+                  <span>@GetIncomeCount() @Loc[GetIncomeCount() == 1 ? "entry" : "entries"]</span>
+                  <span aria-hidden="true">•</span>
+                  <span>@Loc["Average"] @ValuesVis.Mask(Helper.FormatBrl(GetAverageIncome()))</span>
+                  <span aria-hidden="true">•</span>
+                  <span>@Loc["Largest"] @ValuesVis.Mask(Helper.FormatBrl(GetLargestIncome()))</span>
+                </div>
+              }
+            </div>
+            @if (isLoadingSummary)
+            {
+              <div class="spinner-border spinner-border-sm lp-summary-spinner" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            }
+            else
+            {
+              <div class="lp-summary-value lp-summary-value-income">@ValuesVis.Mask(Helper.FormatBrl(totalIncome))</div>
+            }
+          </div>
+          @if (isLoadingSummary)
+          {
+            <div class="lp-summary-donut lp-summary-donut-loading" aria-hidden="true"></div>
+          }
+          else
+          {
+            <div class="lp-summary-visual">
+              <div class="lp-summary-donut"
+                   role="img"
+                   style="background: @BuildIncomeDonutStyle()"
+                   title="@GetCategoryDonutAriaLabel(true)"
+                   aria-label="@GetCategoryDonutAriaLabel(true)">
+              </div>
+              <div class="lp-summary-legend" aria-hidden="true">
+                @foreach (SummarySegmentLegendItem item in GetSegmentLegendItems(GetCategorySegments(true), IncomeSummaryChartColors))
+                {
+                  <span class="lp-summary-legend-item">
+                    <i style="background-color: @item.Color"></i>
+                    <span>@item.Label</span>
+                    <strong>@item.Percentage</strong>
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </a>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <a class="lp-card lp-summary-card lp-summary-expense lp-summary-link h-100" href="@GetTransactionsHref(false)">
+        <div class="lp-summary-card-layout">
+          <div class="lp-summary-icon lp-summary-icon-expense">
+            <i class="bi bi-arrow-up-circle-fill"></i>
+          </div>
+          <div class="lp-summary-content">
+            <div class="lp-summary-heading">
+              <div class="lp-summary-label">@Loc["Expense"]</div>
+              @if (!isLoadingSummary)
+              {
+                <div class="lp-summary-meta">
+                  <span>@GetExpenseCount() @Loc[GetExpenseCount() == 1 ? "expense item" : "expense items"]</span>
+                  <span aria-hidden="true">•</span>
+                  <span>@Loc["Average"] @ValuesVis.Mask(Helper.FormatBrl(GetAverageExpense()))</span>
+                  <span aria-hidden="true">•</span>
+                  @if (GetExpenseCount() == 0)
+                  {
+                    <span>@Loc["No activity"]</span>
+                  }
+                  else
+                  {
+                    <span title="@GetLeadingExpenseCategoryName()">
+                      @GetCompactSegmentLabel(GetLeadingExpenseCategoryName()) @GetLeadingExpenseCategoryPercentage().ToString("F0")%
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+            @if (isLoadingSummary)
+            {
+              <div class="spinner-border spinner-border-sm lp-summary-spinner" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            }
+            else
+            {
+              <div class="lp-summary-value lp-summary-value-expense">@ValuesVis.Mask(Helper.FormatBrl(totalExpense))</div>
+            }
+          </div>
+          @if (isLoadingSummary)
+          {
+            <div class="lp-summary-donut lp-summary-donut-loading" aria-hidden="true"></div>
+          }
+          else
+          {
+            <div class="lp-summary-visual">
+              <div class="lp-summary-donut"
+                   role="img"
+                   style="background: @BuildExpenseDonutStyle()"
+                   title="@GetCategoryDonutAriaLabel(false)"
+                   aria-label="@GetCategoryDonutAriaLabel(false)">
+              </div>
+              <div class="lp-summary-legend" aria-hidden="true">
+                @foreach (SummarySegmentLegendItem item in GetSegmentLegendItems(GetCategorySegments(false), ExpenseSummaryChartColors))
+                {
+                  <span class="lp-summary-legend-item">
+                    <i style="background-color: @item.Color"></i>
+                    <span>@item.Label</span>
+                    <strong>@item.Percentage</strong>
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </a>
+    </div>
+    <div class="col-md-12 col-lg-4">
+      <a class="lp-card lp-summary-card @(balance >= 0 ? "lp-summary-balance" : "lp-summary-balance-neg") lp-summary-link h-100" href="@GetTransactionsHref()">
+        <div class="lp-summary-card-layout">
+          <div class="lp-summary-icon @(balance >= 0 ? "lp-summary-icon-balance" : "lp-summary-icon-balance-neg")">
+            <i class="bi bi-wallet2"></i>
+          </div>
+          <div class="lp-summary-content">
+            <div class="lp-summary-heading">
+              <div class="lp-summary-label">@Loc["Monthly result"]</div>
+              @if (!isLoadingSummary)
+              {
+                <div class="lp-summary-meta">
+                  <span>@transactions.Count @Loc[transactions.Count == 1 ? "movement" : "movements"]</span>
+                  <span aria-hidden="true">•</span>
+                  <span>@GetActiveDayCount() @Loc[GetActiveDayCount() == 1 ? "active day" : "active days"]</span>
+                  @if (usesMonthlyContributionResult && totalContributions > 0m)
+                  {
+                    <span aria-hidden="true">•</span>
+                    <span>@Loc["Contributions"] @ValuesVis.Mask(Helper.FormatBrl(totalContributions))</span>
+                  }
+                  <span aria-hidden="true">•</span>
+                  <span>@GetBalanceStateLabel()</span>
+                </div>
+              }
+            </div>
+            @if (isLoadingSummary)
+            {
+              <div class="spinner-border spinner-border-sm lp-summary-spinner" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            }
+            else
+            {
+              <div class="lp-summary-value @(balance >= 0 ? "lp-summary-value-income" : "lp-summary-value-expense")">@ValuesVis.Mask(Helper.FormatBrl(balance))</div>
+            }
+          </div>
+          @if (isLoadingSummary)
+          {
+            <div class="lp-summary-donut lp-summary-donut-loading" aria-hidden="true"></div>
+          }
+          else
+          {
+            <div class="lp-summary-visual">
+              <div class="lp-summary-donut"
+                   role="img"
+                   style="background: @BuildBalanceDonutStyle()"
+                   title="@GetBalanceDonutAriaLabel()"
+                   aria-label="@GetBalanceDonutAriaLabel()">
+              </div>
+              <div class="lp-summary-legend" aria-hidden="true">
+                @foreach (SummarySegmentLegendItem item in GetSegmentLegendItems(GetBalanceSegments(), BalanceSummaryChartColors))
+                {
+                  <span class="lp-summary-legend-item">
+                    <i style="background-color: @item.Color"></i>
+                    <span>@item.Label</span>
+                    <strong>@item.Percentage</strong>
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </a>
+    </div>
+
+    @if (selectedIds.Count > 0)
+    {
+      <div class="col-12">
+        <AuthorizeView Context="authContext">
+          <Authorized>
+            <button class="btn btn-outline-danger btn-sm" @onclick="ConfirmDeleteSelected">
+              <i class="bi bi-trash me-1"></i><span>@Loc["Delete"] (@selectedIds.Count)</span>
+            </button>
+          </Authorized>
+          <NotAuthorized>
+            <button class="btn btn-outline-danger btn-sm" disabled>
+              <i class="bi bi-trash me-1"></i><span>@Loc["Log in to Delete"] (@selectedIds.Count)</span>
+            </button>
+          </NotAuthorized>
+        </AuthorizeView>
+      </div>
+    }
+  </div>
+
+  <!-- Transaction list -->
+  <div class="lp-card p-0">
+    @if (isLoadingList)
+    {
+      <div class="p-4 d-flex justify-content-center my-3">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    }
+    @if (!isLoadingList)
+    {
+      <!-- Desktop column header -->
+      <div class="d-none d-md-flex lp-tx-header">
+        <div class="lp-tx-col-check">
+          <input type="checkbox" class="form-check-input"
+                 checked="@IsAllSelected"
+                 @onchange="ToggleSelectAll" />
+        </div>
+        <div class="lp-tx-col-date lp-tx-sortable" role="button" @onclick='() => ToggleSort("Date")'>
+          @Loc["Date"] @GetSortIndicator("Date")
+        </div>
+        <div class="lp-tx-col-desc">@Loc["Description"]</div>
+        <div class="lp-tx-col-cat lp-tx-sortable" role="button" @onclick='() => ToggleSort("Category")'>
+          @Loc["Category"] @GetSortIndicator("Category")
+        </div>
+        <div class="lp-tx-col-type lp-tx-sortable" role="button" @onclick='() => ToggleSort("Type")'>
+          @Loc["Type"] @GetSortIndicator("Type")
+        </div>
+        <div class="lp-tx-col-amount lp-tx-sortable" role="button" @onclick='() => ToggleSort("Amount")'>
+          @Loc["Amount"] @GetSortIndicator("Amount")
+        </div>
+        <div class="lp-tx-col-actions">@Loc["Actions"]</div>
+      </div>
+
+      <!-- Transaction rows -->
+      @foreach (TransactionEntity apt in GetSortedTransactions())
+      {
+        <div class="lp-tx-row lp-tx-row-clickable" role="button" tabindex="0" @onclick="() => ShowEditModal(apt)">
+
+          <div class="lp-tx-col-check" @onclick:stopPropagation="true">
+            <input type="checkbox" class="form-check-input"
+                   checked="@selectedIds.Contains(apt.Id)"
+                   @onchange="() => ToggleSelection(apt.Id)" />
+          </div>
+
+          <div class="lp-tx-col-date d-none d-md-flex" @onclick:stopPropagation="true">
+            <a class="lp-tx-cell-link" href="@GetTransactionsHref(date: apt.Date)">
+              @apt.Date.ToString("d", Loc.Culture)
+            </a>
+            @if (!string.IsNullOrWhiteSpace(apt.TransactionTime))
+            {
+              <small class="text-muted ms-1">@apt.TransactionTime</small>
+            }
+          </div>
+
+          <div class="lp-tx-col-desc">
+            <span class="lp-tx-desc" title="@GetDescriptionTitle(apt)">
+              <i class="@GetDescriptionIconCss(apt) me-1 lp-tx-desc-icon"></i>@apt.Description
+            </span>
+            <div class="d-md-none lp-tx-meta">
+              <a href="@GetTransactionsHref(date: apt.Date)" @onclick:stopPropagation="true">@apt.Date.ToString("dd MMM")</a>
+              @if (!string.IsNullOrWhiteSpace(apt.TransactionTime))
+              {
+                <span class="ms-1">@apt.TransactionTime</span>
+              }
+              <span class="lp-tx-meta-dot">•</span>
+              <a href="@GetTransactionsHref(category: apt.Category)" @onclick:stopPropagation="true">@Loc[apt.Category.GetDisplayName()]</a>
+            </div>
+            <div class="lp-tx-context">
+              @if (GetAccount(apt.AccountId) is AccountEntity account)
+              {
+                <a class="lp-tx-context-pill" href="@GetAccountHref(account.Id)" @onclick:stopPropagation="true" title='@Loc["Open account"]'>
+                  <img src="@Helper.GetLogoDataUriOrDefault(account.Logo)" alt="" />
+                  <span>@account.Name</span>
+                </a>
+              }
+              else
+              {
+                <span class="lp-tx-context-pill lp-tx-context-pill-muted">
+                  <i class="bi bi-bank"></i>@Loc["No account"]
+                </span>
+              }
+              <a class="lp-tx-context-pill" href="@GetTransactionsHref(sourceKind: apt.SourceKind)" @onclick:stopPropagation="true">
+                <i class="bi bi-box-arrow-in-down"></i>@Loc[GetSourceKindLabel(apt.SourceKind)]
+              </a>
+              <a class="lp-tx-context-pill" href="@GetTransactionsHref(planningImpact: apt.PlanningImpact)" @onclick:stopPropagation="true">
+                <i class="bi bi-compass"></i>@Loc[GetPlanningImpactLabel(apt.PlanningImpact)]
+              </a>
+            </div>
+          </div>
+
+          <div class="lp-tx-col-cat d-none d-md-flex" @onclick:stopPropagation="true">
+            <a class="lp-tx-cat-badge lp-tx-badge-link" href="@GetTransactionsHref(category: apt.Category)">
+              <i class="@GetCategoryIconCss(apt.Category) me-1"></i>@Loc[apt.Category.GetDisplayName()]
+            </a>
+          </div>
+
+          <div class="lp-tx-col-type d-none d-md-flex" @onclick:stopPropagation="true">
+            @if (apt.Income)
+            {
+              <a class="lp-tx-badge lp-tx-badge-in lp-tx-badge-link" href="@GetTransactionsHref(true)">@Loc["In"]</a>
+            }
+            else
+            {
+              <a class="lp-tx-badge lp-tx-badge-out lp-tx-badge-link" href="@GetTransactionsHref(false)">@Loc["Out"]</a>
+            }
+          </div>
+
+          <div class="lp-tx-col-amount">
+            <span class="lp-tx-amount @(apt.Income ? "lp-tx-amount-income" : "lp-tx-amount-expense")">
+              @ValuesVis.Mask(Helper.FormatBrl(apt.Value))
+            </span>
+          </div>
+
+          <div class="lp-tx-col-actions" @onclick:stopPropagation="true">
+            <button class="lp-tx-action-btn" @onclick="() => ShowEditModal(apt)" title='@Loc["Edit"]'>
+              <i class="bi bi-pencil"></i>
+            </button>
+            <AuthorizeView Context="authContext">
+              <Authorized>
+                <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick="() => ConfirmDelete(apt)" title='@Loc["Delete"]'>
+                  <i class="bi bi-trash"></i>
+                </button>
+              </Authorized>
+              <NotAuthorized>
+                <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled title='@Loc["Delete"]'>
+                  <i class="bi bi-trash"></i>
+                </button>
+              </NotAuthorized>
+            </AuthorizeView>
+          </div>
+
+        </div>
+      }
+    }
+  </div>
+}
+
+<!-- Create/Edit Modal -->
+<TransactionUpsertModal Visible="@showModal"
+                        IsEditing="@isEditing"
+                        IsSaving="@isSaving"
+                        Model="@currentTransaction"
+                        Accounts="@accounts"
+                        OnValidSubmit="() => SaveTransaction()"
+                        OnRequestClose="RequestCloseModal"
+                        OnMarkDirty="MarkDirty"
+                        OnOpenCategories="OpenCategoriesModal" />
+
+<!-- Confirm discard modal -->
+<AppConfirmModal Visible="@showConfirmDiscard"
+                 Title='@Loc["Confirm Close"]'
+                 ConfirmText='@Loc["Discard"]'
+                 CancelText='@Loc["Cancel"]'
+                 ConfirmButtonCss="btn-danger"
+                 IsBusy="@isSaving"
+                 DisableConfirm="@false"
+                 OnConfirm="ConfirmDiscard"
+                 OnCancel="CancelDiscard">
+  <Body>
+    <p>@Loc["You have unsaved changes. Do you want to close and discard changes?"]</p>
+  </Body>
+</AppConfirmModal>
+
+<!-- Delete confirmation modal -->
+<AppConfirmModal Visible="@showDeleteConfirm"
+                 Title='@Loc["Confirm Delete"]'
+                 ConfirmText='@Loc["Delete"]'
+                 CancelText='@Loc["Cancel"]'
+                 ConfirmButtonCss="btn-danger"
+                 IsBusy="@isSaving"
+                 OnConfirm="() => DeleteTransaction(CancellationToken.None)"
+                 OnCancel="() => showDeleteConfirm = false">
+  <Body>
+    <p>Do you really want to delete the transaction <strong>@transactionToDelete?.Description</strong>?</p>
+  </Body>
+</AppConfirmModal>
+
+<!-- Bulk delete confirmation modal -->
+<AppConfirmModal Visible="@showBulkDeleteConfirm"
+                 Title='@Loc["Confirm Bulk Delete"]'
+                 ConfirmText='@Loc["Delete All"]'
+                 CancelText='@Loc["Cancel"]'
+                 ConfirmButtonCss="btn-danger"
+                 IsBusy="@isSaving"
+                 OnConfirm="DeleteSelectedTransactions"
+                 OnCancel="() => showBulkDeleteConfirm = false">
+  <Body>
+    <p>Do you really want to delete <strong>@selectedIds.Count</strong> selected transactions?</p>
+    <p class="text-muted small">@Loc["This action cannot be undone."]</p>
+  </Body>
+</AppConfirmModal>
+
+<!-- Toast notification -->
+<AppToast Message="@message"
+          IsError="@isError"
+          OnDismiss="@(() => message = string.Empty)" />
+
+<!-- Import Flow Component -->
+<TransactionImportFlow @ref="importFlow"
+                       OnDataChanged="OnImportDataChanged" />
+
+<!-- Category Management Modal -->
+<CategoryManagementModal @ref="categoryModal"
+                         ContextMonth="selectedMonth"
+                         ContextYear="selectedYear"
+                         OnCategoriesChanged="OnCategoriesChanged" />

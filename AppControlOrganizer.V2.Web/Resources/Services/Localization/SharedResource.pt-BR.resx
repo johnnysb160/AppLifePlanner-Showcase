@@ -1,0 +1,4686 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Painel</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Casa</value>
+  </data>
+  <data name="Transactions" xml:space="preserve">
+    <value>Transações</value>
+  </data>
+  <data name="Allocations" xml:space="preserve">
+    <value>Alocações</value>
+  </data>
+  <data name="Accounts" xml:space="preserve">
+    <value>Contas</value>
+  </data>
+  <data name="Schedule" xml:space="preserve">
+    <value>Agenda</value>
+  </data>
+  <data name="Planning" xml:space="preserve">
+    <value>Planejamento</value>
+  </data>
+  <data name="Quarters" xml:space="preserve">
+    <value>Trimestres</value>
+  </data>
+  <data name="Reviews" xml:space="preserve">
+    <value>Revisões</value>
+  </data>
+  <data name="Risks" xml:space="preserve">
+    <value>Riscos</value>
+  </data>
+  <data name="Habits" xml:space="preserve">
+    <value>Hábitos</value>
+  </data>
+  <data name="Good morning" xml:space="preserve">
+    <value>Bom dia</value>
+  </data>
+  <data name="Good afternoon" xml:space="preserve">
+    <value>Boa tarde</value>
+  </data>
+  <data name="Good evening" xml:space="preserve">
+    <value>Boa noite</value>
+  </data>
+  <data name="Visitor" xml:space="preserve">
+    <value>Visitante</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>Mais</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Configurações</value>
+  </data>
+  <data name="Habit frequency" xml:space="preserve">
+    <value>Frequência do hábito</value>
+  </data>
+  <data name="These days are used only for habit tracking." xml:space="preserve">
+    <value>Esses dias são usados apenas para acompanhamento do hábito.</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Sair</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Entrar</value>
+  </data>
+  <data name="Admin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Salvar</value>
+  </data>
+  <data name="Saving..." xml:space="preserve">
+    <value>Salvando...</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Adicionar</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filtrar</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="Name *" xml:space="preserve">
+    <value>Nome *</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Descrição</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Deadline" xml:space="preserve">
+    <value>Prazo</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="Color" xml:space="preserve">
+    <value>Cor</value>
+  </data>
+  <data name="Order" xml:space="preserve">
+    <value>Ordem</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Título</value>
+  </data>
+  <data name="Title *" xml:space="preserve">
+    <value>Título *</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>Ativo</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>De</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>Até</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="-- none --" xml:space="preserve">
+    <value>-- nenhum --</value>
+  </data>
+  <data name="- None -" xml:space="preserve">
+    <value>- Nenhum -</value>
+  </data>
+  <data name="Green" xml:space="preserve">
+    <value>Verde</value>
+  </data>
+  <data name="Amber" xml:space="preserve">
+    <value>Amarelo</value>
+  </data>
+  <data name="Red" xml:space="preserve">
+    <value>Vermelho</value>
+  </data>
+  <data name="Low" xml:space="preserve">
+    <value>Baixo</value>
+  </data>
+  <data name="Medium" xml:space="preserve">
+    <value>Médio</value>
+  </data>
+  <data name="High" xml:space="preserve">
+    <value>Alto</value>
+  </data>
+  <data name="OKRs" xml:space="preserve">
+    <value>OKRs</value>
+  </data>
+  <data name="New Pillar" xml:space="preserve">
+    <value>Novo Pilar</value>
+  </data>
+  <data name="Edit Pillar" xml:space="preserve">
+    <value>Editar Pilar</value>
+  </data>
+  <data name="Delete pillar" xml:space="preserve">
+    <value>Excluir pilar</value>
+  </data>
+  <data name="No pillars created yet. Create your first pillar to get started with OKRs." xml:space="preserve">
+    <value>Nenhum pilar criado ainda. Crie seu primeiro pilar para começar os OKRs.</value>
+  </data>
+  <data name="Add Objective" xml:space="preserve">
+    <value>Adicionar Objetivo</value>
+  </data>
+  <data name="Objective" xml:space="preserve">
+    <value>Objetivo</value>
+  </data>
+  <data name="Objective / Key Result" xml:space="preserve">
+    <value>Objetivo / Key Result</value>
+  </data>
+  <data name="Current" xml:space="preserve">
+    <value>Atual</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>Meta</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>Progresso</value>
+  </data>
+  <data name="Baseline" xml:space="preserve">
+    <value>Baseline</value>
+  </data>
+  <data name="Add KR" xml:space="preserve">
+    <value>Adicionar KR</value>
+  </data>
+  <data name="Edit KR" xml:space="preserve">
+    <value>Editar KR</value>
+  </data>
+  <data name="Delete KR" xml:space="preserve">
+    <value>Excluir KR</value>
+  </data>
+  <data name="No Key Results yet." xml:space="preserve">
+    <value>Nenhum Key Result ainda.</value>
+  </data>
+  <data name="No objectives yet. Click &quot;+ Objective&quot; to add one." xml:space="preserve">
+    <value>Nenhum objetivo ainda. Clique em "+ Objetivo" para adicionar.</value>
+  </data>
+  <data name="New Objective" xml:space="preserve">
+    <value>Novo Objetivo</value>
+  </data>
+  <data name="Edit Objective" xml:space="preserve">
+    <value>Editar Objetivo</value>
+  </data>
+  <data name="New Key Result" xml:space="preserve">
+    <value>Novo Key Result</value>
+  </data>
+  <data name="Edit Key Result" xml:space="preserve">
+    <value>Editar Key Result</value>
+  </data>
+  <data name="Metric (unit)" xml:space="preserve">
+    <value>Métrica (unidade)</value>
+  </data>
+  <data name="Weekly note" xml:space="preserve">
+    <value>Nota semanal</value>
+  </data>
+  <data name="This week's progress..." xml:space="preserve">
+    <value>Progresso desta semana...</value>
+  </data>
+  <data name="e.g. Health, Finance..." xml:space="preserve">
+    <value>Ex: Saúde, Finanças...</value>
+  </data>
+  <data name="Icon (Bootstrap Icons CSS)" xml:space="preserve">
+    <value>Ícone (Bootstrap Icons CSS)</value>
+  </data>
+  <data name="bi bi-heart" xml:space="preserve">
+    <value>bi bi-heart</value>
+  </data>
+  <data name="Quarterly Plans" xml:space="preserve">
+    <value>Planos Trimestrais</value>
+  </data>
+  <data name="New Quarter" xml:space="preserve">
+    <value>Novo Trimestre</value>
+  </data>
+  <data name="No quarterly plans created. Click &quot;New Quarter&quot; to get started." xml:space="preserve">
+    <value>Nenhum plano trimestral criado. Clique em "Novo Trimestre" para começar.</value>
+  </data>
+  <data name="Add Task" xml:space="preserve">
+    <value>Adicionar Tarefa</value>
+  </data>
+  <data name="Focus:" xml:space="preserve">
+    <value>Foco:</value>
+  </data>
+  <data name="Delivery:" xml:space="preserve">
+    <value>Entrega:</value>
+  </data>
+  <data name="Deadline:" xml:space="preserve">
+    <value>Prazo:</value>
+  </data>
+  <data name="Cadence:" xml:space="preserve">
+    <value>Cadência:</value>
+  </data>
+  <data name="Tasks" xml:space="preserve">
+    <value>Tarefas</value>
+  </data>
+  <data name="tasks completed" xml:space="preserve">
+    <value>tarefas concluídas</value>
+  </data>
+  <data name="New Quarterly Plan" xml:space="preserve">
+    <value>Novo Plano Trimestral</value>
+  </data>
+  <data name="Edit Plan" xml:space="preserve">
+    <value>Editar Plano</value>
+  </data>
+  <data name="Year *" xml:space="preserve">
+    <value>Ano *</value>
+  </data>
+  <data name="Quarter *" xml:space="preserve">
+    <value>Trimestre *</value>
+  </data>
+  <data name="Main focus *" xml:space="preserve">
+    <value>Foco principal *</value>
+  </data>
+  <data name="What does this quarter need to deliver?" xml:space="preserve">
+    <value>O que este trimestre precisa entregar?</value>
+  </data>
+  <data name="Main delivery" xml:space="preserve">
+    <value>Entrega principal</value>
+  </data>
+  <data name="Expected result or deliverable" xml:space="preserve">
+    <value>Resultado ou produto esperado</value>
+  </data>
+  <data name="Success indicator" xml:space="preserve">
+    <value>Indicador de sucesso</value>
+  </data>
+  <data name="Weekly cadence" xml:space="preserve">
+    <value>Cadência semanal</value>
+  </data>
+  <data name="Meetings, check-ins, routines..." xml:space="preserve">
+    <value>Reuniões, check-ins, rotinas...</value>
+  </data>
+  <data name="New Task" xml:space="preserve">
+    <value>Nova Tarefa</value>
+  </data>
+  <data name="Task description..." xml:space="preserve">
+    <value>Descrição da tarefa...</value>
+  </data>
+  <data name="Run Review" xml:space="preserve">
+    <value>Executar Revisão</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>Histórico</value>
+  </data>
+  <data name="Templates" xml:space="preserve">
+    <value>Templates</value>
+  </data>
+  <data name="Start Review" xml:space="preserve">
+    <value>Iniciar Revisão</value>
+  </data>
+  <data name="No templates found. Go to the &quot;Templates&quot; tab to create one." xml:space="preserve">
+    <value>Nenhum template encontrado. Acesse a aba "Templates" para criar.</value>
+  </data>
+  <data name="Energy (0-10)" xml:space="preserve">
+    <value>Energia (0-10)</value>
+  </data>
+  <data name="Focus (0-10)" xml:space="preserve">
+    <value>Foco (0-10)</value>
+  </data>
+  <data name="Finances (0-10)" xml:space="preserve">
+    <value>Finanças (0-10)</value>
+  </data>
+  <data name="Relations (0-10)" xml:space="preserve">
+    <value>Relações (0-10)</value>
+  </data>
+  <data name="Checklist" xml:space="preserve">
+    <value>Checklist</value>
+  </data>
+  <data name="General notes" xml:space="preserve">
+    <value>Notas gerais</value>
+  </data>
+  <data name="Reflections, learnings, improvement points..." xml:space="preserve">
+    <value>Reflexões, aprendizados, pontos de melhoria...</value>
+  </data>
+  <data name="Complete Review" xml:space="preserve">
+    <value>Concluir Revisão</value>
+  </data>
+  <data name="Weekly" xml:space="preserve">
+    <value>Semanal</value>
+  </data>
+  <data name="Monthly" xml:space="preserve">
+    <value>Mensal</value>
+  </data>
+  <data name="No reviews found for the selected filter." xml:space="preserve">
+    <value>Nenhum registro encontrado para o filtro selecionado.</value>
+  </data>
+  <data name="Template" xml:space="preserve">
+    <value>Template</value>
+  </data>
+  <data name="Energy" xml:space="preserve">
+    <value>Energia</value>
+  </data>
+  <data name="Focus" xml:space="preserve">
+    <value>Foco</value>
+  </data>
+  <data name="Finances" xml:space="preserve">
+    <value>Finanças</value>
+  </data>
+  <data name="Relations" xml:space="preserve">
+    <value>Relações</value>
+  </data>
+  <data name="Items" xml:space="preserve">
+    <value>Itens</value>
+  </data>
+  <data name="New Template" xml:space="preserve">
+    <value>Novo Template</value>
+  </data>
+  <data name="No templates. Click &quot;New Template&quot; to create one." xml:space="preserve">
+    <value>Nenhum template. Clique em "Novo Template" para criar.</value>
+  </data>
+  <data name="default" xml:space="preserve">
+    <value>padrão</value>
+  </data>
+  <data name="Checklist items" xml:space="preserve">
+    <value>Itens do checklist</value>
+  </data>
+  <data name="Add item" xml:space="preserve">
+    <value>Adicionar item</value>
+  </data>
+  <data name="Pre-mortem / Risks" xml:space="preserve">
+    <value>Pré-mortem / Riscos</value>
+  </data>
+  <data name="New Risk" xml:space="preserve">
+    <value>Novo Risco</value>
+  </data>
+  <data name="No risks mapped. Click &quot;New Risk&quot; to start the pre-mortem." xml:space="preserve">
+    <value>Nenhum risco mapeado. Clique em "Novo Risco" para começar o pré-mortem.</value>
+  </data>
+  <data name="Risk" xml:space="preserve">
+    <value>Risco</value>
+  </data>
+  <data name="Prob." xml:space="preserve">
+    <value>Prob.</value>
+  </data>
+  <data name="Impact" xml:space="preserve">
+    <value>Impacto</value>
+  </data>
+  <data name="Pillar" xml:space="preserve">
+    <value>Pilar</value>
+  </data>
+  <data name="Contingency:" xml:space="preserve">
+    <value>Contingência:</value>
+  </data>
+  <data name="Plan B:" xml:space="preserve">
+    <value>Plano B:</value>
+  </data>
+  <data name="Edit Risk" xml:space="preserve">
+    <value>Editar Risco</value>
+  </data>
+  <data name="What could go wrong?" xml:space="preserve">
+    <value>O que pode dar errado?</value>
+  </data>
+  <data name="Probability" xml:space="preserve">
+    <value>Probabilidade</value>
+  </data>
+  <data name="Early warning signal" xml:space="preserve">
+    <value>Sinal de alerta precoce</value>
+  </data>
+  <data name="How to identify that the risk is materializing?" xml:space="preserve">
+    <value>Como identificar que o risco está se materializando?</value>
+  </data>
+  <data name="Contingency" xml:space="preserve">
+    <value>Contingência</value>
+  </data>
+  <data name="Immediate action to mitigate" xml:space="preserve">
+    <value>Ação imediata para mitigar</value>
+  </data>
+  <data name="Plan B" xml:space="preserve">
+    <value>Plano B</value>
+  </data>
+  <data name="Alternative in case the worst happens" xml:space="preserve">
+    <value>Alternativa caso o pior aconteça</value>
+  </data>
+  <data name="New Habit" xml:space="preserve">
+    <value>Novo Hábito</value>
+  </data>
+  <data name="No habits created. Click &quot;New Habit&quot; to get started." xml:space="preserve">
+    <value>Nenhum hábito criado. Clique em "Novo Hábito" para começar.</value>
+  </data>
+  <data name="Habit" xml:space="preserve">
+    <value>Hábito</value>
+  </data>
+  <data name="Wk." xml:space="preserve">
+    <value>Sem.</value>
+  </data>
+  <data name="Mo." xml:space="preserve">
+    <value>Mês</value>
+  </data>
+  <data name="Streak" xml:space="preserve">
+    <value>Sequência</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>Feito</value>
+  </data>
+  <data name="Not done" xml:space="preserve">
+    <value>Não feito</value>
+  </data>
+  <data name="Edit Habit" xml:space="preserve">
+    <value>Editar Hábito</value>
+  </data>
+  <data name="e.g. Meditate, Exercise, Read..." xml:space="preserve">
+    <value>Ex: Meditar, Exercitar, Ler...</value>
+  </data>
+  <data name="Sun" xml:space="preserve">
+    <value>Dom</value>
+  </data>
+  <data name="Mon" xml:space="preserve">
+    <value>Seg</value>
+  </data>
+  <data name="Tue" xml:space="preserve">
+    <value>Ter</value>
+  </data>
+  <data name="Wed" xml:space="preserve">
+    <value>Qua</value>
+  </data>
+  <data name="Thu" xml:space="preserve">
+    <value>Qui</value>
+  </data>
+  <data name="Fri" xml:space="preserve">
+    <value>Sex</value>
+  </data>
+  <data name="Sat" xml:space="preserve">
+    <value>Sáb</value>
+  </data>
+  <data name="Interface Language" xml:space="preserve">
+    <value>Idioma da Interface</value>
+  </data>
+  <data name="English" xml:space="preserve">
+    <value>Inglês</value>
+  </data>
+  <data name="Portuguese (Brazil)" xml:space="preserve">
+    <value>Português (Brasil)</value>
+  </data>
+  <data name="Language saved." xml:space="preserve">
+    <value>Idioma salvo.</value>
+  </data>
+  <data name="Manage your account settings" xml:space="preserve">
+    <value>Gerencie as configurações da sua conta</value>
+  </data>
+  <data name="Profile Photo &amp; Display Name" xml:space="preserve">
+    <value>Foto de Perfil e Nome de Exibição</value>
+  </data>
+  <data name="Display Name" xml:space="preserve">
+    <value>Nome de Exibição</value>
+  </data>
+  <data name="Shown in the navbar. Falls back to username when empty." xml:space="preserve">
+    <value>Exibido na barra de navegação. Usa o nome de usuário se vazio.</value>
+  </data>
+  <data name="Profile Photo" xml:space="preserve">
+    <value>Foto de Perfil</value>
+  </data>
+  <data name="PNG, JPG or WEBP · max 5 MB" xml:space="preserve">
+    <value>PNG, JPG ou WEBP · máx 5 MB</value>
+  </data>
+  <data name="Remove Photo" xml:space="preserve">
+    <value>Remover Foto</value>
+  </data>
+  <data name="Account Information" xml:space="preserve">
+    <value>Informações da Conta</value>
+  </data>
+  <data name="Save Changes" xml:space="preserve">
+    <value>Salvar Alterações</value>
+  </data>
+  <data name="Change Password" xml:space="preserve">
+    <value>Alterar Senha</value>
+  </data>
+  <data name="Current Password" xml:space="preserve">
+    <value>Senha Atual</value>
+  </data>
+  <data name="New Password" xml:space="preserve">
+    <value>Nova Senha</value>
+  </data>
+  <data name="Min. 8 characters" xml:space="preserve">
+    <value>Mín. 8 caracteres</value>
+  </data>
+  <data name="Confirm New Password" xml:space="preserve">
+    <value>Confirmar Nova Senha</value>
+  </data>
+  <data name="Update Password" xml:space="preserve">
+    <value>Atualizar Senha</value>
+  </data>
+  <data name="Saving…" xml:space="preserve">
+    <value>Salvando…</value>
+  </data>
+  <data name="Updating…" xml:space="preserve">
+    <value>Atualizando…</value>
+  </data>
+  <data name="Overview of your finances" xml:space="preserve">
+    <value>Visão geral de suas finanças</value>
+  </data>
+  <data name="Current Month" xml:space="preserve">
+    <value>Mês Atual</value>
+  </data>
+  <data name="View all" xml:space="preserve">
+    <value>Ver tudo</value>
+  </data>
+  <data name="Income" xml:space="preserve">
+    <value>Renda</value>
+  </data>
+  <data name="View transactions" xml:space="preserve">
+    <value>Ver transações</value>
+  </data>
+  <data name="Balance:" xml:space="preserve">
+    <value>Saldo:</value>
+  </data>
+  <data name="Expenses by Category" xml:space="preserve">
+    <value>Despesas por Categoria</value>
+  </data>
+  <data name="No expenses recorded this month." xml:space="preserve">
+    <value>Nenhuma despesa registrada neste mês.</value>
+  </data>
+  <data name="My Accounts" xml:space="preserve">
+    <value>Minhas Contas</value>
+  </data>
+  <data name="No accounts registered." xml:space="preserve">
+    <value>Nenhuma conta registrada.</value>
+  </data>
+  <data name="Add Account" xml:space="preserve">
+    <value>Adicionar Conta</value>
+  </data>
+  <data name="Financial details" xml:space="preserve">
+    <value>Detalhes financeiros</value>
+  </data>
+  <data name="This month" xml:space="preserve">
+    <value>Neste mês</value>
+  </data>
+  <data name="Spending map" xml:space="preserve">
+    <value>Mapa de gastos</value>
+  </data>
+  <data name="See where your money went." xml:space="preserve">
+    <value>Veja para onde seu dinheiro foi.</value>
+  </data>
+  <data name="Updating your month..." xml:space="preserve">
+    <value>Atualizando seu mês...</value>
+  </data>
+  <data name="Total spent" xml:space="preserve">
+    <value>Total gasto</value>
+  </data>
+  <data name="Largest category" xml:space="preserve">
+    <value>Maior categoria</value>
+  </data>
+  <data name="of this month's spending" xml:space="preserve">
+    <value>dos gastos deste mês</value>
+  </data>
+  <data name="A clean month so far" xml:space="preserve">
+    <value>Um mês limpo até agora</value>
+  </data>
+  <data name="Financial structure" xml:space="preserve">
+    <value>Estrutura financeira</value>
+  </data>
+  <data name="Your money, organized by institution." xml:space="preserve">
+    <value>Seu dinheiro organizado por instituição.</value>
+  </data>
+  <data name="Active accounts" xml:space="preserve">
+    <value>Contas ativas</value>
+  </data>
+  <data name="Credit cards" xml:space="preserve">
+    <value>Cartões de crédito</value>
+  </data>
+  <data name="Month contribution" xml:space="preserve">
+    <value>Aporte do mês</value>
+  </data>
+  <data name="Reserve" xml:space="preserve">
+    <value>Reserva</value>
+  </data>
+  <data name="Invested contributions" xml:space="preserve">
+    <value>Aportes investidos</value>
+  </data>
+  <data name="Current reserve" xml:space="preserve">
+    <value>Reserva atual</value>
+  </data>
+  <data name="Reserve details" xml:space="preserve">
+    <value>Detalhes da reserva</value>
+  </data>
+  <data name="Reserve target" xml:space="preserve">
+    <value>Meta da reserva</value>
+  </data>
+  <data name="Reserve gap" xml:space="preserve">
+    <value>Falta para a reserva</value>
+  </data>
+  <data name="Reserve value used" xml:space="preserve">
+    <value>Valor usado como reserva</value>
+  </data>
+  <data name="sum of listed reserve allocations" xml:space="preserve">
+    <value>soma das alocações listadas</value>
+  </data>
+  <data name="manual allocation purpose" xml:space="preserve">
+    <value>finalidade manual da alocação</value>
+  </data>
+  <data name="inferred from allocation name" xml:space="preserve">
+    <value>inferido pelo nome/anotações</value>
+  </data>
+  <data name="annual plan assumption" xml:space="preserve">
+    <value>premissa do plano anual</value>
+  </data>
+  <data name="current reserve minus target" xml:space="preserve">
+    <value>reserva atual menos meta</value>
+  </data>
+  <data name="1 allocation" xml:space="preserve">
+    <value>1 alocação</value>
+  </data>
+  <data name="{0} allocations" xml:space="preserve">
+    <value>{0} alocações</value>
+  </data>
+  <data name="Contributions" xml:space="preserve">
+    <value>Aportes</value>
+  </data>
+  <data name="Monthly result" xml:space="preserve">
+    <value>Resultado do mês</value>
+  </data>
+  <data name="Operating income" xml:space="preserve">
+    <value>Receita operacional</value>
+  </data>
+  <data name="Annual projection" xml:space="preserve">
+    <value>Projeção anual</value>
+  </data>
+  <data name="Investment contributions classified this month." xml:space="preserve">
+    <value>Aportes de investimento classificados neste mês.</value>
+  </data>
+  <data name="Contribution details" xml:space="preserve">
+    <value>Detalhes dos aportes</value>
+  </data>
+  <data name="Investment movements" xml:space="preserve">
+    <value>Movimentos de investimento</value>
+  </data>
+  <data name="Transaction contribution" xml:space="preserve">
+    <value>Aporte por transação</value>
+  </data>
+  <data name="Created allocation" xml:space="preserve">
+    <value>Alocação criada</value>
+  </data>
+  <data name="Increased allocation" xml:space="preserve">
+    <value>Alocação aumentada</value>
+  </data>
+  <data name="Reduced allocation" xml:space="preserve">
+    <value>Alocação reduzida</value>
+  </data>
+  <data name="Removed allocation" xml:space="preserve">
+    <value>Alocação removida</value>
+  </data>
+  <data name="Allocation movement" xml:space="preserve">
+    <value>Movimento de alocação</value>
+  </data>
+  <data name="Allocation" xml:space="preserve">
+    <value>Alocação</value>
+  </data>
+  <data name="No investment movements this month." xml:space="preserve">
+    <value>Nenhum movimento de investimento neste mês.</value>
+  </data>
+  <data name="Current emergency reserve value." xml:space="preserve">
+    <value>Valor atual da reserva de emergência.</value>
+  </data>
+  <data name="Account position" xml:space="preserve">
+    <value>Posição na conta</value>
+  </data>
+  <data name="View all accounts" xml:space="preserve">
+    <value>Ver todas as contas</value>
+  </data>
+  <data name="Open your complete financial structure" xml:space="preserve">
+    <value>Abra sua estrutura financeira completa</value>
+  </data>
+  <data name="Add your first account" xml:space="preserve">
+    <value>Adicione sua primeira conta</value>
+  </data>
+  <data name="cards" xml:space="preserve">
+    <value>cartões</value>
+  </data>
+  <data name="Balance reconciliation" xml:space="preserve">
+    <value>Reconciliação de saldo</value>
+  </data>
+  <data name="Balance calculation" xml:space="preserve">
+    <value>Cálculo do saldo</value>
+  </data>
+  <data name="Position based" xml:space="preserve">
+    <value>Baseado em posições</value>
+  </data>
+  <data name="Reconciled balance" xml:space="preserve">
+    <value>Saldo reconciliado</value>
+  </data>
+  <data name="External provider balance" xml:space="preserve">
+    <value>Saldo de provedor externo</value>
+  </data>
+  <data name="Use reconciled balance for accounts fed by bank notifications or statement imports." xml:space="preserve">
+    <value>Use saldo reconciliado para contas alimentadas por notificações bancárias ou importação de extrato.</value>
+  </data>
+  <data name="Uses registered positions and allocations, ideal for investment accounts." xml:space="preserve">
+    <value>Usa posições e alocações cadastradas, ideal para contas de investimento.</value>
+  </data>
+  <data name="Uses a confirmed balance and then adds only later transactions." xml:space="preserve">
+    <value>Usa um saldo confirmado e depois soma apenas transações posteriores.</value>
+  </data>
+  <data name="Keeps the balance received from an external provider and does not recalculate it." xml:space="preserve">
+    <value>Mantém o saldo recebido de um provedor externo e não recalcula.</value>
+  </data>
+  <data name="Confirmed balance" xml:space="preserve">
+    <value>Saldo confirmado</value>
+  </data>
+  <data name="Confirmed on" xml:space="preserve">
+    <value>Confirmado em</value>
+  </data>
+  <data name="Only transactions after this date affect the current balance." xml:space="preserve">
+    <value>Somente transações após esta data afetam o saldo atual.</value>
+  </data>
+  <data name="Account updated successfully!" xml:space="preserve">
+    <value>Conta atualizada com sucesso!</value>
+  </data>
+  <data name="Account created successfully!" xml:space="preserve">
+    <value>Conta criada com sucesso!</value>
+  </data>
+  <data name="Income and expenses" xml:space="preserve">
+    <value>Receitas e despesas</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Atualizar</value>
+  </data>
+  <data name="Import" xml:space="preserve">
+    <value>Importar</value>
+  </data>
+  <data name="Categories" xml:space="preserve">
+    <value>Categorias</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>Filtros</value>
+  </data>
+  <data name="New Transaction" xml:space="preserve">
+    <value>Nova Transação</value>
+  </data>
+  <data name="No transactions found for the selected period." xml:space="preserve">
+    <value>Nenhuma transação encontrada para o período selecionado.</value>
+  </data>
+  <data name="Use the current filters, create a manual entry, or import a statement when the month needs more context." xml:space="preserve">
+    <value>Use os filtros atuais, crie um lançamento manual ou importe um extrato quando o mês precisar de mais contexto.</value>
+  </data>
+  <data name="Average" xml:space="preserve">
+    <value>Média</value>
+  </data>
+  <data name="Largest" xml:space="preserve">
+    <value>Maior</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Sem</value>
+  </data>
+  <data name="entry" xml:space="preserve">
+    <value>entrada</value>
+  </data>
+  <data name="entries" xml:space="preserve">
+    <value>entradas</value>
+  </data>
+  <data name="expense item" xml:space="preserve">
+    <value>saída</value>
+  </data>
+  <data name="expense items" xml:space="preserve">
+    <value>saídas</value>
+  </data>
+  <data name="movement" xml:space="preserve">
+    <value>movimentação</value>
+  </data>
+  <data name="movements" xml:space="preserve">
+    <value>movimentações</value>
+  </data>
+  <data name="active day" xml:space="preserve">
+    <value>dia ativo</value>
+  </data>
+  <data name="active days" xml:space="preserve">
+    <value>dias ativos</value>
+  </data>
+  <data name="Surplus" xml:space="preserve">
+    <value>Superávit</value>
+  </data>
+  <data name="Deficit" xml:space="preserve">
+    <value>Déficit</value>
+  </data>
+  <data name="No activity" xml:space="preserve">
+    <value>Sem movimentação</value>
+  </data>
+  <data name="Income distribution" xml:space="preserve">
+    <value>Distribuição das receitas</value>
+  </data>
+  <data name="Expense distribution" xml:space="preserve">
+    <value>Distribuição das despesas</value>
+  </data>
+  <data name="Cash flow composition" xml:space="preserve">
+    <value>Composição do fluxo financeiro</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>Mês</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>Ano</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+    <value>Origem</value>
+  </data>
+  <data name="Clear filters" xml:space="preserve">
+    <value>Limpar filtros</value>
+  </data>
+  <data name="Clear category filter" xml:space="preserve">
+    <value>Limpar filtro de categoria</value>
+  </data>
+  <data name="Clear account filter" xml:space="preserve">
+    <value>Limpar filtro de conta</value>
+  </data>
+  <data name="Clear planning filter" xml:space="preserve">
+    <value>Limpar filtro de planejamento</value>
+  </data>
+  <data name="No account" xml:space="preserve">
+    <value>Sem conta</value>
+  </data>
+  <data name="Unknown account" xml:space="preserve">
+    <value>Conta desconhecida</value>
+  </data>
+  <data name="Open account" xml:space="preserve">
+    <value>Abrir conta</value>
+  </data>
+  <data name="Manage categories" xml:space="preserve">
+    <value>Gerenciar categorias</value>
+  </data>
+  <data name="Bank statement source" xml:space="preserve">
+    <value>Extrato bancário</value>
+  </data>
+  <data name="Card invoice source" xml:space="preserve">
+    <value>Fatura de cartão</value>
+  </data>
+  <data name="Email source" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="API source" xml:space="preserve">
+    <value>API</value>
+  </data>
+  <data name="Legacy" xml:space="preserve">
+    <value>Legado</value>
+  </data>
+  <data name="Manual" xml:space="preserve">
+    <value>Manual</value>
+  </data>
+  <data name="Automatic or unclassified" xml:space="preserve">
+    <value>Automático ou não classificado</value>
+  </data>
+  <data name="Expense" xml:space="preserve">
+    <value>Despesa</value>
+  </data>
+  <data name="Balance" xml:space="preserve">
+    <value>Saldo</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Ações</value>
+  </data>
+  <data name="Log in to Delete" xml:space="preserve">
+    <value>Faça login para Excluir</value>
+  </data>
+  <data name="Log in to create" xml:space="preserve">
+    <value>Faça login para criar</value>
+  </data>
+  <data name="Log in to edit" xml:space="preserve">
+    <value>Faça login para editar</value>
+  </data>
+  <data name="Log in to save" xml:space="preserve">
+    <value>Faça login para salvar</value>
+  </data>
+  <data name="Log in to start" xml:space="preserve">
+    <value>Faça login para iniciar</value>
+  </data>
+  <data name="Confirm Close" xml:space="preserve">
+    <value>Confirmar Fechamento</value>
+  </data>
+  <data name="Discard" xml:space="preserve">
+    <value>Descartar</value>
+  </data>
+  <data name="You have unsaved changes. Do you want to close and discard changes?" xml:space="preserve">
+    <value>Você tem alterações não salvas. Deseja fechar e descartar alterações?</value>
+  </data>
+  <data name="Confirm Bulk Delete" xml:space="preserve">
+    <value>Confirmar Exclusão em Massa</value>
+  </data>
+  <data name="Delete All" xml:space="preserve">
+    <value>Excluir Tudo</value>
+  </data>
+  <data name="This action cannot be undone." xml:space="preserve">
+    <value>Esta ação não pode ser desfeita.</value>
+  </data>
+  <data name="In" xml:space="preserve">
+    <value>Entrada</value>
+  </data>
+  <data name="Out" xml:space="preserve">
+    <value>Saída</value>
+  </data>
+  <data name="Bank accounts, institutions and Cards" xml:space="preserve">
+    <value>Contas bancárias, instituições e Cartões</value>
+  </data>
+  <data name="New Account" xml:space="preserve">
+    <value>Nova Conta</value>
+  </data>
+  <data name="No accounts registered. Click &quot;New Account&quot; to get started." xml:space="preserve">
+    <value>Nenhuma conta registrada. Clique em "Nova Conta" para começar.</value>
+  </data>
+  <data name="Inactive" xml:space="preserve">
+    <value>Inativo</value>
+  </data>
+  <data name="Code:" xml:space="preserve">
+    <value>Código:</value>
+  </data>
+  <data name="Agency:" xml:space="preserve">
+    <value>Agência:</value>
+  </data>
+  <data name="Account:" xml:space="preserve">
+    <value>Conta:</value>
+  </data>
+  <data name="Created at" xml:space="preserve">
+    <value>Criado em</value>
+  </data>
+  <data name="Manage your credit and debit cards" xml:space="preserve">
+    <value>Gerencie seus cartões de crédito e débito</value>
+  </data>
+  <data name="New Card" xml:space="preserve">
+    <value>Novo Cartão</value>
+  </data>
+  <data name="You need to register at least one account before adding cards." xml:space="preserve">
+    <value>Você precisa registrar pelo menos uma conta antes de adicionar cartões.</value>
+  </data>
+  <data name="Confirm Delete" xml:space="preserve">
+    <value>Confirmar Exclusão</value>
+  </data>
+  <data name="Calendar" xml:space="preserve">
+    <value>Calendário</value>
+  </data>
+  <data name="Your schedule at a glance" xml:space="preserve">
+    <value>Seu cronograma em um relance</value>
+  </data>
+  <data name="Types" xml:space="preserve">
+    <value>Tipos</value>
+  </data>
+  <data name="New Event" xml:space="preserve">
+    <value>Novo Evento</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Hoje</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>Semana</value>
+  </data>
+  <data name="Delete Event" xml:space="preserve">
+    <value>Excluir Evento</value>
+  </data>
+  <data name="Portfolio and allocations" xml:space="preserve">
+    <value>Portfólio e alocações</value>
+  </data>
+  <data name="List" xml:space="preserve">
+    <value>Lista</value>
+  </data>
+  <data name="Grouped" xml:space="preserve">
+    <value>Agrupado</value>
+  </data>
+  <data name="Quotes" xml:space="preserve">
+    <value>Cotações</value>
+  </data>
+  <data name="Planner" xml:space="preserve">
+    <value>Planejador</value>
+  </data>
+  <data name="New Allocation" xml:space="preserve">
+    <value>Nova Alocação</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>Conta</value>
+  </data>
+  <data name="All Accounts" xml:space="preserve">
+    <value>Todas as Contas</value>
+  </data>
+  <data name="All Types" xml:space="preserve">
+    <value>Todos os Tipos</value>
+  </data>
+  <data name="All Currencies" xml:space="preserve">
+    <value>Todas as Moedas</value>
+  </data>
+  <data name="All Maturities" xml:space="preserve">
+    <value>Todos os Vencimentos</value>
+  </data>
+  <data name="Upcoming maturities" xml:space="preserve">
+    <value>Vencimentos próximos</value>
+  </data>
+  <data name="Maturity" xml:space="preserve">
+    <value>Vencimento</value>
+  </data>
+  <data name="Quick Search" xml:space="preserve">
+    <value>Busca Rápida</value>
+  </data>
+  <data name="Name / initials / notes..." xml:space="preserve">
+    <value>Nome / sigla / notas...</value>
+  </data>
+  <data name="You need a financial account (bank/broker) to add allocations." xml:space="preserve">
+    <value>Você precisa de uma conta financeira (banco/corretora) para adicionar alocações.</value>
+  </data>
+  <data name="Create a financial account" xml:space="preserve">
+    <value>Criar conta financeira</value>
+  </data>
+  <data name="You need an account to add allocations." xml:space="preserve">
+    <value>Você precisa de uma conta para adicionar alocações.</value>
+  </data>
+  <data name="Add an account" xml:space="preserve">
+    <value>Adicionar uma conta</value>
+  </data>
+  <data name="No allocations found." xml:space="preserve">
+    <value>Nenhuma alocação encontrada.</value>
+  </data>
+  <data name="View all allocations" xml:space="preserve">
+    <value>Ver todas as alocações</value>
+  </data>
+  <data name="Open dashboard" xml:space="preserve">
+    <value>Abrir painel</value>
+  </data>
+  <data name="Open allocation" xml:space="preserve">
+    <value>Abrir alocação</value>
+  </data>
+  <data name="Filter by account" xml:space="preserve">
+    <value>Filtrar por conta</value>
+  </data>
+  <data name="Filter by type" xml:space="preserve">
+    <value>Filtrar por tipo</value>
+  </data>
+  <data name="Filter by currency" xml:space="preserve">
+    <value>Filtrar por moeda</value>
+  </data>
+  <data name="View allocations" xml:space="preserve">
+    <value>Ver alocações</value>
+  </data>
+  <data name="Search by ticker" xml:space="preserve">
+    <value>Buscar por sigla</value>
+  </data>
+  <data name="matures" xml:space="preserve">
+    <value>vence</value>
+  </data>
+  <data name="Edit Transaction" xml:space="preserve">
+    <value>Editar Transação</value>
+  </data>
+  <data name="Limit:" xml:space="preserve">
+    <value>Limite:</value>
+  </data>
+  <data name="Edit Account" xml:space="preserve">
+    <value>Editar Conta</value>
+  </data>
+  <data name="Institution Type" xml:space="preserve">
+    <value>Tipo de Instituição</value>
+  </data>
+  <data name="Select institution type..." xml:space="preserve">
+    <value>Selecione o tipo de instituição...</value>
+  </data>
+  <data name="Agency" xml:space="preserve">
+    <value>Agência</value>
+  </data>
+  <data name="Number" xml:space="preserve">
+    <value>Número</value>
+  </data>
+  <data name="Bank Code" xml:space="preserve">
+    <value>Código Bancário</value>
+  </data>
+  <data name="Account Type" xml:space="preserve">
+    <value>Tipo de Conta</value>
+  </data>
+  <data name="Select account type..." xml:space="preserve">
+    <value>Selecione o tipo de conta...</value>
+  </data>
+  <data name="Clear All" xml:space="preserve">
+    <value>Limpar Tudo</value>
+  </data>
+  <data name="Select at least one currency" xml:space="preserve">
+    <value>Selecione pelo menos uma moeda</value>
+  </data>
+  <data name="Logo" xml:space="preserve">
+    <value>Logo</value>
+  </data>
+  <data name="Is Active" xml:space="preserve">
+    <value>Ativo</value>
+  </data>
+  <data name="Has Card" xml:space="preserve">
+    <value>Tem Cartão</value>
+  </data>
+  <data name="Has Investments" xml:space="preserve">
+    <value>Tem Investimentos</value>
+  </data>
+  <data name="Has Fees" xml:space="preserve">
+    <value>Tem Taxas</value>
+  </data>
+  <data name="Fee Type" xml:space="preserve">
+    <value>Tipo de Taxa</value>
+  </data>
+  <data name="Fee Value" xml:space="preserve">
+    <value>Valor da Taxa</value>
+  </data>
+  <data name="Edit Card" xml:space="preserve">
+    <value>Editar Cartão</value>
+  </data>
+  <data name="Holder Name" xml:space="preserve">
+    <value>Nome do Titular</value>
+  </data>
+  <data name="Select account..." xml:space="preserve">
+    <value>Selecione a conta...</value>
+  </data>
+  <data name="Flag" xml:space="preserve">
+    <value>Bandeira</value>
+  </data>
+  <data name="Select flag..." xml:space="preserve">
+    <value>Selecione a bandeira...</value>
+  </data>
+  <data name="Select currency..." xml:space="preserve">
+    <value>Selecione a moeda...</value>
+  </data>
+  <data name="Select type..." xml:space="preserve">
+    <value>Selecione o tipo...</value>
+  </data>
+  <data name="Transaction Currencies" xml:space="preserve">
+    <value>Moedas de Transação</value>
+  </data>
+  <data name="No currencies selected" xml:space="preserve">
+    <value>Nenhuma moeda selecionada</value>
+  </data>
+  <data name="Validity" xml:space="preserve">
+    <value>Validade</value>
+  </data>
+  <data name="Has Limit" xml:space="preserve">
+    <value>Tem Limite</value>
+  </data>
+  <data name="Limit Value" xml:space="preserve">
+    <value>Valor do Limite</value>
+  </data>
+  <data name="Has Invoice" xml:space="preserve">
+    <value>Tem Fatura</value>
+  </data>
+  <data name="Closing Day" xml:space="preserve">
+    <value>Dia de Fechamento</value>
+  </data>
+  <data name="Payment Day" xml:space="preserve">
+    <value>Dia de Pagamento</value>
+  </data>
+  <data name="Currency" xml:space="preserve">
+    <value>Moeda</value>
+  </data>
+  <data name="Edit Allocation" xml:space="preserve">
+    <value>Editar Alocação</value>
+  </data>
+  <data name="Initials" xml:space="preserve">
+    <value>Sigla</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Quantidade</value>
+  </data>
+  <data name="Buy Unit Value" xml:space="preserve">
+    <value>Valor de Compra (Unitário)</value>
+  </data>
+  <data name="Fallback Unit Value" xml:space="preserve">
+    <value>Valor de Fallback (Unitário)</value>
+  </data>
+  <data name="Use 1 when the buy value is the total applied amount." xml:space="preserve">
+    <value>Use 1 quando o valor de compra for o total aplicado.</value>
+  </data>
+  <data name="Number of units, shares, quotas or coins." xml:space="preserve">
+    <value>Número de unidades, ações, cotas ou moedas.</value>
+  </data>
+  <data name="If you enter bank quotas, divide the applied amount by the quota count." xml:space="preserve">
+    <value>Se informar as cotas do banco, divida o valor aplicado pela quantidade de cotas.</value>
+  </data>
+  <data name="Price paid for each unit." xml:space="preserve">
+    <value>Preço pago por cada unidade.</value>
+  </data>
+  <data name="System applied total:" xml:space="preserve">
+    <value>Total aplicado considerado:</value>
+  </data>
+  <data name="System current total:" xml:space="preserve">
+    <value>Total atual considerado:</value>
+  </data>
+  <data name="For Nubank fixed income, either use quantity 1 with the total applied amount, or use the real quota count with the per-quota value. Do not paste both total applied amount and quota count together." xml:space="preserve">
+    <value>Para renda fixa do Nubank, use quantidade 1 com o total aplicado, ou use a quantidade real de cotas com o valor por cota. Não cole total aplicado e quantidade de cotas juntos.</value>
+  </data>
+  <data name="Fixed income automatic yield" xml:space="preserve">
+    <value>Rendimento automático de renda fixa</value>
+  </data>
+  <data name="Copy these fields from the bank details: profitability, application date, and applied amount. The system calculates the current gross value from BACEN CDI/SELIC." xml:space="preserve">
+    <value>Copie estes campos dos detalhes do banco: rentabilidade, data da aplicação e valor aplicado. O sistema calcula o total bruto atual pelo CDI/SELIC do BACEN.</value>
+  </data>
+  <data name="Type only the number shown by the bank. Example: 115 for 115% CDI." xml:space="preserve">
+    <value>Digite apenas o número exibido pelo banco. Exemplo: 115 para 115% CDI.</value>
+  </data>
+  <data name="Use the application date shown in the bank app, not today's date." xml:space="preserve">
+    <value>Use a data da aplicação exibida no app do banco, não a data de hoje.</value>
+  </data>
+  <data name="Fixed income audit" xml:space="preserve">
+    <value>Auditoria de renda fixa</value>
+  </data>
+  <data name="Audit" xml:space="preserve">
+    <value>Auditar</value>
+  </data>
+  <data name="Compares saved values with BACEN calculations and points to likely metadata issues." xml:space="preserve">
+    <value>Compara os valores salvos com o cálculo do BACEN e aponta prováveis erros de cadastro.</value>
+  </data>
+  <data name="Run audit" xml:space="preserve">
+    <value>Rodar auditoria</value>
+  </data>
+  <data name="Could not run fixed-income audit now." xml:space="preserve">
+    <value>Não foi possível rodar a auditoria de renda fixa agora.</value>
+  </data>
+  <data name="Run the audit to check fixed-income allocations in the current filters." xml:space="preserve">
+    <value>Rode a auditoria para verificar as rendas fixas nos filtros atuais.</value>
+  </data>
+  <data name="Audited:" xml:space="preserve">
+    <value>Auditadas:</value>
+  </data>
+  <data name="Divergences:" xml:space="preserve">
+    <value>Divergências:</value>
+  </data>
+  <data name="Close to BACEN:" xml:space="preserve">
+    <value>Próximas ao BACEN:</value>
+  </data>
+  <data name="Review" xml:space="preserve">
+    <value>Revisar</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Incomplete" xml:space="preserve">
+    <value>Incompleto</value>
+  </data>
+  <data name="Applied total" xml:space="preserve">
+    <value>Total aplicado</value>
+  </data>
+  <data name="Saved current" xml:space="preserve">
+    <value>Atual salvo</value>
+  </data>
+  <data name="BACEN expected" xml:space="preserve">
+    <value>Esperado BACEN</value>
+  </data>
+  <data name="Difference" xml:space="preserve">
+    <value>Diferença</value>
+  </data>
+  <data name="Diagnosis:" xml:space="preserve">
+    <value>Diagnóstico:</value>
+  </data>
+  <data name="BACEN base:" xml:space="preserve">
+    <value>Base BACEN:</value>
+  </data>
+  <data name="rates" xml:space="preserve">
+    <value>taxas</value>
+  </data>
+  <data name="Adjust metadata" xml:space="preserve">
+    <value>Ajustar dados</value>
+  </data>
+  <data name="Missing fixed-income yield metadata." xml:space="preserve">
+    <value>Faltam dados de rendimento da renda fixa.</value>
+  </data>
+  <data name="Could not calculate with BACEN data." xml:space="preserve">
+    <value>Não foi possível calcular com os dados do BACEN.</value>
+  </data>
+  <data name="Saved value is close to BACEN calculation." xml:space="preserve">
+    <value>O valor salvo está próximo do cálculo BACEN.</value>
+  </data>
+  <data name="Review quantity and unit value. Bank quotas require per-quota buy value." xml:space="preserve">
+    <value>Revise quantidade e valor unitário. Cotas do banco exigem valor de compra por cota.</value>
+  </data>
+  <data name="Current value was not updated yet. Run the automatic yield update or save the allocation again." xml:space="preserve">
+    <value>O valor atual ainda não foi atualizado. Rode a atualização automática de rendimento ou salve a alocação novamente.</value>
+  </data>
+  <data name="Saved value diverges from BACEN. Review application date, percentage, and gross versus net value." xml:space="preserve">
+    <value>O valor salvo diverge do BACEN. Revise data da aplicação, percentual e bruto versus líquido.</value>
+  </data>
+  <data name="When a market quote is available, this value is used only as fallback." xml:space="preserve">
+    <value>Quando uma cotação de mercado estiver disponível, este valor é usado apenas como fallback.</value>
+  </data>
+  <data name="Latest Quote:" xml:space="preserve">
+    <value>Última Cotação:</value>
+  </data>
+  <data name="available" xml:space="preserve">
+    <value>disponível</value>
+  </data>
+  <data name="not available" xml:space="preserve">
+    <value>não disponível</value>
+  </data>
+  <data name="fallback will be used" xml:space="preserve">
+    <value>fallback será usado</value>
+  </data>
+  <data name="View financial plan" xml:space="preserve">
+    <value>Ver plano financeiro</value>
+  </data>
+  <data name="Updated automatically by the system" xml:space="preserve">
+    <value>Atualizado automaticamente pelo sistema</value>
+  </data>
+  <data name="Not editable." xml:space="preserve">
+    <value>Não editável.</value>
+  </data>
+  <data name="since" xml:space="preserve">
+    <value>desde</value>
+  </data>
+  <data name="Auto-calculated via BACEN" xml:space="preserve">
+    <value>Auto-calculado via BACEN</value>
+  </data>
+  <data name="Source:" xml:space="preserve">
+    <value>Fonte:</value>
+  </data>
+  <data name="Quote time:" xml:space="preserve">
+    <value>Hora da cotação:</value>
+  </data>
+  <data name="Retrieved:" xml:space="preserve">
+    <value>Obtido em:</value>
+  </data>
+  <data name="No quote available; using fallback value." xml:space="preserve">
+    <value>Cotação indisponível; usando valor alternativo.</value>
+  </data>
+  <data name="Yield:" xml:space="preserve">
+    <value>Rendimento:</value>
+  </data>
+  <data name="Start:" xml:space="preserve">
+    <value>Início:</value>
+  </data>
+  <data name="Business days:" xml:space="preserve">
+    <value>Dias úteis:</value>
+  </data>
+  <data name="Current value:" xml:space="preserve">
+    <value>Valor atual:</value>
+  </data>
+  <data name="Updated: automatically (60 min)" xml:space="preserve">
+    <value>Atualizado: automaticamente (60 min)</value>
+  </data>
+  <data name="Manual fallback value" xml:space="preserve">
+    <value>Valor de fallback manual</value>
+  </data>
+  <data name="Application:" xml:space="preserve">
+    <value>Aplicação:</value>
+  </data>
+  <data name="No market quote available for this allocation type." xml:space="preserve">
+    <value>Cotação de mercado indisponível para este tipo de alocação.</value>
+  </data>
+  <data name="Missing USD/BRL quote for currency conversion; fallback value used." xml:space="preserve">
+    <value>Cotação USD/BRL indisponível para conversão; usando valor alternativo.</value>
+  </data>
+  <data name="Missing USD/BRL quote." xml:space="preserve">
+    <value>Cotação USD/BRL indisponível.</value>
+  </data>
+  <data name="Unsupported crypto currency for BRL conversion." xml:space="preserve">
+    <value>Criptomoeda sem suporte para conversão em BRL.</value>
+  </data>
+  <data name="Missing crypto/USD quote for BRL conversion." xml:space="preserve">
+    <value>Cotação crypto/USD indisponível para conversão em BRL.</value>
+  </data>
+  <data name="Add Category" xml:space="preserve">
+    <value>Adicionar Categoria</value>
+  </data>
+  <data name="Edit Category" xml:space="preserve">
+    <value>Editar Categoria</value>
+  </data>
+  <data name="Icon" xml:space="preserve">
+    <value>Ícone</value>
+  </data>
+  <data name="Select icon..." xml:space="preserve">
+    <value>Selecione o ícone...</value>
+  </data>
+  <data name="Preview" xml:space="preserve">
+    <value>Pré-visualização</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Fechar</value>
+  </data>
+  <data name="Are you sure you want to delete" xml:space="preserve">
+    <value>Tem certeza que deseja excluir</value>
+  </data>
+  <data name="Category is in use by" xml:space="preserve">
+    <value>A categoria está sendo usada em</value>
+  </data>
+  <data name="transaction(s) and cannot be deleted." xml:space="preserve">
+    <value>transação(ões) e não pode ser excluída.</value>
+  </data>
+  <data name="Predefined categories cannot be deleted" xml:space="preserve">
+    <value>Categorias predefinidas não podem ser excluídas</value>
+  </data>
+  <data name="Import File" xml:space="preserve">
+    <value>Importar Arquivo</value>
+  </data>
+  <data name="Bank Statement" xml:space="preserve">
+    <value>Extrato Bancário</value>
+  </data>
+  <data name="Card Invoice" xml:space="preserve">
+    <value>Fatura do Cartão</value>
+  </data>
+  <data name="Financial Institution *" xml:space="preserve">
+    <value>Instituição Financeira *</value>
+  </data>
+  <data name="Select..." xml:space="preserve">
+    <value>Selecione...</value>
+  </data>
+  <data name="Credit Card *" xml:space="preserve">
+    <value>Cartão de Crédito *</value>
+  </data>
+  <data name="File Format *" xml:space="preserve">
+    <value>Formato do Arquivo *</value>
+  </data>
+  <data name="Spreadsheet (CSV)" xml:space="preserve">
+    <value>Planilha (CSV)</value>
+  </data>
+  <data name="PDF (Beta) - Coming soon" xml:space="preserve">
+    <value>PDF (Beta) - Em breve</value>
+  </data>
+  <data name="File *" xml:space="preserve">
+    <value>Arquivo *</value>
+  </data>
+  <data name="Selected:" xml:space="preserve">
+    <value>Selecionado:</value>
+  </data>
+  <data name="Import Summary" xml:space="preserve">
+    <value>Resumo da Importação</value>
+  </data>
+  <data name="View imported transactions" xml:space="preserve">
+    <value>Ver transações importadas</value>
+  </data>
+  <data name="View accepted transactions" xml:space="preserve">
+    <value>Ver transações aceitas</value>
+  </data>
+  <data name="inserted" xml:space="preserve">
+    <value>inseridos</value>
+  </data>
+  <data name="skipped (duplicates)" xml:space="preserve">
+    <value>ignorados (duplicatas)</value>
+  </data>
+  <data name="pending review" xml:space="preserve">
+    <value>pendentes de revisão</value>
+  </data>
+  <data name="errors" xml:space="preserve">
+    <value>erros</value>
+  </data>
+  <data name="Log in to Import" xml:space="preserve">
+    <value>Faça login para Importar</value>
+  </data>
+  <data name="Review Pending Items" xml:space="preserve">
+    <value>Revisar Itens Pendentes</value>
+  </data>
+  <data name="No pending items to review." xml:space="preserve">
+    <value>Nenhum item pendente para revisar.</value>
+  </data>
+  <data name="Select All" xml:space="preserve">
+    <value>Selecionar Tudo</value>
+  </data>
+  <data name="Deselect All" xml:space="preserve">
+    <value>Desselecionar Tudo</value>
+  </data>
+  <data name="Accept All" xml:space="preserve">
+    <value>Aceitar Tudo</value>
+  </data>
+  <data name="Accept Selected" xml:space="preserve">
+    <value>Aceitar Selecionados</value>
+  </data>
+  <data name="Reject Selected" xml:space="preserve">
+    <value>Rejeitar Selecionados</value>
+  </data>
+  <data name="Amount" xml:space="preserve">
+    <value>Valor</value>
+  </data>
+  <data name="Reason" xml:space="preserve">
+    <value>Motivo</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>Aceitar</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>Rejeitar</value>
+  </data>
+  <data name="Processing..." xml:space="preserve">
+    <value>Processando...</value>
+  </data>
+  <data name="Total Invested" xml:space="preserve">
+    <value>Total Investido</value>
+  </data>
+  <data name="Net Worth" xml:space="preserve">
+    <value>Patrimônio</value>
+  </data>
+  <data name="Market Value" xml:space="preserve">
+    <value>Valor de Mercado</value>
+  </data>
+  <data name="Current Value" xml:space="preserve">
+    <value>Valor Atual</value>
+  </data>
+  <data name="Profit" xml:space="preserve">
+    <value>Lucro</value>
+  </data>
+  <data name="BRL (partial)" xml:space="preserve">
+    <value>BRL (parcial)</value>
+  </data>
+  <data name="BRL (quotes)" xml:space="preserve">
+    <value>BRL (cotações)</value>
+  </data>
+  <data name="Qty" xml:space="preserve">
+    <value>Qtd.</value>
+  </data>
+  <data name="Buy Unit" xml:space="preserve">
+    <value>Compra Unit.</value>
+  </data>
+  <data name="Cur. Unit" xml:space="preserve">
+    <value>Unit. Atual</value>
+  </data>
+  <data name="Invested" xml:space="preserve">
+    <value>Investido</value>
+  </data>
+  <data name="Portfolio" xml:space="preserve">
+    <value>Portfólio</value>
+  </data>
+  <data name="Mixed currencies" xml:space="preserve">
+    <value>Moedas mistas</value>
+  </data>
+  <data name="No data." xml:space="preserve">
+    <value>Sem dados.</value>
+  </data>
+  <data name="mixed" xml:space="preserve">
+    <value>mista</value>
+  </data>
+  <data name="Buy" xml:space="preserve">
+    <value>Compra</value>
+  </data>
+  <data name="Now" xml:space="preserve">
+    <value>Agora</value>
+  </data>
+  <data name="Currency Breakdown" xml:space="preserve">
+    <value>Composição por Moeda</value>
+  </data>
+  <data name="Current (BRL)" xml:space="preserve">
+    <value>Atual (BRL)</value>
+  </data>
+  <data name="Some currencies are not converted in the Approx. BRL total." xml:space="preserve">
+    <value>Algumas moedas não são convertidas no total Aprox. BRL.</value>
+  </data>
+  <data name="Allocation Mix" xml:space="preserve">
+    <value>Composição das Alocações</value>
+  </data>
+  <data name="Top Positions" xml:space="preserve">
+    <value>Maiores Posições</value>
+  </data>
+  <data name="Currency Split" xml:space="preserve">
+    <value>Divisão por Moeda</value>
+  </data>
+  <data name="Upcoming Expirations" xml:space="preserve">
+    <value>Próximos Vencimentos</value>
+  </data>
+  <data name="Portfolio summary" xml:space="preserve">
+    <value>Resumo da carteira</value>
+  </data>
+  <data name="Open portfolio summary" xml:space="preserve">
+    <value>Abrir resumo da carteira</value>
+  </data>
+  <data name="Current value by type" xml:space="preserve">
+    <value>Valor atual por tipo</value>
+  </data>
+  <data name="Current value by account" xml:space="preserve">
+    <value>Valor atual por conta</value>
+  </data>
+  <data name="Largest portfolio weights" xml:space="preserve">
+    <value>Maiores pesos da carteira</value>
+  </data>
+  <data name="position" xml:space="preserve">
+    <value>posição</value>
+  </data>
+  <data name="positions" xml:space="preserve">
+    <value>posições</value>
+  </data>
+  <data name="Gain" xml:space="preserve">
+    <value>Ganho</value>
+  </data>
+  <data name="Loss" xml:space="preserve">
+    <value>Perda</value>
+  </data>
+  <data name="No expirations found." xml:space="preserve">
+    <value>Nenhum vencimento encontrado.</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Valor</value>
+  </data>
+  <data name="Dollar (USD/BRL)" xml:space="preserve">
+    <value>Dólar (USD/BRL)</value>
+  </data>
+  <data name="Bitcoin (BTC/USD)" xml:space="preserve">
+    <value>Bitcoin (BTC/USD)</value>
+  </data>
+  <data name="No data in period" xml:space="preserve">
+    <value>Sem dados no período</value>
+  </data>
+  <data name="1D" xml:space="preserve">
+    <value>1D</value>
+  </data>
+  <data name="7D" xml:space="preserve">
+    <value>7D</value>
+  </data>
+  <data name="1M" xml:space="preserve">
+    <value>1M</value>
+  </data>
+  <data name="2M" xml:space="preserve">
+    <value>2M</value>
+  </data>
+  <data name="3M" xml:space="preserve">
+    <value>3M</value>
+  </data>
+  <data name="6M" xml:space="preserve">
+    <value>6M</value>
+  </data>
+  <data name="9M" xml:space="preserve">
+    <value>9M</value>
+  </data>
+  <data name="1Y" xml:space="preserve">
+    <value>1Y</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Categoria</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>Uso</value>
+  </data>
+  <data name="Salary" xml:space="preserve">
+    <value>Salário</value>
+  </data>
+  <data name="Other Income" xml:space="preserve">
+    <value>Outros Rendimentos</value>
+  </data>
+  <data name="Electricity" xml:space="preserve">
+    <value>Energia Elétrica</value>
+  </data>
+  <data name="Food" xml:space="preserve">
+    <value>Alimentação</value>
+  </data>
+  <data name="Company Costs" xml:space="preserve">
+    <value>Custos Empresariais</value>
+  </data>
+  <data name="Internet" xml:space="preserve">
+    <value>Internet</value>
+  </data>
+  <data name="Health" xml:space="preserve">
+    <value>Saúde</value>
+  </data>
+  <data name="Vehicles" xml:space="preserve">
+    <value>Veículos</value>
+  </data>
+  <data name="Leisure" xml:space="preserve">
+    <value>Lazer</value>
+  </data>
+  <data name="Extra Expenses" xml:space="preserve">
+    <value>Despesas Extras</value>
+  </data>
+  <data name="School/Education" xml:space="preserve">
+    <value>Escola/Educação</value>
+  </data>
+  <data name="Investiment" xml:space="preserve">
+    <value>Investimentos</value>
+  </data>
+  <data name="Bank" xml:space="preserve">
+    <value>Banco</value>
+  </data>
+  <data name="Fintech" xml:space="preserve">
+    <value>Fintech</value>
+  </data>
+  <data name="Exchange" xml:space="preserve">
+    <value>Corretora de cripto</value>
+  </data>
+  <data name="Broker" xml:space="preserve">
+    <value>Corretora</value>
+  </data>
+  <data name="Others" xml:space="preserve">
+    <value>Outros</value>
+  </data>
+  <data name="Quick context" xml:space="preserve">
+    <value>Contexto rápido</value>
+  </data>
+  <data name="Action center" xml:space="preserve">
+    <value>Central de Ações</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Atualizar</value>
+  </data>
+  <data name="Dismiss" xml:space="preserve">
+    <value>Dispensar</value>
+  </data>
+  <data name="{0} action(s) waiting" xml:space="preserve">
+    <value>{0} ação(ões) aguardando</value>
+  </data>
+  <data name="Nothing critical" xml:space="preserve">
+    <value>Nada crítico</value>
+  </data>
+  <data name="No urgent action right now. Keep the plan visible and execute when something changes." xml:space="preserve">
+    <value>Nenhuma ação urgente agora. Mantenha o plano visível e execute quando algo mudar.</value>
+  </data>
+  <data name="Correct positions without pricing" xml:space="preserve">
+    <value>Corrigir posições sem preço</value>
+  </data>
+  <data name="Some assets cannot be converted into today's BRL planning value." xml:space="preserve">
+    <value>Alguns ativos não entram no valor em reais do planejamento de hoje.</value>
+  </data>
+  <data name="Open allocations" xml:space="preserve">
+    <value>Abrir alocações</value>
+  </data>
+  <data name="Reinforce the emergency reserve" xml:space="preserve">
+    <value>Reforçar a reserva de emergência</value>
+  </data>
+  <data name="The reserve is below the number of months defined in the annual plan." xml:space="preserve">
+    <value>A reserva está abaixo dos meses definidos no plano anual.</value>
+  </data>
+  <data name="Review plan" xml:space="preserve">
+    <value>Revisar plano</value>
+  </data>
+  <data name="Decide what to do with idle cash" xml:space="preserve">
+    <value>Decidir o que fazer com o caixa parado</value>
+  </data>
+  <data name="Cash without a defined purpose is above the planning threshold." xml:space="preserve">
+    <value>O caixa sem finalidade definida está acima do limite do planejamento.</value>
+  </data>
+  <data name="Adjust the pace toward the annual target" xml:space="preserve">
+    <value>Ajustar o ritmo da meta anual</value>
+  </data>
+  <data name="The current projection does not reach the annual net worth target." xml:space="preserve">
+    <value>A projeção atual não atinge a meta anual de patrimônio.</value>
+  </data>
+  <data name="Choose this week's operating focus" xml:space="preserve">
+    <value>Escolher o foco operacional da semana</value>
+  </data>
+  <data name="Today works better when the week has up to three explicit priorities." xml:space="preserve">
+    <value>A tela Hoje funciona melhor quando a semana tem até três prioridades explícitas.</value>
+  </data>
+  <data name="Choose focus" xml:space="preserve">
+    <value>Escolher foco</value>
+  </data>
+  <data name="Close a light weekly review" xml:space="preserve">
+    <value>Fechar uma revisão semanal leve</value>
+  </data>
+  <data name="Record progress, blockers and one decision without using the advanced review flow." xml:space="preserve">
+    <value>Registre avanço, bloqueios e uma decisão sem usar o fluxo avançado de revisão.</value>
+  </data>
+  <data name="Open review" xml:space="preserve">
+    <value>Abrir revisão</value>
+  </data>
+  <data name="Classify allocation purposes" xml:space="preserve">
+    <value>Classificar finalidade das alocações</value>
+  </data>
+  <data name="Some allocations still rely on automatic purpose inference." xml:space="preserve">
+    <value>Algumas alocações ainda dependem da inferência automática de finalidade.</value>
+  </data>
+  <data name="Confirm recent transaction impacts" xml:space="preserve">
+    <value>Confirmar impacto das transações recentes</value>
+  </data>
+  <data name="Recent transactions can distort the plan until their planning impact is confirmed." xml:space="preserve">
+    <value>Transações recentes podem distorcer o plano até que o impacto no planejamento seja confirmado.</value>
+  </data>
+  <data name="Open transactions" xml:space="preserve">
+    <value>Abrir transações</value>
+  </data>
+  <data name="No review yet" xml:space="preserve">
+    <value>Nenhuma revisão ainda</value>
+  </data>
+  <data name="{0} day(s) since last review" xml:space="preserve">
+    <value>{0} dia(s) desde a última revisão</value>
+  </data>
+  <data name="{0} allocation(s)" xml:space="preserve">
+    <value>{0} alocação(ões)</value>
+  </data>
+  <data name="Dollar" xml:space="preserve">
+    <value>Dólar</value>
+  </data>
+  <data name="Annual target" xml:space="preserve">
+    <value>Meta anual</value>
+  </data>
+  <data name="Current block progress" xml:space="preserve">
+    <value>Progresso do bloco atual</value>
+  </data>
+  <data name="Duration" xml:space="preserve">
+    <value>Duração</value>
+  </data>
+  <data name="Remaining" xml:space="preserve">
+    <value>Restante</value>
+  </data>
+  <data name="Your day is open right now." xml:space="preserve">
+    <value>Seu dia está livre neste momento.</value>
+  </data>
+  <data name="{0} moments today · next: {1} at {2}" xml:space="preserve">
+    <value>{0} momentos hoje · próximo: {1} às {2}</value>
+  </data>
+  <data name="{0} moments today · your schedule is clear from here" xml:space="preserve">
+    <value>{0} momentos hoje · sua rotina está livre daqui em diante</value>
+  </data>
+  <data name="Adjust routine" xml:space="preserve">
+    <value>Ajustar rotina</value>
+  </data>
+  <data name="Open plan" xml:space="preserve">
+    <value>Abrir plano</value>
+  </data>
+  <data name="Bringing your day together..." xml:space="preserve">
+    <value>Reunindo seu dia...</value>
+  </data>
+  <data name="Open space" xml:space="preserve">
+    <value>Espaço livre</value>
+  </data>
+  <data name="Nothing planned for this moment." xml:space="preserve">
+    <value>Nada planejado para este momento.</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>A seguir</value>
+  </data>
+  <data name="Today timeline" xml:space="preserve">
+    <value>Linha do tempo de hoje</value>
+  </data>
+  <data name="planned moments" xml:space="preserve">
+    <value>momentos planejados</value>
+  </data>
+  <data name="Your day is open. Add a routine block when it is useful." xml:space="preserve">
+    <value>Seu dia está livre. Adicione um bloco de rotina quando for útil.</value>
+  </data>
+  <data name="This week's focus" xml:space="preserve">
+    <value>Foco desta semana</value>
+  </data>
+  <data name="Only what deserves attention" xml:space="preserve">
+    <value>Só o que merece atenção</value>
+  </data>
+  <data name="Suggested from your current plan" xml:space="preserve">
+    <value>Sugerido pelo seu plano atual</value>
+  </data>
+  <data name="Use suggestions" xml:space="preserve">
+    <value>Usar sugestões</value>
+  </data>
+  <data name="Suggested" xml:space="preserve">
+    <value>Sugerido</value>
+  </data>
+  <data name="Choose up to three priorities for this week." xml:space="preserve">
+    <value>Escolha até três prioridades para esta semana.</value>
+  </data>
+  <data name="Financial compass" xml:space="preserve">
+    <value>Bússola financeira</value>
+  </data>
+  <data name="Reality from your data" xml:space="preserve">
+    <value>Realidade vinda dos seus dados</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Detalhes</value>
+  </data>
+  <data name="Month balance" xml:space="preserve">
+    <value>Saldo do mês</value>
+  </data>
+  <data name="Income this month" xml:space="preserve">
+    <value>Receita neste mês</value>
+  </data>
+  <data name="Expenses this month" xml:space="preserve">
+    <value>Gastos neste mês</value>
+  </data>
+  <data name="Cash in accounts" xml:space="preserve">
+    <value>Caixa em contas</value>
+  </data>
+  <data name="Active investments" xml:space="preserve">
+    <value>Investimentos ativos</value>
+  </data>
+  <data name="Current net worth" xml:space="preserve">
+    <value>Patrimônio atual</value>
+  </data>
+  <data name="Month contributions" xml:space="preserve">
+    <value>Aportes do mês</value>
+  </data>
+  <data name="Reserve progress" xml:space="preserve">
+    <value>Progresso da reserva</value>
+  </data>
+  <data name="Open signals" xml:space="preserve">
+    <value>Sinais abertos</value>
+  </data>
+  <data name="income minus expenses" xml:space="preserve">
+    <value>receita menos gastos</value>
+  </data>
+  <data name="operating expenses" xml:space="preserve">
+    <value>gastos operacionais</value>
+  </data>
+  <data name="included account cash" xml:space="preserve">
+    <value>caixa incluído das contas</value>
+  </data>
+  <data name="current allocation value" xml:space="preserve">
+    <value>valor atual das alocações</value>
+  </data>
+  <data name="canonical financial facts" xml:space="preserve">
+    <value>fatos financeiros canônicos</value>
+  </data>
+  <data name="classified contributions" xml:space="preserve">
+    <value>aportes classificados</value>
+  </data>
+  <data name="of target" xml:space="preserve">
+    <value>da meta</value>
+  </data>
+  <data name="attention required" xml:space="preserve">
+    <value>precisam de atenção</value>
+  </data>
+  <data name="Year-end projection" xml:space="preserve">
+    <value>Projeção para o fim do ano</value>
+  </data>
+  <data name="Projection details" xml:space="preserve">
+    <value>Detalhes da projeção</value>
+  </data>
+  <data name="starting point" xml:space="preserve">
+    <value>ponto de partida</value>
+  </data>
+  <data name="Effective monthly contribution" xml:space="preserve">
+    <value>Aporte mensal considerado</value>
+  </data>
+  <data name="real contribution run-rate" xml:space="preserve">
+    <value>ritmo real de aportes</value>
+  </data>
+  <data name="income and spending capacity" xml:space="preserve">
+    <value>capacidade por renda e gastos</value>
+  </data>
+  <data name="Year-to-date contributions" xml:space="preserve">
+    <value>Aportes acumulados no ano</value>
+  </data>
+  <data name="1 observed month" xml:space="preserve">
+    <value>1 mês observado</value>
+  </data>
+  <data name="{0} observed months" xml:space="preserve">
+    <value>{0} meses observados</value>
+  </data>
+  <data name="Projected remaining contributions" xml:space="preserve">
+    <value>Aportes restantes projetados</value>
+  </data>
+  <data name="until year-end" xml:space="preserve">
+    <value>até o fim do ano</value>
+  </data>
+  <data name="Current asset appreciation" xml:space="preserve">
+    <value>Valorização atual dos ativos</value>
+  </data>
+  <data name="current value minus applied value" xml:space="preserve">
+    <value>valor atual menos valor aplicado</value>
+  </data>
+  <data name="Projected remaining asset appreciation" xml:space="preserve">
+    <value>Valorização restante projetada</value>
+  </data>
+  <data name="same year-to-date rhythm" xml:space="preserve">
+    <value>mesmo ritmo do ano até aqui</value>
+  </data>
+  <data name="Planned one-off flows" xml:space="preserve">
+    <value>Fluxos pontuais planejados</value>
+  </data>
+  <data name="already included in the plan" xml:space="preserve">
+    <value>já incluídos no plano</value>
+  </data>
+  <data name="We could not assemble your day right now. Your existing financial dashboard is still available below." xml:space="preserve">
+    <value>Não foi possível montar seu dia agora. Seu painel financeiro atual continua disponível abaixo.</value>
+  </data>
+  <data name="Routine" xml:space="preserve">
+    <value>Rotina</value>
+  </data>
+  <data name="Sunday" xml:space="preserve">
+    <value>Domingo</value>
+  </data>
+  <data name="Monday" xml:space="preserve">
+    <value>Segunda-feira</value>
+  </data>
+  <data name="Tuesday" xml:space="preserve">
+    <value>Terça-feira</value>
+  </data>
+  <data name="Wednesday" xml:space="preserve">
+    <value>Quarta-feira</value>
+  </data>
+  <data name="Thursday" xml:space="preserve">
+    <value>Quinta-feira</value>
+  </data>
+  <data name="Friday" xml:space="preserve">
+    <value>Sexta-feira</value>
+  </data>
+  <data name="Saturday" xml:space="preserve">
+    <value>Sábado</value>
+  </data>
+  <data name="A reference, not another task list" xml:space="preserve">
+    <value>Uma referência, não outra lista de tarefas</value>
+  </data>
+  <data name="My weekly routine" xml:space="preserve">
+    <value>Minha rotina semanal</value>
+  </data>
+  <data name="See what fits now, keep the week visible, and adjust only when your life changes." xml:space="preserve">
+    <value>Veja o que cabe agora, mantenha a semana visível e ajuste apenas quando sua vida mudar.</value>
+  </data>
+  <data name="New block" xml:space="preserve">
+    <value>Novo bloco</value>
+  </data>
+  <data name="Loading routine..." xml:space="preserve">
+    <value>Carregando rotina...</value>
+  </data>
+  <data name="Your week is open" xml:space="preserve">
+    <value>Sua semana está aberta</value>
+  </data>
+  <data name="Create a block when you want to add a new reference to your routine." xml:space="preserve">
+    <value>Crie um bloco quando quiser adicionar uma nova referência à sua rotina.</value>
+  </data>
+  <data name="Routine block" xml:space="preserve">
+    <value>Bloco da rotina</value>
+  </data>
+  <data name="Edit block" xml:space="preserve">
+    <value>Editar bloco</value>
+  </data>
+  <data name="Day" xml:space="preserve">
+    <value>Dia</value>
+  </data>
+  <data name="My routine" xml:space="preserve">
+    <value>Minha rotina</value>
+  </data>
+  <data name="Routine blocks must end after they start." xml:space="preserve">
+    <value>O bloco da rotina precisa terminar depois de começar.</value>
+  </data>
+  <data name="Routine template not found for the current user." xml:space="preserve">
+    <value>A rotina não foi encontrada para o usuário atual.</value>
+  </data>
+  <data name="This block overlaps another block on the same day." xml:space="preserve">
+    <value>Este bloco se sobrepõe a outro bloco no mesmo dia.</value>
+  </data>
+  <data name="Every routine block needs a title and a valid time range." xml:space="preserve">
+    <value>Todo bloco da rotina precisa de título e de um intervalo válido.</value>
+  </data>
+  <data name="Routine blocks cannot overlap on the same day." xml:space="preserve">
+    <value>Os blocos da rotina não podem se sobrepor no mesmo dia.</value>
+  </data>
+  <data name="Annual plan not found for the current user." xml:space="preserve">
+    <value>O plano anual não foi encontrado para o usuário atual.</value>
+  </data>
+  <data name="Windows Widget" xml:space="preserve">
+    <value>Widget Windows</value>
+  </data>
+  <data name="Pair your local overlay once. The widget will keep using a protected token on this PC." xml:space="preserve">
+    <value>Pareie o overlay local uma vez. O widget continuará usando um token protegido neste PC.</value>
+  </data>
+  <data name="Pairing code" xml:space="preserve">
+    <value>Código de pareamento</value>
+  </data>
+  <data name="Generate pairing code" xml:space="preserve">
+    <value>Gerar código de pareamento</value>
+  </data>
+  <data name="Revoke widgets" xml:space="preserve">
+    <value>Revogar widgets</value>
+  </data>
+  <data name="Widget pairing code created." xml:space="preserve">
+    <value>Código de pareamento do widget criado.</value>
+  </data>
+  <data name="Could not create widget pairing code" xml:space="preserve">
+    <value>Não foi possível criar o código de pareamento do widget</value>
+  </data>
+  <data name="Could not revoke widget tokens" xml:space="preserve">
+    <value>Não foi possível revogar os tokens do widget</value>
+  </data>
+  <data name="{0} widget token(s) revoked." xml:space="preserve">
+    <value>{0} token(s) de widget revogado(s).</value>
+  </data>
+  <data name="Expires" xml:space="preserve">
+    <value>Expira</value>
+  </data>
+  <data name="{0} min" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="Plan" xml:space="preserve">
+    <value>Plano</value>
+  </data>
+  <data name="Direction with less maintenance" xml:space="preserve">
+    <value>Direção com menos manutenção</value>
+  </data>
+  <data name="My plan" xml:space="preserve">
+    <value>Meu plano</value>
+  </data>
+  <data name="Your goals and financial reality in one place. The system calculates what it already knows; you decide only what only you can know." xml:space="preserve">
+    <value>Suas metas e sua realidade financeira em um só lugar. O sistema calcula o que já sabe; você decide apenas o que só você pode saber.</value>
+  </data>
+  <data name="Advanced reviews" xml:space="preserve">
+    <value>Revisões avançadas</value>
+  </data>
+  <data name="Assembling your plan from existing data..." xml:space="preserve">
+    <value>Montando seu plano com os dados existentes...</value>
+  </data>
+  <data name="Theme for the year" xml:space="preserve">
+    <value>Tema do ano</value>
+  </data>
+  <data name="Target progress" xml:space="preserve">
+    <value>Progresso da meta</value>
+  </data>
+  <data name="of" xml:space="preserve">
+    <value>de</value>
+  </data>
+  <data name="Base facts and decisions" xml:space="preserve">
+    <value>Fatos-base e decisões</value>
+  </data>
+  <data name="Calculated from accounts, transactions and allocations" xml:space="preserve">
+    <value>Calculado a partir de contas, transações e alocações</value>
+  </data>
+  <data name="current positions + ledger cash" xml:space="preserve">
+    <value>posições atuais + caixa do extrato</value>
+  </data>
+  <data name="Monthly income" xml:space="preserve">
+    <value>Renda mensal</value>
+  </data>
+  <data name="operating transactions" xml:space="preserve">
+    <value>transações operacionais</value>
+  </data>
+  <data name="Monthly expenses" xml:space="preserve">
+    <value>Gastos mensais</value>
+  </data>
+  <data name="transfers excluded" xml:space="preserve">
+    <value>transferências excluídas</value>
+  </data>
+  <data name="Emergency reserve" xml:space="preserve">
+    <value>Reserva de emergência</value>
+  </data>
+  <data name="with current plan" xml:space="preserve">
+    <value>com o plano atual</value>
+  </data>
+  <data name="Required monthly contribution" xml:space="preserve">
+    <value>Aporte mensal necessário</value>
+  </data>
+  <data name="to reach the target" xml:space="preserve">
+    <value>para atingir a meta</value>
+  </data>
+  <data name="Adjust the few assumptions the system cannot decide" xml:space="preserve">
+    <value>Ajustar as poucas premissas que o sistema não pode decidir</value>
+  </data>
+  <data name="Target net worth" xml:space="preserve">
+    <value>Meta de patrimônio</value>
+  </data>
+  <data name="Monthly income assumption" xml:space="preserve">
+    <value>Premissa de renda mensal</value>
+  </data>
+  <data name="Monthly spending ceiling" xml:space="preserve">
+    <value>Teto mensal de gastos</value>
+  </data>
+  <data name="Monthly contribution override" xml:space="preserve">
+    <value>Aporte mensal definido por você</value>
+  </data>
+  <data name="Annual extraordinary expenses" xml:space="preserve">
+    <value>Gastos extraordinários anuais</value>
+  </data>
+  <data name="Emergency reserve months" xml:space="preserve">
+    <value>Meses de reserva de emergência</value>
+  </data>
+  <data name="Save decisions and recalculate" xml:space="preserve">
+    <value>Salvar decisões e recalcular</value>
+  </data>
+  <data name="This week" xml:space="preserve">
+    <value>Esta semana</value>
+  </data>
+  <data name="Three focuses, at most" xml:space="preserve">
+    <value>Três focos, no máximo</value>
+  </data>
+  <data name="These are shown on Today. Keep only what should guide your choices." xml:space="preserve">
+    <value>Eles aparecem em Hoje. Mantenha apenas o que deve orientar suas escolhas.</value>
+  </data>
+  <data name="What matters this week?" xml:space="preserve">
+    <value>O que importa nesta semana?</value>
+  </data>
+  <data name="Save weekly focus" xml:space="preserve">
+    <value>Salvar foco semanal</value>
+  </data>
+  <data name="Light review" xml:space="preserve">
+    <value>Revisão leve</value>
+  </data>
+  <data name="Close the loop" xml:space="preserve">
+    <value>Fechar o ciclo</value>
+  </data>
+  <data name="Due now" xml:space="preserve">
+    <value>Fazer agora</value>
+  </data>
+  <data name="Up to date" xml:space="preserve">
+    <value>Em dia</value>
+  </data>
+  <data name="What moved forward?" xml:space="preserve">
+    <value>O que avançou?</value>
+  </data>
+  <data name="What got in the way?" xml:space="preserve">
+    <value>O que atrapalhou?</value>
+  </data>
+  <data name="What will I decide or adjust?" xml:space="preserve">
+    <value>O que vou decidir ou ajustar?</value>
+  </data>
+  <data name="Last review" xml:space="preserve">
+    <value>Última revisão</value>
+  </data>
+  <data name="Plan saved and financial metrics recalculated." xml:space="preserve">
+    <value>Plano salvo e métricas financeiras recalculadas.</value>
+  </data>
+  <data name="Weekly focus saved." xml:space="preserve">
+    <value>Foco semanal salvo.</value>
+  </data>
+  <data name="Review completed with a snapshot of today's financial reality." xml:space="preserve">
+    <value>Revisão concluída com um retrato da realidade financeira de hoje.</value>
+  </data>
+  <data name="Some positions need pricing" xml:space="preserve">
+    <value>Algumas posições precisam de cotação</value>
+  </data>
+  <data name="Review positions without a current BRL value." xml:space="preserve">
+    <value>Revise as posições sem valor atual em reais.</value>
+  </data>
+  <data name="Emergency reserve below target" xml:space="preserve">
+    <value>Reserva de emergência abaixo da meta</value>
+  </data>
+  <data name="The current reserve does not yet cover the planned number of months." xml:space="preserve">
+    <value>A reserva atual ainda não cobre o número de meses planejado.</value>
+  </data>
+  <data name="Idle cash deserves a decision" xml:space="preserve">
+    <value>O caixa parado merece uma decisão</value>
+  </data>
+  <data name="Consider assigning this cash to a goal, reserve, or investment." xml:space="preserve">
+    <value>Considere destinar esse caixa a uma meta, reserva ou investimento.</value>
+  </data>
+  <data name="The planned pace is below the annual target" xml:space="preserve">
+    <value>O ritmo planejado está abaixo da meta anual</value>
+  </data>
+  <data name="Review the monthly contribution or the annual assumptions." xml:space="preserve">
+    <value>Revise o aporte mensal ou as premissas anuais.</value>
+  </data>
+  <data name="Purpose in your plan" xml:space="preserve">
+    <value>Finalidade no seu plano</value>
+  </data>
+  <data name="Automatic (recommended)" xml:space="preserve">
+    <value>Automático (recomendado)</value>
+  </data>
+  <data name="Operating cash" xml:space="preserve">
+    <value>Caixa operacional</value>
+  </data>
+  <data name="Idle cash" xml:space="preserve">
+    <value>Caixa parado</value>
+  </data>
+  <data name="Long-term investment" xml:space="preserve">
+    <value>Investimento de longo prazo</value>
+  </data>
+  <data name="Non-financial asset" xml:space="preserve">
+    <value>Bem não financeiro</value>
+  </data>
+  <data name="Exclude from planning" xml:space="preserve">
+    <value>Excluir do planejamento</value>
+  </data>
+  <data name="Leave automatic unless the inferred purpose is wrong." xml:space="preserve">
+    <value>Deixe automático, a menos que a finalidade inferida esteja errada.</value>
+  </data>
+  <data name="Planning classification" xml:space="preserve">
+    <value>Classificação para o planejamento</value>
+  </data>
+  <data name="Impact on your plan" xml:space="preserve">
+    <value>Impacto no seu plano</value>
+  </data>
+  <data name="Ordinary income or expense" xml:space="preserve">
+    <value>Receita ou gasto comum</value>
+  </data>
+  <data name="Transfer between my accounts" xml:space="preserve">
+    <value>Transferência entre minhas contas</value>
+  </data>
+  <data name="Investment contribution" xml:space="preserve">
+    <value>Aporte em investimento</value>
+  </data>
+  <data name="Asset purchase, sale or movement" xml:space="preserve">
+    <value>Compra, venda ou movimentação de ativo</value>
+  </data>
+  <data name="Extraordinary event" xml:space="preserve">
+    <value>Evento extraordinário</value>
+  </data>
+  <data name="Ignore in planning" xml:space="preserve">
+    <value>Ignorar no planejamento</value>
+  </data>
+  <data name="The automatic option detects transfers and recurring operating patterns from your history." xml:space="preserve">
+    <value>A opção automática detecta transferências e padrões operacionais recorrentes no seu histórico.</value>
+  </data>
+  <data name="January" xml:space="preserve">
+    <value>Janeiro</value>
+  </data>
+  <data name="February" xml:space="preserve">
+    <value>Fevereiro</value>
+  </data>
+  <data name="March" xml:space="preserve">
+    <value>Março</value>
+  </data>
+  <data name="April" xml:space="preserve">
+    <value>Abril</value>
+  </data>
+  <data name="May" xml:space="preserve">
+    <value>Maio</value>
+  </data>
+  <data name="June" xml:space="preserve">
+    <value>Junho</value>
+  </data>
+  <data name="July" xml:space="preserve">
+    <value>Julho</value>
+  </data>
+  <data name="August" xml:space="preserve">
+    <value>Agosto</value>
+  </data>
+  <data name="September" xml:space="preserve">
+    <value>Setembro</value>
+  </data>
+  <data name="October" xml:space="preserve">
+    <value>Outubro</value>
+  </data>
+  <data name="November" xml:space="preserve">
+    <value>Novembro</value>
+  </data>
+  <data name="December" xml:space="preserve">
+    <value>Dezembro</value>
+  </data>
+  <data name="Jan" xml:space="preserve">
+    <value>Jan</value>
+  </data>
+  <data name="Feb" xml:space="preserve">
+    <value>Fev</value>
+  </data>
+  <data name="Mar" xml:space="preserve">
+    <value>Mar</value>
+  </data>
+  <data name="Apr" xml:space="preserve">
+    <value>Abr</value>
+  </data>
+  <data name="Jun" xml:space="preserve">
+    <value>Jun</value>
+  </data>
+  <data name="Jul" xml:space="preserve">
+    <value>Jul</value>
+  </data>
+  <data name="Aug" xml:space="preserve">
+    <value>Ago</value>
+  </data>
+  <data name="Sep" xml:space="preserve">
+    <value>Set</value>
+  </data>
+  <data name="Oct" xml:space="preserve">
+    <value>Out</value>
+  </data>
+  <data name="Nov" xml:space="preserve">
+    <value>Nov</value>
+  </data>
+  <data name="Dec" xml:space="preserve">
+    <value>Dez</value>
+  </data>
+  <data name="(optional)" xml:space="preserve">
+    <value>(opcional)</value>
+  </data>
+  <data name="-- Select --" xml:space="preserve">
+    <value>-- Select --</value>
+  </data>
+  <data name="A mapping for this sender already exists." xml:space="preserve">
+    <value>A mapping for this sender already exists.</value>
+  </data>
+  <data name="A name or domain that appears in the sender's address (e.g. nubank.com.br, Itau)." xml:space="preserve">
+    <value>Um nome ou dominio que aparece no endereco do remetente (ex: nubank.com.br, Itau).</value>
+  </data>
+  <data name="AI Provider" xml:space="preserve">
+    <value>Provedor de IA</value>
+  </data>
+  <data name="Account is required" xml:space="preserve">
+    <value>Account is required</value>
+  </data>
+  <data name="Add Mapping" xml:space="preserve">
+    <value>Add Mapping</value>
+  </data>
+  <data name="Aggregated data only (recommended)" xml:space="preserve">
+    <value>Somente dados agregados (recomendado)</value>
+  </data>
+  <data name="Allocation type is required" xml:space="preserve">
+    <value>Allocation type is required</value>
+  </data>
+  <data name="Allow allocation analysis" xml:space="preserve">
+    <value>Permitir analise de alocacoes</value>
+  </data>
+  <data name="Allow market quote usage" xml:space="preserve">
+    <value>Permitir uso de cotacoes de mercado</value>
+  </data>
+  <data name="Allow transaction analysis" xml:space="preserve">
+    <value>Permitir analise de transacoes</value>
+  </data>
+  <data name="Analysis permissions" xml:space="preserve">
+    <value>Permissoes de analise</value>
+  </data>
+  <data name="App Password" xml:space="preserve">
+    <value>App Password</value>
+  </data>
+  <data name="Approx BRL (partial)" xml:space="preserve">
+    <value>Approx BRL (partial)</value>
+  </data>
+  <data name="Approx BRL (quotes)" xml:space="preserve">
+    <value>Approx BRL (quotes)</value>
+  </data>
+  <data name="Approx. BRL (quotes)" xml:space="preserve">
+    <value>Approx. BRL (quotes)</value>
+  </data>
+  <data name="Auto-sync interval (hours)" xml:space="preserve">
+    <value>Auto-sync interval (hours)</value>
+  </data>
+  <data name="Base URL" xml:space="preserve">
+    <value>URL base</value>
+  </data>
+  <data name="Buy unit value is required" xml:space="preserve">
+    <value>Buy unit value is required</value>
+  </data>
+  <data name="Buy unit value must be greater than zero" xml:space="preserve">
+    <value>Buy unit value must be greater than zero</value>
+  </data>
+  <data name="Card brand is required" xml:space="preserve">
+    <value>Card brand is required</value>
+  </data>
+  <data name="Card type is required" xml:space="preserve">
+    <value>Card type is required</value>
+  </data>
+  <data name="Cardholder name is required" xml:space="preserve">
+    <value>Cardholder name is required</value>
+  </data>
+  <data name="Cardholder name must be at most 100 characters" xml:space="preserve">
+    <value>Cardholder name must be at most 100 characters</value>
+  </data>
+  <data name="Cards.NoRecords" xml:space="preserve">
+    <value>Cards.NoRecords</value>
+  </data>
+  <data name="Category is required" xml:space="preserve">
+    <value>Category is required</value>
+  </data>
+  <data name="Clear Sort" xml:space="preserve">
+    <value>Clear Sort</value>
+  </data>
+  <data name="Common servers: imap.gmail.com · outlook.office365.com · imap.mail.yahoo.com" xml:space="preserve">
+    <value>Common servers: imap.gmail.com · outlook.office365.com · imap.mail.yahoo.com</value>
+  </data>
+  <data name="Configure a language provider to enable intelligent analysis in Life Planner. The API key is stored encrypted and is never displayed again after it is saved." xml:space="preserve">
+    <value>Configure um provedor de linguagem para habilitar analises inteligentes no Life Planner. A API Key e armazenada criptografada e nunca e exibida novamente depois de salva.</value>
+  </data>
+  <data name="Connect your email account so Life Planner can automatically import bank transaction notifications. Use an App Password, not your main account password." xml:space="preserve">
+    <value>Connect your email account so Life Planner can automatically import bank transaction notifications. Use an App Password, not your main account password.</value>
+  </data>
+  <data name="Controls which data may be sent to the AI provider." xml:space="preserve">
+    <value>Controla quais dados podem ser enviados ao provedor de IA.</value>
+  </data>
+  <data name="Currency is required" xml:space="preserve">
+    <value>Currency is required</value>
+  </data>
+  <data name="Current password is required." xml:space="preserve">
+    <value>Current password is required.</value>
+  </data>
+  <data name="Date is required" xml:space="preserve">
+    <value>Date is required</value>
+  </data>
+  <data name="Default: 993 (SSL/TLS)" xml:space="preserve">
+    <value>Default: 993 (SSL/TLS)</value>
+  </data>
+  <data name="Description is required" xml:space="preserve">
+    <value>Description is required</value>
+  </data>
+  <data name="Description must be at most 500 characters" xml:space="preserve">
+    <value>Description must be at most 500 characters</value>
+  </data>
+  <data name="Destination Account" xml:space="preserve">
+    <value>Destination Account</value>
+  </data>
+  <data name="Display name is required." xml:space="preserve">
+    <value>Informe um nome de exibicao.</value>
+  </data>
+  <data name="Edit Template" xml:space="preserve">
+    <value>Edit Template</value>
+  </data>
+  <data name="Email Address" xml:space="preserve">
+    <value>Email Address</value>
+  </data>
+  <data name="Email address is required." xml:space="preserve">
+    <value>Email address is required.</value>
+  </data>
+  <data name="Email is required." xml:space="preserve">
+    <value>Email is required.</value>
+  </data>
+  <data name="Email or username is required." xml:space="preserve">
+    <value>Email or username is required.</value>
+  </data>
+  <data name="Enable AI in the system" xml:space="preserve">
+    <value>Ativar IA no sistema</value>
+  </data>
+  <data name="End" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="Enter the provider API key." xml:space="preserve">
+    <value>Informe a API Key do provedor.</value>
+  </data>
+  <data name="Error adding mapping" xml:space="preserve">
+    <value>Error adding mapping</value>
+  </data>
+  <data name="Error removing mapping" xml:space="preserve">
+    <value>Error removing mapping</value>
+  </data>
+  <data name="Error saving IMAP settings" xml:space="preserve">
+    <value>Error saving IMAP settings</value>
+  </data>
+  <data name="Error saving interval" xml:space="preserve">
+    <value>Error saving interval</value>
+  </data>
+  <data name="IMAP Email Settings" xml:space="preserve">
+    <value>IMAP Email Settings</value>
+  </data>
+  <data name="IMAP Server" xml:space="preserve">
+    <value>IMAP Server</value>
+  </data>
+  <data name="IMAP server is required." xml:space="preserve">
+    <value>IMAP server is required.</value>
+  </data>
+  <data name="IMAP settings saved successfully." xml:space="preserve">
+    <value>IMAP settings saved successfully.</value>
+  </data>
+  <data name="Import was cancelled" xml:space="preserve">
+    <value>Import was cancelled</value>
+  </data>
+  <data name="Institution type is required" xml:space="preserve">
+    <value>Institution type is required</value>
+  </data>
+  <data name="Invalid email address." xml:space="preserve">
+    <value>Invalid email address.</value>
+  </data>
+  <data name="Last sync" xml:space="preserve">
+    <value>Last sync</value>
+  </data>
+  <data name="Last test" xml:space="preserve">
+    <value>Ultimo teste</value>
+  </data>
+  <data name="Leave empty to use the provider default." xml:space="preserve">
+    <value>Deixe vazio para usar o padrao do provedor.</value>
+  </data>
+  <data name="Map each bank sender (e-mail domain or name) to the account where its transactions should be posted." xml:space="preserve">
+    <value>Map each bank sender (e-mail domain or name) to the account where its transactions should be posted.</value>
+  </data>
+  <data name="Mapping added." xml:space="preserve">
+    <value>Mapping added.</value>
+  </data>
+  <data name="Mapping removed." xml:space="preserve">
+    <value>Mapping removed.</value>
+  </data>
+  <data name="MaxTokens must be between 1 and 32768." xml:space="preserve">
+    <value>MaxTokens deve estar entre 1 e 32768.</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>Modelo</value>
+  </data>
+  <data name="Model must be 1-200 characters." xml:space="preserve">
+    <value>O modelo deve ter entre 1 e 200 caracteres.</value>
+  </data>
+  <data name="Model name is required." xml:space="preserve">
+    <value>Informe o nome do modelo.</value>
+  </data>
+  <data name="Name is required" xml:space="preserve">
+    <value>Name is required</value>
+  </data>
+  <data name="Name must be 1-200 characters." xml:space="preserve">
+    <value>O nome deve ter entre 1 e 200 caracteres.</value>
+  </data>
+  <data name="Name must be at most 100 characters" xml:space="preserve">
+    <value>Name must be at most 100 characters</value>
+  </data>
+  <data name="New API Key" xml:space="preserve">
+    <value>Nova API Key</value>
+  </data>
+  <data name="New password is required." xml:space="preserve">
+    <value>New password is required.</value>
+  </data>
+  <data name="No accounts registered. Click \&quot;New Account\&quot; to get started." xml:space="preserve">
+    <value>No accounts registered. Click \"New Account\" to get started.</value>
+  </data>
+  <data name="No habits created. Click \&quot;New Habit\&quot; to get started." xml:space="preserve">
+    <value>No habits created. Click \"New Habit\" to get started.</value>
+  </data>
+  <data name="No mappings configured yet." xml:space="preserve">
+    <value>No mappings configured yet.</value>
+  </data>
+  <data name="No objectives yet. Click \&quot;+ Objective\&quot; to add one." xml:space="preserve">
+    <value>No objectives yet. Click \"+ Objective\" to add one.</value>
+  </data>
+  <data name="No quarterly plans created. Click \&quot;New Quarter\&quot; to get started." xml:space="preserve">
+    <value>No quarterly plans created. Click \"New Quarter\" to get started.</value>
+  </data>
+  <data name="No risks mapped. Click \&quot;New Risk\&quot; to start the pre-mortem." xml:space="preserve">
+    <value>No risks mapped. Click \"New Risk\" to start the pre-mortem.</value>
+  </data>
+  <data name="No templates found. Go to the \&quot;Templates\&quot; tab to create one." xml:space="preserve">
+    <value>No templates found. Go to the \"Templates\" tab to create one.</value>
+  </data>
+  <data name="No templates. Click \&quot;New Template\&quot; to create one." xml:space="preserve">
+    <value>No templates. Click \"New Template\" to create one.</value>
+  </data>
+  <data name="No valid records found in file" xml:space="preserve">
+    <value>No valid records found in file</value>
+  </data>
+  <data name="Password is required." xml:space="preserve">
+    <value>Password is required.</value>
+  </data>
+  <data name="Password must be at least 8 characters." xml:space="preserve">
+    <value>Password must be at least 8 characters.</value>
+  </data>
+  <data name="Passwords do not match." xml:space="preserve">
+    <value>Passwords do not match.</value>
+  </data>
+  <data name="Percentage / Spread" xml:space="preserve">
+    <value>Percentage / Spread</value>
+  </data>
+  <data name="Please confirm the new password." xml:space="preserve">
+    <value>Please confirm the new password.</value>
+  </data>
+  <data name="Please confirm your password." xml:space="preserve">
+    <value>Please confirm your password.</value>
+  </data>
+  <data name="Please select a destination account." xml:space="preserve">
+    <value>Please select a destination account.</value>
+  </data>
+  <data name="Port" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="Port must be between 1 and 65535." xml:space="preserve">
+    <value>Port must be between 1 and 65535.</value>
+  </data>
+  <data name="Privacy mode" xml:space="preserve">
+    <value>Modo de privacidade</value>
+  </data>
+  <data name="Profit Type" xml:space="preserve">
+    <value>Profit Type</value>
+  </data>
+  <data name="Provider type" xml:space="preserve">
+    <value>Tipo de provedor</value>
+  </data>
+  <data name="Quantity is required" xml:space="preserve">
+    <value>Quantity is required</value>
+  </data>
+  <data name="Quantity must be greater than zero" xml:space="preserve">
+    <value>Quantity must be greater than zero</value>
+  </data>
+  <data name="Remove mapping" xml:space="preserve">
+    <value>Remove mapping</value>
+  </data>
+  <data name="Required for OpenAI-Compatible and Local providers." xml:space="preserve">
+    <value>Necessaria para provedores OpenAI-Compatible e Local.</value>
+  </data>
+  <data name="Save AI provider" xml:space="preserve">
+    <value>Salvar provedor de IA</value>
+  </data>
+  <data name="Save IMAP Settings" xml:space="preserve">
+    <value>Save IMAP Settings</value>
+  </data>
+  <data name="Save your IMAP credentials first." xml:space="preserve">
+    <value>Save your IMAP credentials first.</value>
+  </data>
+  <data name="Sender" xml:space="preserve">
+    <value>Sender</value>
+  </data>
+  <data name="Sender Identifier" xml:space="preserve">
+    <value>Sender Identifier</value>
+  </data>
+  <data name="Sender identifier is required." xml:space="preserve">
+    <value>Sender identifier is required.</value>
+  </data>
+  <data name="Sender must be 2–200 characters." xml:space="preserve">
+    <value>Sender must be 2–200 characters.</value>
+  </data>
+  <data name="Sender-to-Account Mappings" xml:space="preserve">
+    <value>Sender-to-Account Mappings</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Start Date" xml:space="preserve">
+    <value>Start Date</value>
+  </data>
+  <data name="Sync" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="Sync Now" xml:space="preserve">
+    <value>Sync Now</value>
+  </data>
+  <data name="Sync completed successfully." xml:space="preserve">
+    <value>Sync completed successfully.</value>
+  </data>
+  <data name="Sync failed" xml:space="preserve">
+    <value>Sync failed</value>
+  </data>
+  <data name="Sync interval saved." xml:space="preserve">
+    <value>Sync interval saved.</value>
+  </data>
+  <data name="Syncing…" xml:space="preserve">
+    <value>Syncing…</value>
+  </data>
+  <data name="Temperature must be between 0.0 and 2.0." xml:space="preserve">
+    <value>Temperature deve estar entre 0.0 e 2.0.</value>
+  </data>
+  <data name="Test connection" xml:space="preserve">
+    <value>Testar conexao</value>
+  </data>
+  <data name="Testing…" xml:space="preserve">
+    <value>Testando...</value>
+  </data>
+  <data name="The current key is not displayed for security. Fill this only if you want to replace it." xml:space="preserve">
+    <value>A chave atual nao e exibida por seguranca. Preencha apenas se quiser substitui-la.</value>
+  </data>
+  <data name="Use an App Password generated from your email provider, not your main account password." xml:space="preserve">
+    <value>Use an App Password generated from your email provider, not your main account password.</value>
+  </data>
+  <data name="Username is required." xml:space="preserve">
+    <value>Username is required.</value>
+  </data>
+  <data name="Username must be 3–100 characters." xml:space="preserve">
+    <value>Username must be 3–100 characters.</value>
+  </data>
+  <data name="Username must be at least 3 characters." xml:space="preserve">
+    <value>Username must be at least 3 characters.</value>
+  </data>
+  <data name="Value is required" xml:space="preserve">
+    <value>Value is required</value>
+  </data>
+  <data name="Value must be greater than zero" xml:space="preserve">
+    <value>Value must be greater than zero</value>
+  </data>
+  <data name="Values between 0.0 and 2.0. Leave empty to use the provider default." xml:space="preserve">
+    <value>Valores entre 0.0 e 2.0. Deixe vazio para usar o padrao do provedor.</value>
+  </data>
+  <data name="{0} transaction(s)" xml:space="preserve">
+    <value>{0} transaction(s)</value>
+  </data>
+  <data name="— select account —" xml:space="preserve">
+    <value>— select account —</value>
+  </data>
+  <data name="Base URL is not configured. Enter the provider base URL." xml:space="preserve">
+    <value>URL base nao configurada. Informe a URL base do provedor.</value>
+  </data>
+  <data name="Model is not configured. Enter the model name." xml:space="preserve">
+    <value>Modelo nao configurado. Informe o nome do modelo.</value>
+  </data>
+  <data name="API key was not found. Save the configuration with an API key before testing." xml:space="preserve">
+    <value>API Key nao encontrada. Salve a configuracao com uma API Key antes de testar.</value>
+  </data>
+  <data name="Connection established successfully." xml:space="preserve">
+    <value>Conexao estabelecida com sucesso.</value>
+  </data>
+  <data name="Connection established. The server responded with rate limiting (HTTP 429); the endpoint and key appear valid, but the account has reached its current usage limit." xml:space="preserve">
+    <value>Conexao estabelecida. O servidor respondeu com limite de requisicoes (HTTP 429); o endpoint e a chave parecem validos, mas a conta atingiu o limite de uso no momento.</value>
+  </data>
+  <data name="Authentication failed (HTTP 401). Check the API key." xml:space="preserve">
+    <value>Autenticacao falhou (HTTP 401). Verifique a API Key.</value>
+  </data>
+  <data name="Access denied (HTTP 403). Check the API key permissions." xml:space="preserve">
+    <value>Acesso negado (HTTP 403). Verifique as permissoes da API Key.</value>
+  </data>
+  <data name="Endpoint not found (HTTP 404). Check the base URL and model." xml:space="preserve">
+    <value>Endpoint nao encontrado (HTTP 404). Verifique a URL base e o modelo.</value>
+  </data>
+  <data name="Unexpected error while testing the connection." xml:space="preserve">
+    <value>Erro inesperado ao testar a conexao.</value>
+  </data>
+  <data name="Enter the base URL before testing." xml:space="preserve">
+    <value>Informe a URL base antes de testar.</value>
+  </data>
+  <data name="Enter the model before testing." xml:space="preserve">
+    <value>Informe o modelo antes de testar.</value>
+  </data>
+  <data name="Save the configuration with an API key before testing." xml:space="preserve">
+    <value>Salve a configuracao com uma API Key antes de testar.</value>
+  </data>
+  <data name="AI provider configuration saved successfully." xml:space="preserve">
+    <value>Configuracao do provedor de IA salva com sucesso.</value>
+  </data>
+  <data name="Error saving:" xml:space="preserve">
+    <value>Erro ao salvar:</value>
+  </data>
+  <data name="Unexpected error:" xml:space="preserve">
+    <value>Erro inesperado:</value>
+  </data>
+  <data name="Account not found" xml:space="preserve">
+    <value>Conta nao encontrada</value>
+  </data>
+  <data name="Allocation not found" xml:space="preserve">
+    <value>Alocacao nao encontrada</value>
+  </data>
+  <data name="Category not found" xml:space="preserve">
+    <value>Categoria nao encontrada</value>
+  </data>
+  <data name="Invalid code" xml:space="preserve">
+    <value>Codigo invalido</value>
+  </data>
+  <data name="Delete habit &quot;{0}&quot;?" xml:space="preserve">
+    <value>Excluir o hábito &quot;{0}&quot;?</value>
+  </data>
+  <data name="Delete pillar &quot;{0}&quot; and all its objectives and KRs?" xml:space="preserve">
+    <value>Excluir o pilar &quot;{0}&quot; e todos os seus objetivos e KRs?</value>
+  </data>
+  <data name="Delete objective &quot;{0}&quot; and all its KRs?" xml:space="preserve">
+    <value>Excluir o objetivo &quot;{0}&quot; e todos os seus KRs?</value>
+  </data>
+  <data name="Delete Key Result &quot;{0}&quot;?" xml:space="preserve">
+    <value>Excluir o Key Result &quot;{0}&quot;?</value>
+  </data>
+  <data name="Delete plan &quot;Q{0}/{1}&quot;?" xml:space="preserve">
+    <value>Excluir o plano &quot;Q{0}/{1}&quot;?</value>
+  </data>
+  <data name="Delete task &quot;{0}&quot;?" xml:space="preserve">
+    <value>Excluir a tarefa &quot;{0}&quot;?</value>
+  </data>
+  <data name="Delete review from {0}?" xml:space="preserve">
+    <value>Excluir a revisão de {0}?</value>
+  </data>
+  <data name="Delete template &quot;{0}&quot;?" xml:space="preserve">
+    <value>Excluir o template &quot;{0}&quot;?</value>
+  </data>
+  <data name="Delete risk &quot;{0}&quot;?" xml:space="preserve">
+    <value>Excluir o risco &quot;{0}&quot;?</value>
+  </data>
+  <data name="Demo mode is read-only. Create a profile to save your own data." xml:space="preserve">
+    <value>O modo demonstração é somente leitura. Crie um perfil para salvar seus próprios dados.</value>
+  </data>
+  <data name="Financial year" xml:space="preserve">
+    <value>Ano financeiro</value>
+  </data>
+  <data name="Annual financial consolidation from your existing records." xml:space="preserve">
+    <value>Consolidação financeira anual a partir dos seus registros existentes.</value>
+  </data>
+  <data name="Assembling annual financial review..." xml:space="preserve">
+    <value>Montando revisão financeira anual...</value>
+  </data>
+  <data name="No annual activity found." xml:space="preserve">
+    <value>Nenhuma atividade anual encontrada.</value>
+  </data>
+  <data name="Create or import transactions to make this review useful." xml:space="preserve">
+    <value>Crie ou importe transações para tornar esta revisão útil.</value>
+  </data>
+  <data name="Annual summary" xml:space="preserve">
+    <value>Resumo anual</value>
+  </data>
+  <data name="Annual dashboard" xml:space="preserve">
+    <value>Dashboard anual</value>
+  </data>
+  <data name="YearReview.PerformanceBoard" xml:space="preserve">
+    <value>Performance financeira de {0}</value>
+  </data>
+  <data name="Consolidated cash flow, patrimony and investment reading from existing data." xml:space="preserve">
+    <value>Leitura consolidada de fluxo de caixa, patrimônio e investimentos a partir dos dados existentes.</value>
+  </data>
+  <data name="Annual result" xml:space="preserve">
+    <value>Resultado anual</value>
+  </data>
+  <data name="Savings rate" xml:space="preserve">
+    <value>Taxa de poupança</value>
+  </data>
+  <data name="Investment exits" xml:space="preserve">
+    <value>Saídas de investimento</value>
+  </data>
+  <data name="Estimated movement" xml:space="preserve">
+    <value>Movimento estimado</value>
+  </data>
+  <data name="Investment return" xml:space="preserve">
+    <value>Retorno dos investimentos</value>
+  </data>
+  <data name="Month by month" xml:space="preserve">
+    <value>Mês a mês</value>
+  </data>
+  <data name="Cash-flow rhythm" xml:space="preserve">
+    <value>Ritmo do fluxo de caixa</value>
+  </data>
+  <data name="Annual cash-flow chart" xml:space="preserve">
+    <value>Gráfico anual de fluxo de caixa</value>
+  </data>
+  <data name="Highlights" xml:space="preserve">
+    <value>Destaques</value>
+  </data>
+  <data name="Best and hardest months" xml:space="preserve">
+    <value>Melhores e meses mais difíceis</value>
+  </data>
+  <data name="Largest expense categories" xml:space="preserve">
+    <value>Maiores categorias de saída</value>
+  </data>
+  <data name="No expenses recorded for this year." xml:space="preserve">
+    <value>Nenhuma despesa registrada neste ano.</value>
+  </data>
+  <data name="of annual expenses" xml:space="preserve">
+    <value>das saídas anuais</value>
+  </data>
+  <data name="Patrimony and investments" xml:space="preserve">
+    <value>Patrimônio e investimentos</value>
+  </data>
+  <data name="Account cash" xml:space="preserve">
+    <value>Caixa em contas</value>
+  </data>
+  <data name="Long-term investments" xml:space="preserve">
+    <value>Investimentos de longo prazo</value>
+  </data>
+  <data name="Applied value" xml:space="preserve">
+    <value>Valor aplicado</value>
+  </data>
+  <data name="Analyst summary" xml:space="preserve">
+    <value>Resumo do analista</value>
+  </data>
+  <data name="Financial reading of the year" xml:space="preserve">
+    <value>Leitura financeira do ano</value>
+  </data>
+  <data name="Investment breakdown" xml:space="preserve">
+    <value>Discriminação dos investimentos</value>
+  </data>
+  <data name="Performance by position" xml:space="preserve">
+    <value>Performance por posição</value>
+  </data>
+  <data name="No investment positions found." xml:space="preserve">
+    <value>Nenhuma posição de investimento encontrada.</value>
+  </data>
+  <data name="estimated" xml:space="preserve">
+    <value>estimado</value>
+  </data>
+  <data name="YearReview.UnpricedPositions" xml:space="preserve">
+    <value>{0} posição(ões) precisam de precificação antes desta visão ficar totalmente confiável.</value>
+  </data>
+  <data name="YearReview.LoadError" xml:space="preserve">
+    <value>Não foi possível carregar a revisão anual: {0}</value>
+  </data>
+  <data name="YearReview.Analysis.PositiveCashFlow" xml:space="preserve">
+    <value>O ano mostra capacidade positiva de fluxo de caixa: entradas e aportes cobriram as saídas, o que indica espaço para proteger ou aumentar patrimônio.</value>
+  </data>
+  <data name="YearReview.Analysis.NegativeCashFlow" xml:space="preserve">
+    <value>O ano fechou com pressão no fluxo de caixa. Saídas e movimentos consumiram mais do que o ano gerou, então o ponto principal é controlar gastos ou recuperar entradas.</value>
+  </data>
+  <data name="YearReview.Analysis.StrongSavings" xml:space="preserve">
+    <value>O ritmo de aporte é forte em relação às entradas anuais. Isso costuma ser saudável quando liquidez e reserva de emergência não estão sendo sacrificadas.</value>
+  </data>
+  <data name="YearReview.Analysis.LowSavings" xml:space="preserve">
+    <value>O ritmo de aporte ainda é modesto em relação às entradas anuais. Um próximo passo prático é transformar uma despesa ou decisão recorrente em capacidade mensal de investimento.</value>
+  </data>
+  <data name="YearReview.Analysis.ConcentratedExpenses" xml:space="preserve">
+    <value>As saídas estão concentradas em uma categoria líder. Essa categoria merece revisão detalhada, porque uma única mudança ali pode mover o ano inteiro.</value>
+  </data>
+  <data name="YearReview.Analysis.DistributedExpenses" xml:space="preserve">
+    <value>As saídas estão relativamente distribuídas entre categorias. A melhora provavelmente virá de ajustes recorrentes pequenos, não de um único corte isolado.</value>
+  </data>
+  <data name="YearReview.Analysis.PositiveInvestments" xml:space="preserve">
+    <value>A posição atual de investimentos está acima do valor aplicado. O foco deve ser qualidade da alocação, necessidade de liquidez e aderência ao plano anual.</value>
+  </data>
+  <data name="YearReview.Analysis.NegativeInvestments" xml:space="preserve">
+    <value>A posição atual de investimentos está abaixo do valor aplicado. Isso não significa automaticamente uma decisão ruim, mas pede revisão de risco, horizonte e concentração.</value>
+  </data>
+  <data name="YearReview.Analysis.UnpricedPositions" xml:space="preserve">
+    <value>Algumas posições ainda não têm precificação confiável. Corrigir isso deixará patrimônio, retorno e projeção anual mais confiáveis.</value>
+  </data>
+  <data name="YearReview.Analysis.PricedPositions" xml:space="preserve">
+    <value>A posição atual não tem lacunas de preço sinalizadas pelos fatos financeiros, então os números consolidados estão em bom estado para decisão.</value>
+  </data>
+  <data name="YearReview.Insight.CashFlow.Positive.Title" xml:space="preserve">
+    <value>Fluxo de caixa gerou espaço</value>
+  </data>
+  <data name="YearReview.Insight.CashFlow.Positive.Body" xml:space="preserve">
+    <value>O ano fechou com capacidade positiva depois de despesas operacionais e aportes. A prioridade é preservar essa diferença e decidir quanto vira reserva, investimento e gasto planejado.</value>
+  </data>
+  <data name="YearReview.Insight.CashFlow.Negative.Title" xml:space="preserve">
+    <value>Fluxo de caixa consumiu o ano</value>
+  </data>
+  <data name="YearReview.Insight.CashFlow.Negative.Body" xml:space="preserve">
+    <value>O resultado anual mostra pressão: saídas e movimentos consumiram mais do que as entradas sustentaram. A primeira ação é separar despesas estruturais de eventos pontuais antes de aumentar compromissos de investimento.</value>
+  </data>
+  <data name="YearReview.Insight.ExpenseConcentration.Title" xml:space="preserve">
+    <value>Concentração de gastos é a principal alavanca</value>
+  </data>
+  <data name="YearReview.Insight.ExpenseConcentration.Body" xml:space="preserve">
+    <value>A maior categoria é grande o bastante para influenciar o ano inteiro. Revise itens recorrentes, renegocie o que se repete e só depois procure economias menores em outros lugares.</value>
+  </data>
+  <data name="YearReview.Insight.ExpenseDistribution.Title" xml:space="preserve">
+    <value>Gastos estão distribuídos</value>
+  </data>
+  <data name="YearReview.Insight.ExpenseDistribution.Body" xml:space="preserve">
+    <value>Nenhuma categoria domina o ano. A melhora provavelmente depende de disciplina mensal em várias categorias pequenas, não de um corte grande isolado.</value>
+  </data>
+  <data name="YearReview.Insight.Savings.Strong.Title" xml:space="preserve">
+    <value>Ritmo de aporte está saudável</value>
+  </data>
+  <data name="YearReview.Insight.Savings.Strong.Body" xml:space="preserve">
+    <value>A taxa de aporte é forte em relação às entradas. Continue validando se esse ritmo combina com liquidez, reserva de emergência e obrigações próximas.</value>
+  </data>
+  <data name="YearReview.Insight.Savings.Low.Title" xml:space="preserve">
+    <value>Ritmo de aporte está fraco</value>
+  </data>
+  <data name="YearReview.Insight.Savings.Low.Body" xml:space="preserve">
+    <value>A taxa anual de poupança ainda não é forte o bastante para acelerar patrimônio. Um alvo prático é transformar uma despesa recorrente ou dinheiro parado em capacidade mensal de aporte.</value>
+  </data>
+  <data name="YearReview.Insight.Investments.Positive.Title" xml:space="preserve">
+    <value>Investimentos adicionaram valor</value>
+  </data>
+  <data name="YearReview.Insight.Investments.Positive.Body" xml:space="preserve">
+    <value>A carteira atual está acima do valor aplicado. A próxima revisão não é só retorno, mas se as posições que mais performaram estão alinhadas com risco, concentração e horizonte.</value>
+  </data>
+  <data name="YearReview.Insight.Investments.Negative.Title" xml:space="preserve">
+    <value>Investimentos tiraram valor</value>
+  </data>
+  <data name="YearReview.Insight.Investments.Negative.Body" xml:space="preserve">
+    <value>A carteira atual está abaixo do valor aplicado. Verifique se a perda vem de volatilidade de mercado, falta de preço, câmbio ou concentração antes de mudar a alocação.</value>
+  </data>
+  <data name="YearReview.Insight.DataQuality.Warning.Title" xml:space="preserve">
+    <value>Lacunas de preço reduzem confiança</value>
+  </data>
+  <data name="YearReview.Insight.DataQuality.Warning.Body" xml:space="preserve">
+    <value>Algumas posições ainda precisam de precificação confiável. Corrigir isso deve vir antes de usar retorno anual e movimento patrimonial como indicadores decisórios.</value>
+  </data>
+  <data name="YearReview.Insight.DataQuality.Good.Title" xml:space="preserve">
+    <value>Dados estão prontos para decisão</value>
+  </data>
+  <data name="YearReview.Insight.DataQuality.Good.Body" xml:space="preserve">
+    <value>Nenhuma lacuna de preço foi sinalizada nos fatos canônicos. O dashboard pode ser lido como visão gerencial confiável, respeitando os limites normais de dados de posição atual.</value>
+  </data>
+  <data name="Weekly routine" xml:space="preserve">
+    <value>Rotina semanal</value>
+  </data>
+  <data name="Keep maintenance, odometer, fuel and reminders close to your routine." xml:space="preserve">
+    <value>Mantenha manutenção, quilometragem, combustível e lembretes perto da sua rotina.</value>
+  </data>
+  <data name="Loading vehicles..." xml:space="preserve">
+    <value>Carregando veículos...</value>
+  </data>
+  <data name="No vehicles yet" xml:space="preserve">
+    <value>Nenhum veículo ainda</value>
+  </data>
+  <data name="Add your car or motorcycle to start tracking maintenance, oil, fuel and odometer reminders." xml:space="preserve">
+    <value>Adicione seu carro ou moto para acompanhar manutenção, óleo, combustível e lembretes por km.</value>
+  </data>
+  <data name="New vehicle" xml:space="preserve">
+    <value>Novo veículo</value>
+  </data>
+  <data name="Edit vehicle" xml:space="preserve">
+    <value>Editar veículo</value>
+  </data>
+  <data name="Vehicle" xml:space="preserve">
+    <value>Veículo</value>
+  </data>
+  <data name="Record" xml:space="preserve">
+    <value>Registro</value>
+  </data>
+  <data name="New record" xml:space="preserve">
+    <value>Novo registro</value>
+  </data>
+  <data name="Edit record" xml:space="preserve">
+    <value>Editar registro</value>
+  </data>
+  <data name="Reminder" xml:space="preserve">
+    <value>Lembrete</value>
+  </data>
+  <data name="New reminder" xml:space="preserve">
+    <value>Novo lembrete</value>
+  </data>
+  <data name="Edit reminder" xml:space="preserve">
+    <value>Editar lembrete</value>
+  </data>
+  <data name="Vehicle record filters" xml:space="preserve">
+    <value>Filtros de registros do veículo</value>
+  </data>
+  <data name="Timeline" xml:space="preserve">
+    <value>Linha do tempo</value>
+  </data>
+  <data name="Maintenance" xml:space="preserve">
+    <value>Manutenção</value>
+  </data>
+  <data name="Fuel" xml:space="preserve">
+    <value>Combustível</value>
+  </data>
+  <data name="Expenses" xml:space="preserve">
+    <value>Despesas</value>
+  </data>
+  <data name="Car" xml:space="preserve">
+    <value>Carro</value>
+  </data>
+  <data name="Motorcycle" xml:space="preserve">
+    <value>Moto</value>
+  </data>
+  <data name="OilChange" xml:space="preserve">
+    <value>Troca de óleo</value>
+  </data>
+  <data name="Odometer" xml:space="preserve">
+    <value>Quilometragem</value>
+  </data>
+  <data name="MaintenanceTab" xml:space="preserve">
+    <value>Manutenção</value>
+  </data>
+  <data name="Current km" xml:space="preserve">
+    <value>Km atual</value>
+  </data>
+  <data name="This year" xml:space="preserve">
+    <value>Este ano</value>
+  </data>
+  <data name="No reminder" xml:space="preserve">
+    <value>Sem lembrete</value>
+  </data>
+  <data name="Selected vehicle" xml:space="preserve">
+    <value>Veículo selecionado</value>
+  </data>
+  <data name="Last service" xml:space="preserve">
+    <value>Último serviço</value>
+  </data>
+  <data name="Brand" xml:space="preserve">
+    <value>Marca</value>
+  </data>
+  <data name="Plate" xml:space="preserve">
+    <value>Placa</value>
+  </data>
+  <data name="Km" xml:space="preserve">
+    <value>Km</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Local</value>
+  </data>
+  <data name="Due date" xml:space="preserve">
+    <value>Data limite</value>
+  </data>
+  <data name="Due km" xml:space="preserve">
+    <value>Km limite</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Aberto</value>
+  </data>
+  <data name="Dismissed" xml:space="preserve">
+    <value>Dispensado</value>
+  </data>
+  <data name="Overdue" xml:space="preserve">
+    <value>Vencido</value>
+  </data>
+  <data name="Soon" xml:space="preserve">
+    <value>Próximo</value>
+  </data>
+  <data name="Resolved" xml:space="preserve">
+    <value>Resolvido</value>
+  </data>
+  <data name="Neutral" xml:space="preserve">
+    <value>Sem vencimento</value>
+  </data>
+  <data name="No due target" xml:space="preserve">
+    <value>Sem vencimento</value>
+  </data>
+  <data name="No extra details" xml:space="preserve">
+    <value>Sem detalhes extras</value>
+  </data>
+  <data name="No reminders for this vehicle." xml:space="preserve">
+    <value>Nenhum lembrete para este veículo.</value>
+  </data>
+  <data name="No records for this view." xml:space="preserve">
+    <value>Nenhum registro para esta visão.</value>
+  </data>
+  <data name="Maintenance reminder" xml:space="preserve">
+    <value>Lembrete de manutenção</value>
+  </data>
+  <data name="Color example" xml:space="preserve">
+    <value>Azul, prata ou #2563eb</value>
+  </data>
+  <data name="Vehicle image" xml:space="preserve">
+    <value>Imagem do veículo</value>
+  </data>
+  <data name="Vehicle image must be an image file." xml:space="preserve">
+    <value>A imagem do veículo precisa ser um arquivo de imagem.</value>
+  </data>
+  <data name="Vehicle image is too large. Max 12 MB." xml:space="preserve">
+    <value>A imagem do veículo é grande demais. Máximo de 12 MB.</value>
+  </data>
+  <data name="Vehicle image is too large. Max 5 MB." xml:space="preserve">
+    <value>A imagem do veículo é grande demais. Máximo de 5 MB.</value>
+  </data>
+  <data name="Vehicle image is still too large after optimization." xml:space="preserve">
+    <value>A imagem do veículo ainda está grande demais após a otimização.</value>
+  </data>
+  <data name="Vehicle image ready." xml:space="preserve">
+    <value>Imagem do veículo pronta.</value>
+  </data>
+  <data name="Vehicle image could not be read." xml:space="preserve">
+    <value>Não foi possível ler a imagem do veículo.</value>
+  </data>
+  <data name="Choose a valid vehicle image before saving." xml:space="preserve">
+    <value>Escolha uma imagem válida para o veículo antes de salvar.</value>
+  </data>
+  <data name="Oil changed" xml:space="preserve">
+    <value>Troquei óleo</value>
+  </data>
+  <data name="Next oil change" xml:space="preserve">
+    <value>Próxima troca de óleo</value>
+  </data>
+  <data name="Common" xml:space="preserve">
+    <value>Comum</value>
+  </data>
+  <data name="Vehicle services" xml:space="preserve">
+    <value>Serviços do veículo</value>
+  </data>
+  <data name="Other service" xml:space="preserve">
+    <value>Outro serviço</value>
+  </data>
+  <data name="Describe another service" xml:space="preserve">
+    <value>Descreva outro serviço</value>
+  </data>
+  <data name="Inspection" xml:space="preserve">
+    <value>Revisão</value>
+  </data>
+  <data name="Tires" xml:space="preserve">
+    <value>Pneus</value>
+  </data>
+  <data name="Brakes" xml:space="preserve">
+    <value>Freios</value>
+  </data>
+  <data name="Battery" xml:space="preserve">
+    <value>Bateria</value>
+  </data>
+  <data name="Accessory" xml:space="preserve">
+    <value>Acessório</value>
+  </data>
+  <data name="Insurance" xml:space="preserve">
+    <value>Seguro</value>
+  </data>
+  <data name="Tax" xml:space="preserve">
+    <value>Imposto</value>
+  </data>
+  <data name="Parking" xml:space="preserve">
+    <value>Estacionamento</value>
+  </data>
+  <data name="Wash" xml:space="preserve">
+    <value>Lavagem</value>
+  </data>
+  <data name="Labor" xml:space="preserve">
+    <value>Mão de obra</value>
+  </data>
+  <data name="Alignment" xml:space="preserve">
+    <value>Alinhamento</value>
+  </data>
+  <data name="Balancing" xml:space="preserve">
+    <value>Balanceamento</value>
+  </data>
+  <data name="Air filter" xml:space="preserve">
+    <value>Filtro de ar</value>
+  </data>
+  <data name="Cabin filter" xml:space="preserve">
+    <value>Filtro de cabine</value>
+  </data>
+  <data name="Spark plugs" xml:space="preserve">
+    <value>Velas</value>
+  </data>
+  <data name="Coolant" xml:space="preserve">
+    <value>Aditivo</value>
+  </data>
+  <data name="Transmission oil" xml:space="preserve">
+    <value>Óleo câmbio</value>
+  </data>
+  <data name="Brake fluid" xml:space="preserve">
+    <value>Fluido freio</value>
+  </data>
+  <data name="Suspension" xml:space="preserve">
+    <value>Suspensão</value>
+  </data>
+  <data name="Wipers" xml:space="preserve">
+    <value>Palhetas</value>
+  </data>
+  <data name="Chain" xml:space="preserve">
+    <value>Corrente</value>
+  </data>
+  <data name="Sprocket" xml:space="preserve">
+    <value>Relação</value>
+  </data>
+  <data name="Rear tire" xml:space="preserve">
+    <value>Pneu traseiro</value>
+  </data>
+  <data name="Front tire" xml:space="preserve">
+    <value>Pneu dianteiro</value>
+  </data>
+  <data name="Brake pads" xml:space="preserve">
+    <value>Pastilhas</value>
+  </data>
+  <data name="Clutch cable" xml:space="preserve">
+    <value>Cabo embreagem</value>
+  </data>
+  <data name="Throttle cable" xml:space="preserve">
+    <value>Cabo acelerador</value>
+  </data>
+  <data name="Fork oil" xml:space="preserve">
+    <value>Óleo bengala</value>
+  </data>
+  <data name="Engine adjustment" xml:space="preserve">
+    <value>Regulagem motor</value>
+  </data>
+  <data name="Valve adjustment" xml:space="preserve">
+    <value>Regulagem válvulas</value>
+  </data>
+  <data name="Vehicle saved." xml:space="preserve">
+    <value>Veículo salvo.</value>
+  </data>
+  <data name="Vehicle deleted." xml:space="preserve">
+    <value>Veículo excluído.</value>
+  </data>
+  <data name="Record saved." xml:space="preserve">
+    <value>Registro salvo.</value>
+  </data>
+  <data name="Record deleted." xml:space="preserve">
+    <value>Registro excluído.</value>
+  </data>
+  <data name="Reminder saved." xml:space="preserve">
+    <value>Lembrete salvo.</value>
+  </data>
+  <data name="Reminder updated." xml:space="preserve">
+    <value>Lembrete atualizado.</value>
+  </data>
+  <data name="Reminder deleted." xml:space="preserve">
+    <value>Lembrete excluído.</value>
+  </data>
+  <data name="Vehicle name is required." xml:space="preserve">
+    <value>O nome do veículo é obrigatório.</value>
+  </data>
+  <data name="Vehicle record title is required." xml:space="preserve">
+    <value>O título do registro do veículo é obrigatório.</value>
+  </data>
+  <data name="Vehicle reminder title is required." xml:space="preserve">
+    <value>O título do lembrete do veículo é obrigatório.</value>
+  </data>
+  <data name="Vehicle reminder needs a due date or odometer." xml:space="preserve">
+    <value>O lembrete do veículo precisa de data limite ou km limite.</value>
+  </data>
+  <data name="Vehicle not found for the current user." xml:space="preserve">
+    <value>Veículo não encontrado para o usuário atual.</value>
+  </data>
+  <data name="Vehicle km format" xml:space="preserve">
+    <value>{0:N0} km</value>
+  </data>
+  <data name="Vehicle quantity format" xml:space="preserve">
+    <value>{0:N3} qtd.</value>
+  </data>
+  <data name="Wealth protection" xml:space="preserve">
+    <value>Proteção patrimonial</value>
+  </data>
+  <data name="Protection map" xml:space="preserve">
+    <value>Mapa de proteção</value>
+  </data>
+  <data name="Calculated from your current plan data" xml:space="preserve">
+    <value>Calculado com os dados atuais do seu plano</value>
+  </data>
+  <data name="Protection diagnosis" xml:space="preserve">
+    <value>Diagnóstico de proteção</value>
+  </data>
+  <data name="Protected and well directed" xml:space="preserve">
+    <value>Protegido e bem direcionado</value>
+  </data>
+  <data name="Wealth is well underway" xml:space="preserve">
+    <value>Patrimônio bem encaminhado</value>
+  </data>
+  <data name="Protection points need attention" xml:space="preserve">
+    <value>Pontos de proteção pedem atenção</value>
+  </data>
+  <data name="Your current data shows strong organization, liquidity and planning signals." xml:space="preserve">
+    <value>Seus dados atuais mostram bons sinais de organização, liquidez e planejamento.</value>
+  </data>
+  <data name="Your current data shows structure, with room to improve protection and governance." xml:space="preserve">
+    <value>Seus dados atuais mostram estrutura, com espaço para melhorar proteção e governança.</value>
+  </data>
+  <data name="Your current data shows gaps in organization, liquidity or mapped continuity signals." xml:space="preserve">
+    <value>Seus dados atuais mostram lacunas em organização, liquidez ou sinais de continuidade mapeados.</value>
+  </data>
+  <data name="Global diversification" xml:space="preserve">
+    <value>Diversificação global</value>
+  </data>
+  <data name="Wealth concentration" xml:space="preserve">
+    <value>Concentração patrimonial</value>
+  </data>
+  <data name="Liquidity" xml:space="preserve">
+    <value>Liquidez</value>
+  </data>
+  <data name="Succession protection" xml:space="preserve">
+    <value>Proteção sucessória</value>
+  </data>
+  <data name="Asset organization" xml:space="preserve">
+    <value>Organização patrimonial</value>
+  </data>
+  <data name="Family governance" xml:space="preserve">
+    <value>Governança familiar</value>
+  </data>
+  <data name="Global" xml:space="preserve">
+    <value>Global</value>
+  </data>
+  <data name="Concentration" xml:space="preserve">
+    <value>Concentração</value>
+  </data>
+  <data name="Succession" xml:space="preserve">
+    <value>Sucessão</value>
+  </data>
+  <data name="Organization" xml:space="preserve">
+    <value>Organização</value>
+  </data>
+  <data name="Governance" xml:space="preserve">
+    <value>Governança</value>
+  </data>
+  <data name="Best signal" xml:space="preserve">
+    <value>Melhor sinal</value>
+  </data>
+  <data name="Needs more attention" xml:space="preserve">
+    <value>Pede mais atenção</value>
+  </data>
+  <data name="Healthy axes" xml:space="preserve">
+    <value>Eixos saudáveis</value>
+  </data>
+  <data name="{0} of {1}" xml:space="preserve">
+    <value>{0} de {1}</value>
+  </data>
+  <data name="at least 70 points" xml:space="preserve">
+    <value>pelo menos 70 pontos</value>
+  </data>
+  <data name="{0}: {1}/100. {2} {3}" xml:space="preserve">
+    <value>{0}: {1}/100. {2} {3}</value>
+  </data>
+  <data name="Reads currencies and global allocation types already mapped." xml:space="preserve">
+    <value>Lê moedas e tipos de alocação global já mapeados.</value>
+  </data>
+  <data name="Estimates whether wealth is spread across current account positions." xml:space="preserve">
+    <value>Estima se o patrimônio está distribuído entre as posições atuais das contas.</value>
+  </data>
+  <data name="Uses reserve, operating cash, idle cash and reserve target." xml:space="preserve">
+    <value>Usa reserva, caixa operacional, caixa ocioso e alvo de reserva.</value>
+  </data>
+  <data name="Looks for continuity, legacy, family and succession signals in risks, KRs and reviews." xml:space="preserve">
+    <value>Procura sinais de continuidade, legado, família e sucessão em riscos, KRs e reviews.</value>
+  </data>
+  <data name="Uses allocation purpose, pricing coverage, annual plan and mapped structures." xml:space="preserve">
+    <value>Usa finalidade das alocações, cobertura de preços, plano anual e estruturas mapeadas.</value>
+  </data>
+  <data name="Reads reviews, decisions, risks and KRs for governance signals." xml:space="preserve">
+    <value>Lê reviews, decisões, riscos e KRs em busca de sinais de governança.</value>
+  </data>
+  <data name="Looks strong with current data." xml:space="preserve">
+    <value>Parece forte com os dados atuais.</value>
+  </data>
+  <data name="Looks reasonable, but has room to improve." xml:space="preserve">
+    <value>Parece razoável, mas ainda tem espaço para melhorar.</value>
+  </data>
+  <data name="Needs attention in current plan data." xml:space="preserve">
+    <value>Precisa de atenção nos dados atuais do plano.</value>
+  </data>
+  <data name="Weak signal; little evidence is mapped today." xml:space="preserve">
+    <value>Sinal fraco; há pouca evidência mapeada hoje.</value>
+  </data>
+  <data name="Public account creation is currently disabled." xml:space="preserve">
+    <value>A criação pública de contas está desabilitada no momento.</value>
+  </data>
+  <data name="Admin Security" xml:space="preserve">
+    <value>Segurança Admin</value>
+  </data>
+  <data name="Allow public account creation" xml:space="preserve">
+    <value>Permitir criação pública de contas</value>
+  </data>
+  <data name="When disabled, visitors can still browse the demo but cannot create a profile." xml:space="preserve">
+    <value>Quando desabilitado, visitantes ainda podem navegar pela demo, mas não podem criar perfil.</value>
+  </data>
+  <data name="Registration setting saved." xml:space="preserve">
+    <value>Configuração de cadastro salva.</value>
+  </data>
+  <data name="Error saving registration setting" xml:space="preserve">
+    <value>Erro ao salvar configuração de cadastro</value>
+  </data>
+  <data name="User or password incorrect. Please try again." xml:space="preserve">
+    <value>Usuário ou senha incorretos. Tente novamente.</value>
+  </data>
+  <data name="This account is temporarily locked. Please try again later." xml:space="preserve">
+    <value>Esta conta está temporariamente bloqueada. Tente novamente mais tarde.</value>
+  </data>
+  <data name="If an account with that email exists, a reset link has been sent. Check your inbox." xml:space="preserve">
+    <value>Se existir uma conta com esse e-mail, um link de redefinição foi enviado. Verifique sua caixa de entrada.</value>
+  </data>
+  <data name="Account created! You can now sign in." xml:space="preserve">
+    <value>Conta criada! Agora você pode entrar.</value>
+  </data>
+  <data name="Unable to create the account. Please review the information and try again." xml:space="preserve">
+    <value>Não foi possível criar a conta. Revise as informações e tente novamente.</value>
+  </data>
+  <data name="Unable to create the account with the supplied information." xml:space="preserve">
+    <value>Não foi possível criar a conta com as informações fornecidas.</value>
+  </data>
+  <data name="Invalid reset link. Please request a new one." xml:space="preserve">
+    <value>Link de redefinição inválido. Solicite um novo link.</value>
+  </data>
+  <data name="Unable to reset password. Please request a new reset link." xml:space="preserve">
+    <value>Não foi possível redefinir a senha. Solicite um novo link.</value>
+  </data>
+  <data name="Show/hide values" xml:space="preserve">
+    <value>Mostrar/ocultar valores</value>
+  </data>
+  <data name="Syncing Supabase to Neon" xml:space="preserve">
+    <value>Sincronizando Supabase para Neon</value>
+  </data>
+  <data name="Running on primary (Supabase) - Neon standby available" xml:space="preserve">
+    <value>Rodando no principal (Supabase) - Neon secundário disponível</value>
+  </data>
+  <data name="Running on primary (Supabase) - Neon standby unavailable" xml:space="preserve">
+    <value>Rodando no principal (Supabase) - Neon secundário indisponível</value>
+  </data>
+  <data name="Running on secondary (Neon)" xml:space="preserve">
+    <value>Rodando no secundário (Neon)</value>
+  </data>
+  <data name="System status" xml:space="preserve">
+    <value>Status do sistema</value>
+  </data>
+  <data name="Read-only operational snapshot. Secrets are never displayed." xml:space="preserve">
+    <value>Resumo operacional somente leitura. Segredos nunca são exibidos.</value>
+  </data>
+  <data name="Demo operational snapshot. Values are simulated and no live integrations are queried." xml:space="preserve">
+    <value>Resumo operacional demo. Valores são simulados e nenhuma integração ao vivo é consultada.</value>
+  </data>
+  <data name="Only admin users can access this page." xml:space="preserve">
+    <value>Somente usuários admin podem acessar esta página.</value>
+  </data>
+  <data name="Demo mode uses simulated monitoring data." xml:space="preserve">
+    <value>Modo demo usa dados simulados de monitoramento.</value>
+  </data>
+  <data name="Healthy" xml:space="preserve">
+    <value>Saudável</value>
+  </data>
+  <data name="Attention" xml:space="preserve">
+    <value>Atenção</value>
+  </data>
+  <data name="Unavailable" xml:space="preserve">
+    <value>Indisponível</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Desconhecido</value>
+  </data>
+  <data name="Configured" xml:space="preserve">
+    <value>Configurado</value>
+  </data>
+  <data name="Missing" xml:space="preserve">
+    <value>Ausente</value>
+  </data>
+  <data name="Live database" xml:space="preserve">
+    <value>Banco ativo</value>
+  </data>
+  <data name="Render service" xml:space="preserve">
+    <value>Serviço Render</value>
+  </data>
+  <data name="Automation" xml:space="preserve">
+    <value>Automação</value>
+  </data>
+  <data name="Runtime" xml:space="preserve">
+    <value>Runtime</value>
+  </data>
+  <data name="Environment" xml:space="preserve">
+    <value>Ambiente</value>
+  </data>
+  <data name="Application URL" xml:space="preserve">
+    <value>URL da aplicação</value>
+  </data>
+  <data name="Public registration" xml:space="preserve">
+    <value>Cadastro público</value>
+  </data>
+  <data name="Primary database" xml:space="preserve">
+    <value>Banco primário</value>
+  </data>
+  <data name="Standby database" xml:space="preserve">
+    <value>Banco standby</value>
+  </data>
+  <data name="Pending migrations" xml:space="preserve">
+    <value>Migrations pendentes</value>
+  </data>
+  <data name="Integrations" xml:space="preserve">
+    <value>Integrações</value>
+  </data>
+  <data name="SMTP email" xml:space="preserve">
+    <value>E-mail SMTP</value>
+  </data>
+  <data name="SMTP is configured for password reset email delivery." xml:space="preserve">
+    <value>SMTP configurado para envio de e-mail de recuperação de senha.</value>
+  </data>
+  <data name="SMTP is missing because Smtp__Host and sender credentials are not configured. Password reset emails cannot be sent until this is configured." xml:space="preserve">
+    <value>SMTP ausente porque Smtp__Host e credenciais de envio não estão configurados. E-mails de recuperação de senha não podem ser enviados até isso ser configurado.</value>
+  </data>
+  <data name="Widget tokens" xml:space="preserve">
+    <value>Tokens de widget</value>
+  </data>
+  <data name="Background services" xml:space="preserve">
+    <value>Serviços em background</value>
+  </data>
+  <data name="Database probe" xml:space="preserve">
+    <value>Probe do banco</value>
+  </data>
+  <data name="Quote updater" xml:space="preserve">
+    <value>Atualizador de cotações</value>
+  </data>
+  <data name="Planning actions" xml:space="preserve">
+    <value>Ações de planejamento</value>
+  </data>
+  <data name="Demo refresh" xml:space="preserve">
+    <value>Refresh da demo</value>
+  </data>
+  <data name="Data footprint" xml:space="preserve">
+    <value>Volume de dados</value>
+  </data>
+  <data name="Users" xml:space="preserve">
+    <value>Usuários</value>
+  </data>
+  <data name="Repository automation" xml:space="preserve">
+    <value>Automação do repositório</value>
+  </data>
+  <data name="CI workflow" xml:space="preserve">
+    <value>Workflow de CI</value>
+  </data>
+  <data name="Backup workflow" xml:space="preserve">
+    <value>Workflow de backup</value>
+  </data>
+  <data name="Recovery workflow" xml:space="preserve">
+    <value>Workflow de recuperação</value>
+  </data>
+  <data name="Provider keys" xml:space="preserve">
+    <value>Chaves de provedores</value>
+  </data>
+  <data name="Alpha Vantage" xml:space="preserve">
+    <value>Alpha Vantage</value>
+  </data>
+  <data name="Started" xml:space="preserve">
+    <value>Iniciado</value>
+  </data>
+  <data name="succeeded" xml:space="preserve">
+    <value>com sucesso</value>
+  </data>
+  <data name="failed" xml:space="preserve">
+    <value>falhou</value>
+  </data>
+  <data name="No quote history found." xml:space="preserve">
+    <value>Nenhum histórico de cotação encontrado.</value>
+  </data>
+  <data name="mapping(s)" xml:space="preserve">
+    <value>mapeamento(s)</value>
+  </data>
+  <data name="setting(s)" xml:space="preserve">
+    <value>configuração(ões)</value>
+  </data>
+  <data name="token(s)" xml:space="preserve">
+    <value>token(s)</value>
+  </data>
+  <data name="pairing code(s)" xml:space="preserve">
+    <value>código(s) de pareamento</value>
+  </data>
+  <data name="No generator run found." xml:space="preserve">
+    <value>Nenhuma execução do gerador encontrada.</value>
+  </data>
+  <data name="Last run" xml:space="preserve">
+    <value>Última execução</value>
+  </data>
+  <data name="open action(s)" xml:space="preserve">
+    <value>ação(ões) aberta(s)</value>
+  </data>
+  <data name="Source definition found" xml:space="preserve">
+    <value>Definição encontrada no código-fonte</value>
+  </data>
+  <data name="External to deployed runtime" xml:space="preserve">
+    <value>Externo ao runtime publicado</value>
+  </data>
+  <data name="Connected" xml:space="preserve">
+    <value>Conectado</value>
+  </data>
+  <data name="Database unavailable" xml:space="preserve">
+    <value>Banco indisponível</value>
+  </data>
+  <data name="Simulated primary database, standby and live connection usage." xml:space="preserve">
+    <value>Banco primário, standby e uso de conexões simulados.</value>
+  </data>
+  <data name="Simulated provider mix with successful updates and recent fallback failures." xml:space="preserve">
+    <value>Mix simulado de provedores com atualizações bem-sucedidas e falhas recentes de fallback.</value>
+  </data>
+  <data name="Demo quote failures are simulated for portfolio showcase." xml:space="preserve">
+    <value>Falhas de cotação da demo são simuladas para vitrine do portfólio.</value>
+  </data>
+  <data name="Simulated encrypted backup, release retention and Neon standby sync." xml:space="preserve">
+    <value>Backup criptografado, retenção em release e sync do Neon standby simulados.</value>
+  </data>
+  <data name="Simulated encrypted backup, release retention and standby sync." xml:space="preserve">
+    <value>Backup criptografado, retenção em release e sync standby simulados.</value>
+  </data>
+  <data name="Reachable" xml:space="preserve">
+    <value>Acessível</value>
+  </data>
+  <data name="Unreachable" xml:space="preserve">
+    <value>Inacessível</value>
+  </data>
+  <data name="Runs daily inside the Web service." xml:space="preserve">
+    <value>Roda diariamente dentro do serviço Web.</value>
+  </data>
+  <data name="Restore, build, test, Docker and governance checks." xml:space="preserve">
+    <value>Restore, build, testes, Docker e checagens de governança.</value>
+  </data>
+  <data name="Encrypted Supabase dump and Neon standby sync." xml:space="preserve">
+    <value>Dump criptografado do Supabase e sync do Neon standby.</value>
+  </data>
+  <data name="Manual Supabase to Neon restore plus optional Render redeploy." xml:space="preserve">
+    <value>Restore manual do Supabase para Neon e redeploy opcional no Render.</value>
+  </data>
+  <data name="admin user(s)" xml:space="preserve">
+    <value>usuário(s) admin</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Sucesso</value>
+  </data>
+  <data name="Unsupported" xml:space="preserve">
+    <value>Não suportado</value>
+  </data>
+  <data name="Resource usage" xml:space="preserve">
+    <value>Uso de recursos</value>
+  </data>
+  <data name="Database size" xml:space="preserve">
+    <value>Tamanho do banco</value>
+  </data>
+  <data name="Active connections" xml:space="preserve">
+    <value>Conexões ativas</value>
+  </data>
+  <data name="PostgreSQL version" xml:space="preserve">
+    <value>Versão do PostgreSQL</value>
+  </data>
+  <data name="Provider dashboard metrics" xml:space="preserve">
+    <value>Métricas do painel do provedor</value>
+  </data>
+  <data name="Dashboard-only" xml:space="preserve">
+    <value>Somente no painel</value>
+  </data>
+  <data name="Compute hours and network transfer are provider metrics; read them in Supabase/Neon dashboards." xml:space="preserve">
+    <value>Horas de computação e tráfego de rede são métricas do provedor; leia nos painéis do Supabase/Neon.</value>
+  </data>
+  <data name="Backups and CI" xml:space="preserve">
+    <value>Backups e CI</value>
+  </data>
+  <data name="Backup sync" xml:space="preserve">
+    <value>Backup e sync</value>
+  </data>
+  <data name="Daily" xml:space="preserve">
+    <value>Diário</value>
+  </data>
+  <data name="On push" xml:space="preserve">
+    <value>No push</value>
+  </data>
+  <data name="Open workflow" xml:space="preserve">
+    <value>Abrir workflow</value>
+  </data>
+  <data name="Quote providers" xml:space="preserve">
+    <value>Provedores de cotações</value>
+  </data>
+  <data name="Keyed providers" xml:space="preserve">
+    <value>Provedores com chave</value>
+  </data>
+  <data name="Fallback providers" xml:space="preserve">
+    <value>Provedores fallback</value>
+  </data>
+  <data name="Last quote failure" xml:space="preserve">
+    <value>Última falha de cotação</value>
+  </data>
+  <data name="No failures in last 24 hours." xml:space="preserve">
+    <value>Nenhuma falha nas últimas 24 horas.</value>
+  </data>
+  <data name="Recent quote failures" xml:space="preserve">
+    <value>Falhas recentes de cotação</value>
+  </data>
+  <data name="External" xml:space="preserve">
+    <value>Externo</value>
+  </data>
+  <data name="Connection configured as primary. Values are never displayed." xml:space="preserve">
+    <value>Conexão configurada como primária. Valores nunca são exibidos.</value>
+  </data>
+  <data name="Connection configured as standby and backup sync target. Values are never displayed." xml:space="preserve">
+    <value>Conexão configurada como standby e destino do backup. Valores nunca são exibidos.</value>
+  </data>
+  <data name="Connection secret is missing." xml:space="preserve">
+    <value>Segredo de conexão ausente.</value>
+  </data>
+  <data name="Current database sessions." xml:space="preserve">
+    <value>Sessões atuais do banco.</value>
+  </data>
+  <data name="Latest applied migration" xml:space="preserve">
+    <value>Última migration aplicada</value>
+  </data>
+  <data name="Standby is reachable for the daily encrypted backup sync." xml:space="preserve">
+    <value>Standby acessível para o sync diário do backup criptografado.</value>
+  </data>
+  <data name="Standby is unreachable; check the backup workflow before trusting recovery." xml:space="preserve">
+    <value>Standby inacessível; confira o workflow de backup antes de confiar na recuperação.</value>
+  </data>
+  <data name="Encrypted public-schema dump, 30-day retention, then Neon sync." xml:space="preserve">
+    <value>Dump criptografado do schema public, retenção de 30 dias e sync para Neon.</value>
+  </data>
+  <data name="Manual Supabase-to-Neon restore and optional Render redeploy." xml:space="preserve">
+    <value>Restore manual Supabase -> Neon e redeploy opcional no Render.</value>
+  </data>
+  <data name="Build, tests, Docker and governance before deployment." xml:space="preserve">
+    <value>Build, testes, Docker e governança antes do deploy.</value>
+  </data>
+  <data name="Yahoo, Stooq, CoinGecko, CoinCap, Binance, AwesomeAPI and brapi.dev do not require local paid configuration." xml:space="preserve">
+    <value>Yahoo, Stooq, CoinGecko, CoinCap, Binance, AwesomeAPI e brapi.dev não exigem configuração local paga.</value>
+  </data>
+  <data name="GitHub Actions" xml:space="preserve">
+    <value>GitHub Actions</value>
+  </data>
+  <data name="Primary" xml:space="preserve">
+    <value>Primário</value>
+  </data>
+  <data name="Standby" xml:space="preserve">
+    <value>Standby</value>
+  </data>
+  <data name="Connections" xml:space="preserve">
+    <value>Conexões</value>
+  </data>
+  <data name="Reachable and used as the normal production database." xml:space="preserve">
+    <value>Acessível e usado como banco normal de produção.</value>
+  </data>
+  <data name="Primary database is not reachable; application should fail over to standby if configured." xml:space="preserve">
+    <value>Banco primário inacessível; a aplicação deve usar o standby se ele estiver configurado.</value>
+  </data>
+  <data name="Reachable and ready as the backup/sync destination." xml:space="preserve">
+    <value>Acessível e pronto como destino de backup/sync.</value>
+  </data>
+  <data name="Demo primary database is simulated as reachable." xml:space="preserve">
+    <value>Banco primário da demo é simulado como acessível.</value>
+  </data>
+  <data name="Demo standby database is simulated as ready for backup sync." xml:space="preserve">
+    <value>Banco standby da demo é simulado como pronto para backup/sync.</value>
+  </data>
+  <data name="Primary PostgreSQL" xml:space="preserve">
+    <value>PostgreSQL primário</value>
+  </data>
+  <data name="Standby PostgreSQL" xml:space="preserve">
+    <value>PostgreSQL standby</value>
+  </data>
+  <data name="Simulated primary database endpoint is reachable." xml:space="preserve">
+    <value>Endpoint simulado do banco primário está acessível.</value>
+  </data>
+  <data name="Simulated standby database endpoint is ready for backup sync." xml:space="preserve">
+    <value>Endpoint simulado do banco standby está pronto para sync de backup.</value>
+  </data>
+  <data name="Simulated current database footprint." xml:space="preserve">
+    <value>Volume atual do banco simulado.</value>
+  </data>
+  <data name="Simulated live PostgreSQL sessions compared with the server limit." xml:space="preserve">
+    <value>Sessões PostgreSQL simuladas comparadas ao limite do servidor.</value>
+  </data>
+  <data name="Demo probe simulates primary database health." xml:space="preserve">
+    <value>Probe da demo simula saúde do banco primário.</value>
+  </data>
+  <data name="Simulated PostgreSQL compatibility check." xml:space="preserve">
+    <value>Checagem simulada de compatibilidade PostgreSQL.</value>
+  </data>
+  <data name="Standby database is not reachable; backups cannot be trusted for recovery." xml:space="preserve">
+    <value>Banco standby inacessível; backups não são confiáveis para recuperação.</value>
+  </data>
+  <data name="Current database" xml:space="preserve">
+    <value>Banco atual</value>
+  </data>
+  <data name="Live PostgreSQL sessions compared with the configured server limit." xml:space="preserve">
+    <value>Sessões PostgreSQL ao vivo comparadas com o limite configurado do servidor.</value>
+  </data>
+  <data name="Backups" xml:space="preserve">
+    <value>Backups</value>
+  </data>
+  <data name="Daily + standby ready" xml:space="preserve">
+    <value>Diário + standby pronto</value>
+  </data>
+  <data name="Check standby" xml:space="preserve">
+    <value>Verificar standby</value>
+  </data>
+  <data name="Daily encrypted dump, GitHub release retention, and Neon sync are represented here." xml:space="preserve">
+    <value>Dump diário criptografado, retenção em release do GitHub e sync Neon aparecem aqui.</value>
+  </data>
+  <data name="Daily backup" xml:space="preserve">
+    <value>Backup diário</value>
+  </data>
+  <data name="Workflow configured" xml:space="preserve">
+    <value>Workflow configurado</value>
+  </data>
+  <data name="Workflow missing" xml:space="preserve">
+    <value>Workflow ausente</value>
+  </data>
+  <data name="Supabase public schema dump, encrypted artifact, GitHub release retention, then Neon sync." xml:space="preserve">
+    <value>Dump do schema public no Supabase, artefato criptografado, retenção em release do GitHub e sync para Neon.</value>
+  </data>
+  <data name="Standby destination" xml:space="preserve">
+    <value>Destino standby</value>
+  </data>
+  <data name="Ready" xml:space="preserve">
+    <value>Pronto</value>
+  </data>
+  <data name="Blocked" xml:space="preserve">
+    <value>Bloqueado</value>
+  </data>
+  <data name="Neon accepts the backup/sync path now." xml:space="preserve">
+    <value>Neon aceita agora o caminho de backup/sync.</value>
+  </data>
+  <data name="Neon must be reachable before recovery is reliable." xml:space="preserve">
+    <value>Neon precisa estar acessível antes da recuperação ser confiável.</value>
+  </data>
+  <data name="Simulated standby target accepts the backup/sync path." xml:space="preserve">
+    <value>Destino standby simulado aceita o caminho de backup/sync.</value>
+  </data>
+  <data name="Manual restore path for Supabase to Neon, with optional Render redeploy." xml:space="preserve">
+    <value>Caminho manual de restore Supabase para Neon, com redeploy opcional no Render.</value>
+  </data>
+  <data name="Manual restore path is simulated for demo mode." xml:space="preserve">
+    <value>Caminho manual de restore é simulado no modo demo.</value>
+  </data>
+  <data name="Retention" xml:space="preserve">
+    <value>Retenção</value>
+  </data>
+  <data name="30 days" xml:space="preserve">
+    <value>30 dias</value>
+  </data>
+  <data name="Encrypted releases keep restore points visible for manual recovery." xml:space="preserve">
+    <value>Releases criptografadas mantêm pontos de restore visíveis para recuperação manual.</value>
+  </data>
+  <data name="Context Bank guard" xml:space="preserve">
+    <value>Guard do Context Bank</value>
+  </data>
+  <data name="Checks whether architecture and product context stayed aligned with code changes." xml:space="preserve">
+    <value>Confere se arquitetura e contexto de produto continuaram alinhados com as mudanças de código.</value>
+  </data>
+  <data name="GitHub token missing; live workflow monitoring is disabled." xml:space="preserve">
+    <value>Token do GitHub ausente; monitoramento ao vivo dos workflows está desativado.</value>
+  </data>
+  <data name="GitHub monitor returned {0} for {1}." xml:space="preserve">
+    <value>Monitor do GitHub retornou {0} para {1}.</value>
+  </data>
+  <data name="GitHub monitor timed out." xml:space="preserve">
+    <value>Monitor do GitHub excedeu o tempo limite.</value>
+  </data>
+  <data name="GitHub monitor failed" xml:space="preserve">
+    <value>Monitor do GitHub falhou</value>
+  </data>
+  <data name="GitHub monitor returned invalid data" xml:space="preserve">
+    <value>Monitor do GitHub retornou dados inválidos</value>
+  </data>
+  <data name="GitHub unavailable" xml:space="preserve">
+    <value>GitHub indisponível</value>
+  </data>
+  <data name="Simulated missing SMTP configuration shows the password-reset dependency." xml:space="preserve">
+    <value>Configuração SMTP ausente simulada mostra a dependência de recuperação de senha.</value>
+  </data>
+  <data name="Sample quote provider" xml:space="preserve">
+    <value>Provedor de cotação simulado</value>
+  </data>
+  <data name="Sample CI pipeline" xml:space="preserve">
+    <value>Pipeline CI simulado</value>
+  </data>
+  <data name="Simulated policy check" xml:space="preserve">
+    <value>Checagem de política simulada</value>
+  </data>
+  <data name="Simulated public application URL." xml:space="preserve">
+    <value>URL pública simulada da aplicação.</value>
+  </data>
+  <data name="Sample provider A" xml:space="preserve">
+    <value>Provedor simulado A</value>
+  </data>
+  <data name="Sample provider B" xml:space="preserve">
+    <value>Provedor simulado B</value>
+  </data>
+  <data name="Fallback provider checks are simulated in demo mode." xml:space="preserve">
+    <value>Checagens de provedores fallback são simuladas no modo demo.</value>
+  </data>
+  <data name="No workflow run found." xml:space="preserve">
+    <value>Nenhuma execução de workflow encontrada.</value>
+  </data>
+  <data name="Latest workflow execution" xml:space="preserve">
+    <value>Última execução do workflow</value>
+  </data>
+  <data name="Latest successful workflow execution" xml:space="preserve">
+    <value>Última execução com sucesso do workflow</value>
+  </data>
+  <data name="Latest workflow execution failed" xml:space="preserve">
+    <value>Última execução do workflow falhou</value>
+  </data>
+  <data name="In progress" xml:space="preserve">
+    <value>Em execução</value>
+  </data>
+  <data name="Queued" xml:space="preserve">
+    <value>Na fila</value>
+  </data>
+  <data name="Failed step" xml:space="preserve">
+    <value>Etapa com falha</value>
+  </data>
+  <data name="Open run" xml:space="preserve">
+    <value>Abrir execução</value>
+  </data>
+  <data name="Backup healthy" xml:space="preserve">
+    <value>Backup saudável</value>
+  </data>
+  <data name="Backup failed" xml:space="preserve">
+    <value>Backup falhou</value>
+  </data>
+  <data name="Monitor unavailable" xml:space="preserve">
+    <value>Monitor indisponível</value>
+  </data>
+  <data name="Technical case study" xml:space="preserve">
+    <value>Estudo técnico</value>
+  </data>
+  <data name="Architecture" xml:space="preserve">
+    <value>Arquitetura</value>
+  </data>
+  <data name="Operating model" xml:space="preserve">
+    <value>Modelo operacional</value>
+  </data>
+  <data name="Data and backup" xml:space="preserve">
+    <value>Dados e backup</value>
+  </data>
+  <data name="Security model" xml:space="preserve">
+    <value>Modelo de segurança</value>
+  </data>
+  <data name="Automation and governance" xml:space="preserve">
+    <value>Automação e governança</value>
+  </data>
+  <data name="Integrations and widgets" xml:space="preserve">
+    <value>Integrações e widgets</value>
+  </data>
+  <data name="Blazor Server on .NET 8 with finance, planning, widgets and operational monitoring in one Docker Web service." xml:space="preserve">
+    <value>Blazor Server em .NET 8 com finanças, planejamento, widgets e monitoramento operacional em um Web service Docker.</value>
+  </data>
+  <data name="Render Web Service, GitHub Actions, Supabase primary and Neon standby keep the product inside a lean operating model." xml:space="preserve">
+    <value>Render Web Service, GitHub Actions, Supabase primário e Neon standby mantêm o produto dentro de um modelo operacional enxuto.</value>
+  </data>
+  <data name="PostgreSQL is the source of truth; encrypted daily backup releases and Neon standby support manual recovery." xml:space="preserve">
+    <value>PostgreSQL é a fonte da verdade; releases diários de backup criptografado e Neon standby apoiam recuperação manual.</value>
+  </data>
+  <data name="Identity, admin-only live status, owner-scoped data, demo read-only tenant and secrets outside tracked files." xml:space="preserve">
+    <value>Identity, status real somente para admin, dados por proprietário, demo somente leitura e segredos fora dos arquivos rastreados.</value>
+  </data>
+  <data name="CI validates restore, build, tests, Docker image, changed-file policy and Context Bank review." xml:space="preserve">
+    <value>A CI valida restore, build, testes, imagem Docker, política de arquivos alterados e revisão do Context Bank.</value>
+  </data>
+  <data name="IMAP, market quotes, AI provider and widgets are optional capabilities with visible status and local fallbacks." xml:space="preserve">
+    <value>IMAP, cotações, provedor de IA e widgets são capacidades opcionais com status visível e fallbacks locais.</value>
+  </data>
+  <data name="Operations" xml:space="preserve">
+    <value>Operações</value>
+  </data>
+  <data name="Reference product" xml:space="preserve">
+    <value>Produto de referência</value>
+  </data>
+  <data name="Production story" xml:space="preserve">
+    <value>História de produção</value>
+  </data>
+  <data name="A compact product dossier showing how the system is built, operated, recovered and kept inside a lean architecture." xml:space="preserve">
+    <value>Dossiê compacto do produto mostrando como o sistema é construído, operado, recuperado e mantido em uma arquitetura enxuta.</value>
+  </data>
+  <data name="Database" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="Blazor Web" xml:space="preserve">
+    <value>Blazor Web</value>
+  </data>
+  <data name="One Docker Web service owns UI, APIs, hosted services and widgets." xml:space="preserve">
+    <value>Um Web service Docker concentra UI, APIs, hosted services e widgets.</value>
+  </data>
+  <data name="Primary PostgreSQL plus standby recovery target." xml:space="preserve">
+    <value>PostgreSQL primário com alvo standby para recuperação.</value>
+  </data>
+  <data name="Build, Docker, policy and documentation freshness are checked together." xml:space="preserve">
+    <value>Build, Docker, política e documentação são verificados juntos.</value>
+  </data>
+  <data name="Cost posture" xml:space="preserve">
+    <value>Postura de custo</value>
+  </data>
+  <data name="Controlled footprint" xml:space="preserve">
+    <value>Pegada controlada</value>
+  </data>
+  <data name="No Azure dependency; observability and providers stay optional." xml:space="preserve">
+    <value>Sem dependência de Azure; observabilidade e provedores continuam opcionais.</value>
+  </data>
+  <data name="Architecture map" xml:space="preserve">
+    <value>Mapa de arquitetura</value>
+  </data>
+  <data name="Users and demo" xml:space="preserve">
+    <value>Usuários e demo</value>
+  </data>
+  <data name="Admin, authenticated profile and read-only demo visitor." xml:space="preserve">
+    <value>Admin, perfil autenticado e visitante demo somente leitura.</value>
+  </data>
+  <data name="Interactive UI, Minimal APIs, Identity and rate limits." xml:space="preserve">
+    <value>UI interativa, Minimal APIs, Identity e limites de taxa.</value>
+  </data>
+  <data name="Domain services" xml:space="preserve">
+    <value>Serviços de domínio</value>
+  </data>
+  <data name="Finance facts, planning actions, quotes, IMAP and widgets." xml:space="preserve">
+    <value>Fatos financeiros, ações de planejamento, cotações, IMAP e widgets.</value>
+  </data>
+  <data name="PostgreSQL core" xml:space="preserve">
+    <value>Núcleo PostgreSQL</value>
+  </data>
+  <data name="Owner-scoped data, encrypted fields and EF migrations." xml:space="preserve">
+    <value>Dados por proprietário, campos criptografados e migrations EF.</value>
+  </data>
+  <data name="Request" xml:space="preserve">
+    <value>Requisição</value>
+  </data>
+  <data name="Decision" xml:space="preserve">
+    <value>Decisão</value>
+  </data>
+  <data name="Persistence" xml:space="preserve">
+    <value>Persistência</value>
+  </data>
+  <data name="Operation" xml:space="preserve">
+    <value>Operação</value>
+  </data>
+  <data name="Recovery path" xml:space="preserve">
+    <value>Caminho de recuperação</value>
+  </data>
+  <data name="Supabase primary is backed up into encrypted GitHub Releases and synchronized into Neon as standby target." xml:space="preserve">
+    <value>Supabase primário é salvo em releases criptografadas do GitHub e sincronizado para Neon como alvo standby.</value>
+  </data>
+  <data name="Showcase path" xml:space="preserve">
+    <value>Caminho de showcase</value>
+  </data>
+  <data name="The demo route presents realistic operations without querying live secrets or external systems." xml:space="preserve">
+    <value>A rota demo apresenta operações realistas sem consultar segredos reais ou sistemas externos.</value>
+  </data>
+  <data name="Engineering maturity" xml:space="preserve">
+    <value>Maturidade de engenharia</value>
+  </data>
+  <data name="Data ownership" xml:space="preserve">
+    <value>Propriedade dos dados</value>
+  </data>
+  <data name="Cost control" xml:space="preserve">
+    <value>Controle de custo</value>
+  </data>
+  <data name="Operational visibility" xml:space="preserve">
+    <value>Visibilidade operacional</value>
+  </data>
+  <data name="Recovery readiness" xml:space="preserve">
+    <value>Prontidão de recuperação</value>
+  </data>
+  <data name="Automated tests" xml:space="preserve">
+    <value>Testes automatizados</value>
+  </data>
+  <data name="The next visible gap is focused automated coverage, not another hosting service." xml:space="preserve">
+    <value>A próxima lacuna visível é cobertura automatizada focada, não outro serviço de hosting.</value>
+  </data>
+  <data name="Tenant boundary" xml:space="preserve">
+    <value>Limite de tenant</value>
+  </data>
+  <data name="Owner filters and demo write guards protect real user data." xml:space="preserve">
+    <value>Filtros por proprietário e bloqueios de escrita da demo protegem dados reais.</value>
+  </data>
+  <data name="Secrets" xml:space="preserve">
+    <value>Segredos</value>
+  </data>
+  <data name="Connection strings, encryption keys and provider tokens stay outside tracked files." xml:space="preserve">
+    <value>Connection strings, chaves de criptografia e tokens de provedores ficam fora dos arquivos rastreados.</value>
+  </data>
+  <data name="Admin surface" xml:space="preserve">
+    <value>Superfície admin</value>
+  </data>
+  <data name="Live operations are admin-only; demo uses simulated operational data." xml:space="preserve">
+    <value>Operações reais são somente admin; demo usa dados operacionais simulados.</value>
+  </data>
+  <data name="Operating loop" xml:space="preserve">
+    <value>Ciclo operacional</value>
+  </data>
+  <data name="Build" xml:space="preserve">
+    <value>Build</value>
+  </data>
+  <data name="GitHub Actions validates solution build, tests, Docker image and policy guards." xml:space="preserve">
+    <value>GitHub Actions valida build da solução, testes, imagem Docker e guards de política.</value>
+  </data>
+  <data name="Run" xml:space="preserve">
+    <value>Execução</value>
+  </data>
+  <data name="Render hosts the Web service; hosted services process quotes, IMAP and planning actions." xml:space="preserve">
+    <value>Render hospeda o Web service; hosted services processam cotações, IMAP e ações de planejamento.</value>
+  </data>
+  <data name="Recover" xml:space="preserve">
+    <value>Recuperação</value>
+  </data>
+  <data name="Encrypted backup releases and Neon standby keep a manual recovery route visible." xml:space="preserve">
+    <value>Releases de backup criptografado e Neon standby mantêm uma rota manual de recuperação visível.</value>
+  </data>
+  <data name="Career signal" xml:space="preserve">
+    <value>Sinal de carreira</value>
+  </data>
+  <data name="End-to-end ownership" xml:space="preserve">
+    <value>Ownership ponta a ponta</value>
+  </data>
+  <data name="The system shows product, architecture, data, delivery and operations in one coherent portfolio artifact." xml:space="preserve">
+    <value>O sistema mostra produto, arquitetura, dados, entrega e operação em um artefato de portfólio coerente.</value>
+  </data>
+  <data name="Real constraints" xml:space="preserve">
+    <value>Restrições reais</value>
+  </data>
+  <data name="The design favors lean services, optional integrations and explicit recovery choices." xml:space="preserve">
+    <value>O desenho favorece serviços enxutos, integrações opcionais e escolhas explícitas de recuperação.</value>
+  </data>
+  <data name="Next proof" xml:space="preserve">
+    <value>Próxima prova</value>
+  </data>
+  <data name="Focused tests and restore drills are the highest-value next evidence." xml:space="preserve">
+    <value>Testes focados e simulações de restore são a próxima evidência de maior valor.</value>
+  </data>
+  <data name="Complete product architecture" xml:space="preserve">
+    <value>Arquitetura completa do produto</value>
+  </data>
+  <data name="End-to-end view from clients to hosting, domain services, data, integrations, jobs, governance and recovery." xml:space="preserve">
+    <value>Visão ponta a ponta dos clientes até hosting, serviços de domínio, dados, integrações, jobs, governança e recuperação.</value>
+  </data>
+  <data name="Web + mobile" xml:space="preserve">
+    <value>Web + mobile</value>
+  </data>
+  <data name="Client surfaces" xml:space="preserve">
+    <value>Superfícies cliente</value>
+  </data>
+  <data name="Responsive Web, demo visitor, Windows widget and iOS Scriptable widgets." xml:space="preserve">
+    <value>Web responsivo, visitante demo, widget Windows e widgets iOS via Scriptable.</value>
+  </data>
+  <data name="Access boundary" xml:space="preserve">
+    <value>Barreira de acesso</value>
+  </data>
+  <data name="Identity cookies, JWT APIs, admin-only status, rate limits and localization." xml:space="preserve">
+    <value>Cookies Identity, APIs JWT, status somente admin, rate limits e localização.</value>
+  </data>
+  <data name="Docker Web service" xml:space="preserve">
+    <value>Web service Docker</value>
+  </data>
+  <data name="Blazor UI, Minimal APIs, Swagger, DI scopes and hosted services run together." xml:space="preserve">
+    <value>UI Blazor, Minimal APIs, Swagger, escopos DI e hosted services rodam juntos.</value>
+  </data>
+  <data name="Domain capabilities" xml:space="preserve">
+    <value>Capacidades de domínio</value>
+  </data>
+  <data name="Finance, planning, routine, vehicles, imports, quotes, widgets and actions." xml:space="preserve">
+    <value>Finanças, planejamento, rotina, veículos, importações, cotações, widgets e ações.</value>
+  </data>
+  <data name="Data foundation" xml:space="preserve">
+    <value>Base de dados</value>
+  </data>
+  <data name="EF Core, PostgreSQL, tenant filters, encryption converters and migrations." xml:space="preserve">
+    <value>EF Core, PostgreSQL, filtros de tenant, conversores de criptografia e migrations.</value>
+  </data>
+  <data name="Auth and rate limit" xml:space="preserve">
+    <value>Auth e rate limit</value>
+  </data>
+  <data name="Server circuit or API" xml:space="preserve">
+    <value>Circuito server ou API</value>
+  </data>
+  <data name="Scoped service" xml:space="preserve">
+    <value>Serviço escopado</value>
+  </data>
+  <data name="PostgreSQL transaction" xml:space="preserve">
+    <value>Transação PostgreSQL</value>
+  </data>
+  <data name="Delivery and governance" xml:space="preserve">
+    <value>Entrega e governança</value>
+  </data>
+  <data name="GitHub Actions validates restore, build, tests, Docker image, changed files and Context Bank freshness." xml:space="preserve">
+    <value>GitHub Actions valida restore, build, testes, imagem Docker, arquivos alterados e atualização do Context Bank.</value>
+  </data>
+  <data name="External systems" xml:space="preserve">
+    <value>Sistemas externos</value>
+  </data>
+  <data name="Render hosts Web; Supabase is primary; Neon is standby; GitHub Releases hold encrypted backups; IMAP, SMTP, AI and quote providers are optional." xml:space="preserve">
+    <value>Render hospeda a Web; Supabase é primário; Neon é standby; GitHub Releases guarda backups criptografados; IMAP, SMTP, IA e provedores de cotação são opcionais.</value>
+  </data>
+  <data name="Jobs and processes" xml:space="preserve">
+    <value>Jobs e processos</value>
+  </data>
+  <data name="Quote updater, IMAP sync, planning action generator, demo refresh, database health probe and logo backfill run inside the Web host." xml:space="preserve">
+    <value>Atualizador de cotações, sync IMAP, gerador de ações, refresh da demo, probe do banco e backfill de logos rodam dentro do host Web.</value>
+  </data>
+  <data name="Recovery and observability" xml:space="preserve">
+    <value>Recuperação e observabilidade</value>
+  </data>
+  <data name="System Status exposes live checks; encrypted dump releases and Neon standby keep the manual recovery route visible." xml:space="preserve">
+    <value>Status do sistema expõe checks ao vivo; dumps criptografados e Neon standby mantêm a rota manual de recuperação visível.</value>
+  </data>
+  <data name="Backup" xml:space="preserve">
+    <value>Backup</value>
+  </data>
+  <data name="Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Mobile path" xml:space="preserve">
+    <value>Caminho mobile</value>
+  </data>
+  <data name="Widgets use paired tokens and server APIs; iOS Scriptable remains the immediate install path while native WidgetKit is a future signed-app path." xml:space="preserve">
+    <value>Widgets usam tokens pareados e APIs server; iOS Scriptable segue como caminho imediato de instalação enquanto WidgetKit nativo fica como futuro app assinado.</value>
+  </data>
+  <data name="Web product path" xml:space="preserve">
+    <value>Caminho Web do produto</value>
+  </data>
+  <data name="Authenticated users use the same Blazor service for Today, finance, routine, planning, transactions, allocations and admin status." xml:space="preserve">
+    <value>Usuários autenticados usam o mesmo serviço Blazor para Hoje, finanças, rotina, planejamento, transações, alocações e status admin.</value>
+  </data>
+  <data name="Operational path" xml:space="preserve">
+    <value>Caminho operacional</value>
+  </data>
+  <data name="Background jobs refresh quotes, sync email, generate planning actions, seed demo data and publish health signals to the status page." xml:space="preserve">
+    <value>Jobs em background atualizam cotações, sincronizam e-mail, geram ações de planejamento, semeiam a demo e publicam sinais de saúde na página de status.</value>
+  </data>
+  <data name="Full AppLifePlanner architecture blueprint" xml:space="preserve">
+    <value>Blueprint completo da arquitetura do AppLifePlanner</value>
+  </data>
+  <data name="Visual map connecting web and mobile clients, access boundary, application host, domain services, databases, providers, automation, backups and observability." xml:space="preserve">
+    <value>Mapa visual conectando clientes web e mobile, barreira de acesso, host da aplicação, serviços de domínio, bancos, provedores, automação, backups e observabilidade.</value>
+  </data>
+  <data name="Clients" xml:space="preserve">
+    <value>Clientes</value>
+  </data>
+  <data name="Access" xml:space="preserve">
+    <value>Acesso</value>
+  </data>
+  <data name="Application host" xml:space="preserve">
+    <value>Host da aplicação</value>
+  </data>
+  <data name="Data and recovery" xml:space="preserve">
+    <value>Dados e recuperação</value>
+  </data>
+  <data name="Web product" xml:space="preserve">
+    <value>Produto Web</value>
+  </data>
+  <data name="Demo visitor" xml:space="preserve">
+    <value>Visitante demo</value>
+  </data>
+  <data name="Widget clients" xml:space="preserve">
+    <value>Clientes widget</value>
+  </data>
+  <data name="Render Docker Web" xml:space="preserve">
+    <value>Render Docker Web</value>
+  </data>
+  <data name="Blazor + APIs" xml:space="preserve">
+    <value>Blazor + APIs</value>
+  </data>
+  <data name="Hosted jobs" xml:space="preserve">
+    <value>Jobs hospedados</value>
+  </data>
+  <data name="Supabase primary" xml:space="preserve">
+    <value>Supabase primário</value>
+  </data>
+  <data name="Neon standby" xml:space="preserve">
+    <value>Neon standby</value>
+  </data>
+  <data name="GitHub Releases" xml:space="preserve">
+    <value>GitHub Releases</value>
+  </data>
+  <data name="Status page" xml:space="preserve">
+    <value>Página de status</value>
+  </data>
+  <data name="Providers" xml:space="preserve">
+    <value>Provedores</value>
+  </data>
+  <data name="Today, finance, planning and admin." xml:space="preserve">
+    <value>Hoje, finanças, planejamento e admin.</value>
+  </data>
+  <data name="Read-only showcase tenant." xml:space="preserve">
+    <value>Tenant showcase somente leitura.</value>
+  </data>
+  <data name="Windows overlay and iOS Scriptable." xml:space="preserve">
+    <value>Overlay Windows e iOS Scriptable.</value>
+  </data>
+  <data name="Cookies, JWT, roles and rate limits." xml:space="preserve">
+    <value>Cookies, JWT, papéis e rate limits.</value>
+  </data>
+  <data name="One Web service hosts the product surface." xml:space="preserve">
+    <value>Um Web service hospeda a superfície do produto.</value>
+  </data>
+  <data name="Interactive UI and Minimal APIs." xml:space="preserve">
+    <value>UI interativa e Minimal APIs.</value>
+  </data>
+  <data name="Quotes, IMAP, demo, health and planning." xml:space="preserve">
+    <value>Cotações, IMAP, demo, saúde e planejamento.</value>
+  </data>
+  <data name="PostgreSQL source of truth." xml:space="preserve">
+    <value>PostgreSQL como fonte da verdade.</value>
+  </data>
+  <data name="Manual recovery target." xml:space="preserve">
+    <value>Destino de recuperação manual.</value>
+  </data>
+  <data name="Encrypted database dumps." xml:space="preserve">
+    <value>Dumps criptografados do banco.</value>
+  </data>
+  <data name="Build, tests, Docker and guards." xml:space="preserve">
+    <value>Build, testes, Docker e guards.</value>
+  </data>
+  <data name="Live checks and last failures." xml:space="preserve">
+    <value>Checks ao vivo e últimas falhas.</value>
+  </data>
+  <data name="Quotes, IMAP, SMTP and AI." xml:space="preserve">
+    <value>Cotações, IMAP, SMTP e IA.</value>
+  </data>
+  <data name="EF Core owner-scoped writes" xml:space="preserve">
+    <value>Escritas EF Core escopadas por dono</value>
+  </data>
+  <data name="Backup sync and restore evidence" xml:space="preserve">
+    <value>Sync de backup e evidência de restore</value>
+  </data>
+  <data name="Logs and metrics" xml:space="preserve">
+    <value>Logs e métricas</value>
+  </data>
+  <data name="Observability" xml:space="preserve">
+    <value>Observabilidade</value>
+  </data>
+  <data name="In-process buffer" xml:space="preserve">
+    <value>Buffer em memória</value>
+  </data>
+  <data name="Console only" xml:space="preserve">
+    <value>Somente console</value>
+  </data>
+  <data name="No log events captured yet in this process. The buffer fills as requests and background jobs run." xml:space="preserve">
+    <value>Nenhum evento de log foi capturado ainda neste processo. O buffer se preenche conforme requisições e tarefas em segundo plano são executadas.</value>
+  </data>
+  <data name="Shows the last events captured by this running instance; the buffer resets on restart or redeploy." xml:space="preserve">
+    <value>Mostra os últimos eventos capturados por esta instância em execução; o buffer é reiniciado a cada reinício ou novo deploy.</value>
+  </data>
+  <data name="Events read" xml:space="preserve">
+    <value>Eventos lidos</value>
+  </data>
+  <data name="Recent structured events captured by this running instance." xml:space="preserve">
+    <value>Eventos estruturados recentes capturados por esta instância em execução.</value>
+  </data>
+  <data name="Error events found in the sampled log window." xml:space="preserve">
+    <value>Eventos de erro encontrados na janela de logs analisada.</value>
+  </data>
+  <data name="Warnings" xml:space="preserve">
+    <value>Avisos</value>
+  </data>
+  <data name="Warning events found in the sampled log window." xml:space="preserve">
+    <value>Eventos de aviso encontrados na janela de logs analisada.</value>
+  </data>
+  <data name="Slowest operation" xml:space="preserve">
+    <value>Operação mais lenta</value>
+  </data>
+  <data name="Highest elapsed time found in structured log properties." xml:space="preserve">
+    <value>Maior tempo decorrido encontrado nas propriedades estruturadas de log.</value>
+  </data>
+  <data name="No local sample is available in this environment." xml:space="preserve">
+    <value>Nenhuma amostra local está disponível neste ambiente.</value>
+  </data>
+  <data name="Simulated sample" xml:space="preserve">
+    <value>Amostra simulada</value>
+  </data>
+  <data name="Generic simulated events for the demo status page." xml:space="preserve">
+    <value>Eventos simulados genéricos para a página de status demo.</value>
+  </data>
+  <data name="No simulated error in the current demo window." xml:space="preserve">
+    <value>Nenhum erro simulado na janela demo atual.</value>
+  </data>
+  <data name="One simulated dependency warning." xml:space="preserve">
+    <value>Um aviso simulado de dependência.</value>
+  </data>
+  <data name="A simulated dependency check took longer than normal." xml:space="preserve">
+    <value>Uma checagem simulada de dependência levou mais tempo que o normal.</value>
+  </data>
+  <data name="Simulated log metrics show the investigation flow without exposing live operational data." xml:space="preserve">
+    <value>Métricas simuladas de log mostram o fluxo de investigação sem expor dados operacionais reais.</value>
+  </data>
+  <data name="Sample scheduled job" xml:space="preserve">
+    <value>Job agendado simulado</value>
+  </data>
+  <data name="Simulated scheduled job completed." xml:space="preserve">
+    <value>Job agendado simulado concluído.</value>
+  </data>
+  <data name="Sample external check" xml:space="preserve">
+    <value>Checagem externa simulada</value>
+  </data>
+  <data name="Simulated external dependency returned with fallback." xml:space="preserve">
+    <value>Dependência externa simulada retornou com fallback.</value>
+  </data>
+  <data name="Sample web request" xml:space="preserve">
+    <value>Requisição Web simulada</value>
+  </data>
+  <data name="Simulated web request completed." xml:space="preserve">
+    <value>Requisição Web simulada concluída.</value>
+  </data>
+  <data name="Sample health probe" xml:space="preserve">
+    <value>Probe de saúde simulado</value>
+  </data>
+  <data name="Simulated health probe completed." xml:space="preserve">
+    <value>Probe de saúde simulado concluído.</value>
+  </data>
+  <data name="Operation metrics" xml:space="preserve">
+    <value>Métricas por operação</value>
+  </data>
+  <data name="No structured operation sample is available in this environment." xml:space="preserve">
+    <value>Nenhuma amostra estruturada de operação está disponível neste ambiente.</value>
+  </data>
+  <data name="event(s)" xml:space="preserve">
+    <value>evento(s)</value>
+  </data>
+  <data name="failure(s)" xml:space="preserve">
+    <value>falha(s)</value>
+  </data>
+  <data name="avg" xml:space="preserve">
+    <value>média</value>
+  </data>
+  <data name="Recent events" xml:space="preserve">
+    <value>Eventos recentes</value>
+  </data>
+  <data name="No recent local events were found. In production, inspect Render console logs with the same correlation and operation fields." xml:space="preserve">
+    <value>Nenhum evento local recente foi encontrado. Em produção, inspecione os logs de console do Render com os mesmos campos de correlação e operação.</value>
+  </data>
+  <data name="Elapsed" xml:space="preserve">
+    <value>Duração</value>
+  </data>
+  <data name="Partial" xml:space="preserve">
+    <value>Parcial</value>
+  </data>
+  <data name="Observed" xml:space="preserve">
+    <value>Observado</value>
+  </data>
+  <data name="Supabase quota" xml:space="preserve">
+    <value>Quota do Supabase</value>
+  </data>
+  <data name="Check dashboard" xml:space="preserve">
+    <value>Ver painel</value>
+  </data>
+  <data name="Supabase quota is a provider-account signal; validate it in the existing Supabase dashboard before restriction dates." xml:space="preserve">
+    <value>Quota do Supabase é um sinal da conta do provedor; valide no painel existente do Supabase antes das datas de restrição.</value>
+  </data>
+  <data name="Restore validation" xml:space="preserve">
+    <value>Validação de restore</value>
+  </data>
+  <data name="Manual disabled" xml:space="preserve">
+    <value>Manual desabilitado</value>
+  </data>
+  <data name="Not tested" xml:space="preserve">
+    <value>Não testado</value>
+  </data>
+  <data name="Manual recovery workflow is intentionally disabled until a real recovery drill is approved." xml:space="preserve">
+    <value>O workflow manual de recovery está intencionalmente desabilitado até um teste real de recuperação ser aprovado.</value>
+  </data>
+  <data name="Manual recovery workflow is intentionally disabled; no restore drill has been executed yet." xml:space="preserve">
+    <value>O workflow manual de recovery está intencionalmente desabilitado; nenhum teste de restore foi executado ainda.</value>
+  </data>
+  <data name="No restore drill has been executed yet; recovery remains manual and intentionally disabled." xml:space="preserve">
+    <value>Nenhum teste de restore foi executado ainda; recovery continua manual e intencionalmente desabilitado.</value>
+  </data>
+  <data name="No restore drill is simulated or executed in demo mode." xml:space="preserve">
+    <value>Nenhum teste de restore é simulado ou executado no modo demo.</value>
+  </data>
+  <data name="Demo shows where provider quota alerts would appear without querying live provider accounts." xml:space="preserve">
+    <value>A demo mostra onde alertas de quota do provedor apareceriam sem consultar contas reais de provedores.</value>
+  </data>
+  <data name="Simulated" xml:space="preserve">
+    <value>Simulado</value>
+  </data>
+  <data name="Access analytics" xml:space="preserve">
+    <value>Análise de acessos</value>
+  </data>
+  <data name="Unique visitors" xml:space="preserve">
+    <value>Visitantes únicos</value>
+  </data>
+  <data name="Sessions" xml:space="preserve">
+    <value>Sessões</value>
+  </data>
+  <data name="Page views" xml:space="preserve">
+    <value>Visualizações de página</value>
+  </data>
+  <data name="Avg. session length" xml:space="preserve">
+    <value>Duração média da sessão</value>
+  </data>
+  <data name="Access trend" xml:space="preserve">
+    <value>Tendência de acessos</value>
+  </data>
+  <data name="Top pages" xml:space="preserve">
+    <value>Páginas mais acessadas</value>
+  </data>
+  <data name="Top features" xml:space="preserve">
+    <value>Funcionalidades mais usadas</value>
+  </data>
+  <data name="Browser &amp; device" xml:space="preserve">
+    <value>Navegador e dispositivo</value>
+  </data>
+  <data name="Countries" xml:space="preserve">
+    <value>Países</value>
+  </data>
+  <data name="No access data has been recorded yet. Metrics appear once traffic reaches the live application." xml:space="preserve">
+    <value>Nenhum dado de acesso foi registrado ainda. As métricas aparecem assim que o tráfego chegar à aplicação em produção.</value>
+  </data>
+  <data name="See who is accessing the live application, from where, and which pages and features are used the most." xml:space="preserve">
+    <value>Veja quem está acessando a aplicação em produção, de onde, e quais páginas e funcionalidades são mais usadas.</value>
+  </data>
+  <data name="Simulated access analytics for portfolio showcase." xml:space="preserve">
+    <value>Análise de acessos simulada para demonstração de portfólio.</value>
+  </data>
+  <data name="Browsers" xml:space="preserve">
+    <value>Navegadores</value>
+  </data>
+  <data name="Device types" xml:space="preserve">
+    <value>Tipos de dispositivo</value>
+  </data>
+  <data name="GeoIP database" xml:space="preserve">
+    <value>Base de GeoIP</value>
+  </data>
+  <data name="Country lookups resolve visitor locations." xml:space="preserve">
+    <value>As consultas de país resolvem a localização dos visitantes.</value>
+  </data>
+  <data name="Database missing; visitor countries are not resolved." xml:space="preserve">
+    <value>Base ausente; os países dos visitantes não são resolvidos.</value>
+  </data>
+  <data name="No lookup has run yet in this process." xml:space="preserve">
+    <value>Nenhuma consulta foi executada ainda neste processo.</value>
+  </data>
+  <data name="Showing {0} of {1} action(s) waiting" xml:space="preserve">
+    <value>Mostrando {0} de {1} ação(ões) aguardando</value>
+  </data>
+  <data name="Page not found" xml:space="preserve">
+    <value>Página não encontrada</value>
+  </data>
+  <data name="The address you opened does not exist or was moved." xml:space="preserve">
+    <value>O endereço acessado não existe ou foi movido.</value>
+  </data>
+  <data name="Back to Today" xml:space="preserve">
+    <value>Voltar para Hoje</value>
+  </data>
+  <data name="Something went wrong" xml:space="preserve">
+    <value>Algo deu errado</value>
+  </data>
+  <data name="The request could not be completed. Try again in a moment." xml:space="preserve">
+    <value>Não foi possível concluir a solicitação. Tente novamente em instantes.</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>Horário</value>
+  </data>
+  <data name="Original details" xml:space="preserve">
+    <value>Detalhes da origem</value>
+  </data>
+  <data name="existing updated with more details" xml:space="preserve">
+    <value>existentes atualizadas com mais detalhes</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Observações</value>
+  </data>
+  <data name="Running on primary (Supabase)" xml:space="preserve">
+    <value>Rodando no banco primário (Supabase)</value>
+  </data>
+  <data name="Could not submit the form. Reload the page and try again." xml:space="preserve">
+    <value>Não foi possível enviar o formulário. Recarregue a página e tente novamente.</value>
+  </data>
+</root>

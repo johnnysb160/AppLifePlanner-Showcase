@@ -1,0 +1,19 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="AppToast.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@if (!string.IsNullOrWhiteSpace(Message))
+{
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div class="toast show @(IsError ? "bg-danger" : "bg-success") text-white">
+            <div class="toast-body d-flex justify-content-between align-items-center">
+                @Message
+                <button type="button" class="btn-close btn-close-white" @onclick="DismissAsync"></button>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,389 @@
+﻿@*
+// <copyright file="Reviews.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+*@
+
+@page "/planning/reviews"
+@rendermode InteractiveServer
+@using AppControlOrganizer.V2.Shared.Entities
+@using AppControlOrganizer.V2.Shared.Enums
+@using AppControlOrganizer.V2.Web.Services.Planning
+
+<PageTitle>@Loc["Reviews"] - Life Planner</PageTitle>
+
+<div class="lp-page-header mb-3">
+  <div>
+    <div class="lp-page-title"><i class="bi bi-journal-check me-2"></i>@Loc["Reviews"]</div>
+  </div>
+</div>
+
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item">
+    <button class='nav-link @(activeTab == "runs" ? "active" : "")' @onclick='() => activeTab = "runs"'>
+      <i class="bi bi-play-circle me-1"></i>@Loc["Run Review"]
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class='nav-link @(activeTab == "history" ? "active" : "")' @onclick='() => SwitchToHistory()'>
+      <i class="bi bi-clock-history me-1"></i>@Loc["History"]
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class='nav-link @(activeTab == "templates" ? "active" : "")' @onclick='() => SwitchToTemplates()'>
+      <i class="bi bi-list-check me-1"></i>@Loc["Templates"]
+    </button>
+  </li>
+</ul>
+
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+  <div class="alert alert-warning">@statusMessage</div>
+}
+
+@if (isLoading)
+{
+  <div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>
+}
+
+@* ── RUN TAB ─────────────────────────────────────────────────────────────── *@
+else if (activeTab == "runs")
+{
+  @if (activeRun == null)
+  {
+    <div class="row g-3 mb-4">
+      @foreach (ReviewTemplateEntity tpl in templates)
+      {
+        <div class="col-sm-6 col-md-4">
+          <div class="lp-card h-100">
+            <h6 class="fw-semibold mb-1">
+              <i class='bi @(tpl.ReviewType == ReviewType.Weekly ? "bi-calendar-week" : "bi-calendar-month") me-1 text-primary'></i>
+              @tpl.Name
+            </h6>
+            <p class="text-muted small mb-3">@tpl.Items.Count item(s)</p>
+            <AuthorizeView>
+              <Authorized>
+                <button class="lp-btn-primary w-100" @onclick='() => StartRun(tpl)'>
+                  <i class="bi bi-play-fill me-1"></i>@Loc["Start Review"]
+                </button>
+              </Authorized>
+              <NotAuthorized>
+                <button class="lp-btn-ghost w-100" disabled>
+                  <i class="bi bi-lock me-1"></i>@Loc["Log in to start"]
+                </button>
+              </NotAuthorized>
+            </AuthorizeView>
+          </div>
+        </div>
+      }
+    </div>
+    @if (!templates.Any())
+    {
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>@Loc["No templates found. Go to the \"Templates\" tab to create one."]
+      </div>
+    }
+  }
+  else
+  {
+    @* Active review run *@
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="mb-0">@activeRun.Template?.Name — @activeRun.RunDate.ToString("d", Loc.Culture)</h5>
+      <button class="lp-btn-ghost" @onclick="CancelRun">
+        <i class="bi bi-x-lg me-1"></i>@Loc["Cancel"]
+      </button>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <label class="form-label lp-form-label">@Loc["Energy (0-10)"]</label>
+        <input type="number" min="0" max="10" class="form-control form-control-sm" @bind="activeRun.ScoreEnergy" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label lp-form-label">@Loc["Focus (0-10)"]</label>
+        <input type="number" min="0" max="10" class="form-control form-control-sm" @bind="activeRun.ScoreFocus" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label lp-form-label">@Loc["Finances (0-10)"]</label>
+        <input type="number" min="0" max="10" class="form-control form-control-sm" @bind="activeRun.ScoreFinances" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label lp-form-label">@Loc["Relations (0-10)"]</label>
+        <input type="number" min="0" max="10" class="form-control form-control-sm" @bind="activeRun.ScoreRelations" />
+      </div>
+    </div>
+
+    <div class="lp-card mb-3">
+      <h6 class="mb-3">@Loc["Checklist"]</h6>
+      @foreach (ReviewRunItemEntity item in activeRun.Items.OrderBy(i => i.SortOrder))
+      {
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id='ri@(item.Id)' checked="@item.Done"
+                 @onchange='() => item.Done = !item.Done' />
+          <label class="form-check-label" for='ri@(item.Id)'>@item.Text</label>
+        </div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label lp-form-label">@Loc["General notes"]</label>
+      <textarea class="form-control" rows="3" @bind="activeRun.Notes" placeholder='@Loc["Reflections, learnings, improvement points..."]'></textarea>
+    </div>
+
+    <div class="text-end">
+      <AuthorizeView>
+        <Authorized>
+          <button class="lp-btn-primary" @onclick="SaveRun" disabled="@isSaving">
+            <i class="bi bi-check-lg me-1"></i>@(isSaving ? Loc["Saving..."] : Loc["Complete Review"])
+          </button>
+        </Authorized>
+        <NotAuthorized>
+          <button class="lp-btn-ghost" disabled>
+            <i class="bi bi-lock me-1"></i>@Loc["Log in to save"]
+          </button>
+        </NotAuthorized>
+      </AuthorizeView>
+    </div>
+  }
+}
+
+@* ── HISTORY TAB ──────────────────────────────────────────────────────────── *@
+else if (activeTab == "history")
+{
+  <div class="d-flex gap-3 mb-4 flex-wrap align-items-end">
+    <div>
+      <label class="form-label lp-form-label">@Loc["Type"]</label>
+      <select class="form-select form-select-sm" @bind="filterType">
+        <option value="">@Loc["All"]</option>
+        <option value="Weekly">@Loc["Weekly"]</option>
+        <option value="Monthly">@Loc["Monthly"]</option>
+      </select>
+    </div>
+    <div>
+      <label class="form-label lp-form-label">@Loc["From"]</label>
+      <input type="date" class="form-control form-control-sm"
+             value='@(filterFrom.HasValue ? filterFrom.Value.ToString("yyyy-MM-dd") : "")'
+             @onchange='e => filterFrom = string.IsNullOrEmpty(e.Value?.ToString()) ? null : DateTime.Parse(e.Value!.ToString()!).ToUniversalTime()' />
+    </div>
+    <div>
+      <label class="form-label lp-form-label">@Loc["To"]</label>
+      <input type="date" class="form-control form-control-sm"
+             value='@(filterTo.HasValue ? filterTo.Value.ToString("yyyy-MM-dd") : "")'
+             @onchange='e => filterTo = string.IsNullOrEmpty(e.Value?.ToString()) ? null : DateTime.Parse(e.Value!.ToString()!).ToUniversalTime()' />
+    </div>
+    <button class="lp-btn-ghost" @onclick="LoadHistory">
+      <i class="bi bi-search me-1"></i>@Loc["Filter"]
+    </button>
+  </div>
+
+  @if (!historyRuns.Any())
+  {
+    <div class="alert alert-info">@Loc["No reviews found for the selected filter."]</div>
+  }
+  else
+  {
+    <div class="table-responsive">
+      <table class="table table-sm table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>@Loc["Date"]</th>
+            <th>@Loc["Template"]</th>
+            <th>@Loc["Type"]</th>
+            <th class="text-center">@Loc["Energy"]</th>
+            <th class="text-center">@Loc["Focus"]</th>
+            <th class="text-center">@Loc["Finances"]</th>
+            <th class="text-center">@Loc["Relations"]</th>
+            <th class="text-center">@Loc["Items"]</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (ReviewRunEntity run in historyRuns)
+          {
+            <tr>
+              <td class="small">@run.RunDate.ToString("d", Loc.Culture)</td>
+              <td class="small">@(run.Template?.Name ?? "-")</td>
+              <td><span class='badge @(run.ReviewType == ReviewType.Weekly ? "bg-info text-dark" : "bg-primary")'>@(run.ReviewType == ReviewType.Weekly ? Loc["Weekly"] : Loc["Monthly"])</span></td>
+              <td class="text-center small">@(run.ScoreEnergy?.ToString() ?? "-")</td>
+              <td class="text-center small">@(run.ScoreFocus?.ToString() ?? "-")</td>
+              <td class="text-center small">@(run.ScoreFinances?.ToString() ?? "-")</td>
+              <td class="text-center small">@(run.ScoreRelations?.ToString() ?? "-")</td>
+              <td class="text-center small">@(run.Items.Count(i => i.Done))/@(run.Items.Count)</td>
+              <td class="text-end">
+                <AuthorizeView Context="reviewHistAuth">
+                  <Authorized>
+                    <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick='() => ConfirmDeleteRun(run)'>
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </Authorized>
+                  <NotAuthorized>
+                    <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled>
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </NotAuthorized>
+                </AuthorizeView>
+              </td>
+            </tr>
+            @if (!string.IsNullOrEmpty(run.Notes))
+            {
+              <tr class="table-light">
+                <td></td>
+                <td colspan="8" class="text-muted small fst-italic ps-3 py-1">
+                  <i class="bi bi-chat-left-text me-1"></i>@run.Notes
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}
+
+@* ── TEMPLATES TAB ────────────────────────────────────────────────────────── *@
+else if (activeTab == "templates")
+{
+  <div class="d-flex justify-content-end mb-3">
+    <AuthorizeView>
+      <Authorized>
+        <button class="lp-btn-primary" @onclick="AddTemplate">
+          <i class="bi bi-plus-lg me-1"></i>@Loc["New Template"]
+        </button>
+      </Authorized>
+      <NotAuthorized>
+        <button class="lp-btn-ghost" disabled title='@Loc["Log in to create"]'>
+          <i class="bi bi-lock me-1"></i>@Loc["Log in to create"]
+        </button>
+      </NotAuthorized>
+    </AuthorizeView>
+  </div>
+
+  @if (!templates.Any())
+  {
+    <div class="alert alert-info">@Loc["No templates. Click \"New Template\" to create one."]</div>
+  }
+  else
+  {
+    <div class="row g-3">
+      @foreach (ReviewTemplateEntity tpl in templates)
+      {
+        <div class="col-md-6">
+          <div class="lp-card p-0">
+            <div class="lp-card-header d-flex align-items-center gap-2 py-2 px-3">
+              <span class="fw-semibold flex-grow-1">
+                <i class='bi @(tpl.ReviewType == ReviewType.Weekly ? "bi-calendar-week" : "bi-calendar-month") me-1'></i>
+                @tpl.Name
+                @if (tpl.IsDefault)
+                {
+                  <span class="badge bg-secondary ms-1 small">@Loc["default"]</span>
+                }
+              </span>
+              <AuthorizeView Context="reviewTplAuth">
+                <Authorized>
+                  <button class="lp-tx-action-btn" @onclick='() => EditTemplate(tpl)'>
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick='() => ConfirmDeleteTemplate(tpl)'>
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </Authorized>
+                <NotAuthorized>
+                  <button class="lp-tx-action-btn" disabled><i class="bi bi-pencil"></i></button>
+                  <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled><i class="bi bi-trash"></i></button>
+                </NotAuthorized>
+              </AuthorizeView>
+            </div>
+            <div class="px-3 py-2">
+              <ol class="mb-0 small ps-3">
+                @foreach (ReviewTemplateItemEntity item in tpl.Items.OrderBy(i => i.SortOrder))
+                {
+                  <li class="py-0">@item.Text</li>
+                }
+              </ol>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+}
+
+@* ── Template Modal ───────────────────────────────────────────────────────── *@
+@if (showTemplateModal)
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down">
+      <div class="modal-content">
+        <div class="modal-header lp-modal-header">
+          <h5 class="modal-title text-white">@(editingTemplate.Id == 0 ? Loc["New Template"] : Loc["Edit Template"])</h5>
+          <button type="button" class="btn-close btn-close-white" @onclick="CloseTemplateModal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Name *"]</label>
+              <input class="form-control lp-modal-input" @bind="editingTemplate.Name" />
+            </div>
+            <div class="col-auto">
+              <label class="form-label lp-modal-label">@Loc["Type"]</label>
+              <select class="form-select lp-modal-input" @bind="editingTemplate.ReviewType">
+                <option value="@ReviewType.Weekly">@Loc["Weekly"]</option>
+                <option value="@ReviewType.Monthly">@Loc["Monthly"]</option>
+              </select>
+            </div>
+          </div>
+          <label class="form-label lp-modal-label">@Loc["Checklist items"]</label>
+          @for (int i = 0; i < templateItemTexts.Count; i++)
+          {
+            int idx = i;
+            <div class="input-group mb-2">
+              <span class="input-group-text small">@(idx + 1)</span>
+              <input class="form-control form-control-sm lp-modal-input" value="@templateItemTexts[idx]"
+                     @oninput='e => templateItemTexts[idx] = e.Value?.ToString() ?? string.Empty' />
+              <button class="btn btn-outline-danger btn-sm" type="button" @onclick='() => RemoveTemplateItem(idx)'>
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          }
+          <button class="btn btn-sm btn-outline-secondary mt-1" @onclick="AddTemplateItem">
+            <i class="bi bi-plus me-1"></i>@Loc["Add item"]
+          </button>
+        </div>
+        <div class="modal-footer lp-modal-footer">
+          <button class="lp-modal-btn-cancel" @onclick="CloseTemplateModal">@Loc["Cancel"]</button>
+          <AuthorizeView>
+            <Authorized>
+              <button class="lp-modal-btn-save" @onclick="SaveTemplate" disabled="@isSaving">
+                @(isSaving ? Loc["Saving..."] : Loc["Save"])
+              </button>
+            </Authorized>
+            <NotAuthorized>
+              <button class="lp-modal-btn-cancel" disabled>
+                <i class="bi bi-lock me-1"></i>@Loc["Log in to save"]
+              </button>
+            </NotAuthorized>
+          </AuthorizeView>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@* ── Delete Confirm Modal ─────────────────────────────────────────────────── *@
+@if (!string.IsNullOrEmpty(deleteMessage))
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4">
+          <i class="bi bi-exclamation-triangle text-danger" style="font-size:2rem"></i>
+          <p class="mt-2 mb-0">@deleteMessage</p>
+        </div>
+        <div class="modal-footer justify-content-center border-0 pt-0">
+          <button class="lp-modal-btn-cancel" @onclick='() => deleteMessage = ""'>@Loc["Cancel"]</button>
+          <button class="btn btn-danger btn-sm" @onclick="ExecuteDelete" disabled="@isSaving">@Loc["Delete"]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

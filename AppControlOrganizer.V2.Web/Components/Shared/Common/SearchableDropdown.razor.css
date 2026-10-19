@@ -1,0 +1,16 @@
+.searchable-dropdown {
+    position: relative;
+    overflow: visible;
+}
+
+.searchable-dropdown.is-open {
+    z-index: 3000;
+}
+
+/* position:fixed and coordinates are set via inline style + CSS custom
+   properties written by positionSearchableDropdown() in JS.
+   z-index here is a fallback; the fixed positioning already places the
+   element outside every ancestor stacking context. */
+.searchable-dropdown-menu {
+    z-index: 9999;
+}

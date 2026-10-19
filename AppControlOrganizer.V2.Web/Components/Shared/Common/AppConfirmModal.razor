@@ -1,0 +1,58 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="AppConfirmModal.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@if (Visible)
+{
+    <div class="modal fade show d-block"
+         tabindex="-1"
+         style="background-color: rgba(0,0,0,@BackdropOpacity);"
+         @onclick="HandleBackdropClick"
+         @onkeydown="HandleKeyDown">
+
+        <div class="modal-dialog @DialogSizeCss @DialogExtraCss" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+
+                    @if (ShowCloseButton)
+                    {
+                        <button type="button" class="btn-close" @onclick="CancelAsync" disabled="@IsBusy"></button>
+                    }
+                </div>
+
+                <div class="modal-body">
+                    @if (Body != null)
+                    {
+                        @Body
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Message))
+                    {
+                        <p class="mb-0">@((MarkupString)Message)</p>
+                    }
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelAsync" disabled="@IsBusy">
+                        @CancelText
+                    </button>
+
+                    <button type="button"
+                            class="btn @ConfirmButtonCss"
+                            @onclick="ConfirmAsync"
+                            disabled="@(IsBusy || DisableConfirm)">
+                        @if (IsBusy && ShowSpinnerOnConfirm)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        @ConfirmText
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

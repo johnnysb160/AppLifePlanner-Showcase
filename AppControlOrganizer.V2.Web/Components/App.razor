@@ -1,0 +1,284 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="App.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@inherits Microsoft.AspNetCore.Components.ComponentBase
+
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <base href="/" />
+
+    <!-- ── PWA: Web App Manifest ── -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- ── PWA: Theme & Status Bar ── -->
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="msapplication-TileColor" content="#0f172a" />
+    <meta name="msapplication-TileImage" content="/icons/icon-192x192.png" />
+
+    <!-- ── PWA: iOS Safari ── -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Life Planner" />
+    <link rel="apple-touch-icon" href="/icons/icon-180x180.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png" />
+
+    <!-- ── SEO / Open Graph ── -->
+    <meta name="description" content="AppLifePlanner — full-stack .NET 8 Blazor Server platform for personal finance and life planning: multi-asset portfolio tracking, real-time market data, and AI-assisted insights." />
+    <meta name="application-name" content="Life Planner" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://applifeplanner.onrender.com/" />
+    <meta property="og:site_name" content="AppLifePlanner" />
+    <meta property="og:title" content="AppLifePlanner — Personal Finance &amp; Life Planning Platform" />
+    <meta property="og:description" content="Full-stack .NET 8 Blazor Server app: multi-asset portfolio tracking, real-time market data (B3, US equities, crypto, FX), AI-assisted insights, and bank-grade security (AES-256, JWT + cookie auth, rate limiting). Live public demo." />
+    <meta property="og:image" content="https://applifeplanner.onrender.com/icons/icon-512x512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="AppLifePlanner — Personal Finance &amp; Life Planning Platform" />
+    <meta name="twitter:description" content="Full-stack .NET 8 Blazor Server app: multi-asset portfolio tracking, real-time market data, AI-assisted insights, and bank-grade security. Live public demo." />
+    <meta name="twitter:image" content="https://applifeplanner.onrender.com/icons/icon-512x512.png" />
+
+    <!-- Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <!-- Flag Icons for language selector -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css" />
+    <!-- Application custom styles -->
+    <link rel="stylesheet" href="css/app.css?v=35" />
+    <!-- Blazor CSS isolation bundle (generated from *.razor.css files) -->
+    <link rel="stylesheet" href="AppControlOrganizer.V2.Web.styles.css?v35" />
+    <link rel="icon" type="image/png" href="/Files/favicon.png" />
+    <HeadOutlet />
+</head>
+<body>
+    <Routes />
+    <!-- Bootstrap 5 JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <!-- Blazor Server-side rendering script -->
+    <script src="_framework/blazor.web.js" autostart="false"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+
+    <script>
+        // Positions a SearchableDropdown menu using position:fixed so it always
+        // appears above every other element regardless of CSS stacking contexts.
+        // Called from SearchableDropdown.razor.cs via IJSRuntime each time the
+        // dropdown opens or the user types to filter items.
+        window.positionSearchableDropdown = function (container)
+        {
+            if (!container) return;
+            const rect = container.getBoundingClientRect();
+            container.style.setProperty('--dd-top',   rect.bottom + 'px');
+            container.style.setProperty('--dd-left',  rect.left   + 'px');
+            container.style.setProperty('--dd-width', rect.width  + 'px');
+        };
+
+        // Plugin de crosshair: desenha uma linha vertical no ponto hovado
+        const crosshairPlugin = {
+            id: 'crosshair',
+            afterDraw(chart) {
+                if (!chart._hoveredX) return;
+                const ctx = chart.ctx;
+                const x = chart._hoveredX;
+                const yTop = chart.chartArea.top;
+                const yBottom = chart.chartArea.bottom;
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(x, yTop);
+                ctx.lineTo(x, yBottom);
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.restore();
+            }
+        };
+
+        // Reads the browser's clock without evaluating script text from the server.
+        window.lpGetClientHour = () => window.__clientHour;
+        window.lpGetClientLocalIso = () => {
+            const d = new Date();
+            const p = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+        };
+
+        // Posts an authentication form with a fresh antiforgery token; the token is never readable cross-site.
+        window.lpPostAuthForm = async (action, fields) => {
+            const response = await fetch('/auth/csrf', { credentials: 'same-origin', cache: 'no-store' });
+            if (!response.ok) {
+                throw new Error('Antiforgery token unavailable.');
+            }
+
+            const tokenSet = await response.json();
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = action;
+            const add = (name, value) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value ?? '';
+                form.appendChild(input);
+            };
+
+            add('__RequestVerificationToken', tokenSet.token);
+            Object.keys(fields).forEach(name => add(name, fields[name]));
+            document.body.appendChild(form);
+            form.submit();
+        };
+
+        // Renders quote charts.
+        window.renderMarketChart = (canvasId, labelName, labels, dataPoints, lineColor) => {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+
+            // Destroy any existing chart on this canvas before drawing the new one.
+            if (window[canvasId + 'Chart']) {
+                window[canvasId + 'Chart'].destroy();
+            }
+
+            window[canvasId + 'Chart'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: labelName,
+                        data: dataPoints,
+                        borderColor: lineColor,
+                        backgroundColor: lineColor + '33',
+                        borderWidth: 2,
+                        pointRadius: 0,       // Esconde as bolinhas normais
+                        pointHoverRadius: 5,  // Point appears only on hover.
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                plugins: [crosshairPlugin],
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    // Enables tooltips at any X position in the chart,
+                    // sem precisar estar exatamente sobre a linha
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    onHover(event, elements, chart) {
+                        // Stores the mouse X position for the crosshair.
+                        if (event.native) {
+                            const rect = chart.canvas.getBoundingClientRect();
+                            chart._hoveredX = event.native.clientX - rect.left;
+                        } else {
+                            chart._hoveredX = null;
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            displayColors: true,
+                            callbacks: {
+                                // Formata o valor com casas decimais adequadas
+                                label(context) {
+                                    const val = context.parsed.y;
+                                    const formatted = val >= 1000
+                                        ? val.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+                                        : val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+                                    return ' ' + context.dataset.label + ': ' + formatted;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { maxTicksLimit: 8 }
+                        },
+                        y: {
+                            grid: { borderDash: [5, 5] }
+                        }
+                    }
+                }
+            });
+        };
+
+        // Capture client local hour synchronously before Blazor starts.
+        // Stored in window.__clientHour so JS interop never suffers a race condition,
+        // and in a cookie so the server can read it on the next SSR prerender request.
+        (function () {
+            var h = new Date().getHours();
+            window.__clientHour = h;
+            document.cookie = "tz_hour=" + h + "; path=/; SameSite=Lax; Max-Age=86400";
+        })();
+
+        // Legacy alias kept for backward compatibility.
+        window.getClientHour = () => window.__clientHour;
+
+        // ── Blazor start ──────────────────────────────────────────────────────
+        Blazor.start({
+            circuit: {
+                reconnectionOptions: {
+                    maxRetries: 5,
+                    retryIntervalMilliseconds: 2000
+                },
+                reconnectionHandler: {
+                    onConnectionDown: () => { /* handled by visibilitychange below */ },
+                    onConnectionUp:   () => { /* handled by visibilitychange below */ }
+                }
+            }
+        });
+
+        // Circuit failure reload guard.
+        // A classe "components-reconnect-failed" aparece quando o Blazor desistiu
+        // When reconnection stops, reload the page immediately.
+        const reconnectObserver = new MutationObserver(() => {
+            const modal = document.querySelector('#components-reconnect-modal');
+            if (modal && modal.classList.contains('components-reconnect-failed')) {
+                console.log('[PWA] Circuito morreu — recarregando.');
+                location.reload();
+            }
+        });
+        reconnectObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+
+        // ── Guard: reload ao retornar do standby (iOS PWA) ────────────────────
+        // Quando o iPhone coloca o PWA em segundo plano, o WebSocket cai.
+        // Ao retornar, mesmo que o Blazor reconecte o circuito com sucesso,
+        // pages can be left with stuck loading flags.
+        // If the app was hidden for more than 30 seconds, force a reload.
+        var _hiddenAt = null;
+        var STANDBY_THRESHOLD_MS = 30000;
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'hidden') {
+                _hiddenAt = Date.now();
+            } else if (document.visibilityState === 'visible' && _hiddenAt !== null) {
+                var hiddenFor = Date.now() - _hiddenAt;
+                _hiddenAt = null;
+                if (hiddenFor > STANDBY_THRESHOLD_MS) {
+                    console.log('[PWA] Returned from standby after ' + Math.round(hiddenFor / 1000) + 's; reloading.');
+                    location.reload();
+                }
+            }
+        });
+    </script>
+
+    <!-- ── PWA: Service Worker Registration ── -->
+    <script src="/service-worker-registration.js"></script>
+</body>
+</html>

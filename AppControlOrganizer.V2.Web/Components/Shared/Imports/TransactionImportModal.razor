@@ -1,0 +1,211 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="TransactionImportModal.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@using Microsoft.AspNetCore.Components.Authorization
+@* 
+    TransactionImportModal.razor - Modal for importing bank statements or card invoices.
+*@
+
+@if (IsVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" @onclick="OnBackdropClick">
+        <div class="modal-dialog modal-lg" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-upload me-2"></i>@Loc["Import File"]
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="OnCancel" disabled="@IsImporting"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <button type="button"
+                                    class="nav-link @(SourceType == ImportSourceType.BankStatement ? "active" : "")"
+                                    @onclick="() => SetSourceType(ImportSourceType.BankStatement)"
+                                    disabled="@IsImporting">
+                                @Loc["Bank Statement"]
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button"
+                                    class="nav-link @(SourceType == ImportSourceType.CardInvoice ? "active" : "")"
+                                    @onclick="() => SetSourceType(ImportSourceType.CardInvoice)"
+                                    disabled="@IsImporting">
+                                @Loc["Card Invoice"]
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Financial Institution -->
+                    <div class="mb-3">
+                        <label class="form-label">@Loc["Financial Institution *"]</label>
+                        <SearchableDropdown TValue="int"
+                                            Items="@AccountDropdownItems"
+                                            @bind-Value="SelectedAccountId"
+                                            EmptyValue="0"
+                                            Disabled="@IsImporting"
+                                            Placeholder='@Loc["Select..."]' />
+                        @if (SelectedAccount != null)
+                        {
+                            <div class="mt-1">
+                                <a class="import-context-link" href="@GetAccountHref(SelectedAccount.Id)">
+                                    <img src="@Helper.GetLogoDataUriOrDefault(SelectedAccount.Logo)" width="16" height="16" class="me-1" alt="" />
+                                    @SelectedAccount.Name
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Credit Card (only for Card Invoice) -->
+                    @if (SourceType == ImportSourceType.CardInvoice)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">@Loc["Credit Card *"]</label>
+                            <SearchableDropdown TValue="int"
+                                                Items="@CreditCardDropdownItems"
+                                                @bind-Value="SelectedCreditCardId"
+                                                EmptyValue="0"
+                                                Disabled="@IsImporting"
+                                                Placeholder='@Loc["Select..."]' />
+                            @if (SelectedCreditCard != null)
+                            {
+                                <div class="mt-1">
+                                    <a class="import-context-link" href="@GetAccountHref(SelectedCreditCard.AccountId)">
+                                        <i class="bi bi-credit-card"></i>
+                                        @SelectedCreditCard.HolderName
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!-- File Format -->
+                    <div class="mb-3">
+                        <label class="form-label">@Loc["File Format *"]</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="fileFormat" id="formatOfx"
+                                       checked="@(FileFormat == ImportFileFormat.Ofx)"
+                                       @onchange="() => FileFormat = ImportFileFormat.Ofx"
+                                       disabled="@IsImporting" />
+                                <label class="form-check-label" for="formatOfx">OFX</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="fileFormat" id="formatCsv"
+                                       checked="@(FileFormat == ImportFileFormat.Csv)"
+                                       @onchange="() => FileFormat = ImportFileFormat.Csv"
+                                       disabled="@IsImporting" />
+                                <label class="form-check-label" for="formatCsv">@Loc["Spreadsheet (CSV)"]</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="fileFormat" id="formatPdf"
+                                       disabled="true" />
+                                <label class="form-check-label text-muted" for="formatPdf">@Loc["PDF (Beta) - Coming soon"]</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Picker -->
+                    <div class="mb-3">
+                        <label class="form-label">@Loc["File *"]</label>
+                        <InputFile class="form-control" OnChange="OnFileSelected" disabled="@IsImporting" accept="@GetAcceptedFileTypes()" />
+                        @if (!string.IsNullOrEmpty(SelectedFileName))
+                        {
+                            <small class="text-muted">@Loc["Selected:"] @SelectedFileName</small>
+                        }
+                    </div>
+
+                    <!-- Validation Message -->
+                    @if (!string.IsNullOrEmpty(ValidationMessage))
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@ValidationMessage
+                        </div>
+                    }
+
+                    <!-- Progress Bar -->
+                    @if (IsImporting)
+                    {
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>@ProgressLabel</span>
+                                <span>@Progress%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                     role="progressbar"
+                                     style="width: @Progress%"
+                                     aria-valuenow="@Progress"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Import Summary (shown after import) -->
+                    @if (ImportSummary != null)
+                    {
+                        <div class="alert @(ImportSummary.Errors > 0 ? "alert-warning" : "alert-success") mt-3">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <h6>@Loc["Import Summary"]</h6>
+                                @if (ImportSummary.Inserted > 0)
+                                {
+                                    <a class="import-summary-link" href="@GetImportedTransactionsHref()">
+                                        @Loc["View imported transactions"] <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                }
+                            </div>
+                            <ul class="mb-0">
+                                <li><strong>@ImportSummary.Inserted</strong> @Loc["inserted"]</li>
+                                @if (ImportSummary.Enriched > 0)
+                                {
+                                    <li><strong>@ImportSummary.Enriched</strong> @Loc["existing updated with more details"]</li>
+                                }
+                                <li><strong>@ImportSummary.SkippedDuplicates</strong> @Loc["skipped (duplicates)"]</li>
+                                <li><strong>@ImportSummary.PendingCount</strong> @Loc["pending review"]</li>
+                                @if (ImportSummary.Errors > 0)
+                                {
+                                    <li class="text-danger"><strong>@ImportSummary.Errors</strong> @Loc["errors"]</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="OnCancel" disabled="@IsImporting">
+                        @Loc["Cancel"]
+                    </button>
+
+                    <AuthorizeView Context="authContext">
+                        <Authorized>
+                            <button type="button" class="btn btn-primary" @onclick="ExecuteImport" disabled="@(!CanImport || IsImporting)">
+                                @if (IsImporting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                }
+                                @Loc["Import"]
+                            </button>
+                        </Authorized>
+                        <NotAuthorized>
+                            <button type="button" class="btn btn-primary" disabled>
+                                @if (IsImporting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                }
+                                @Loc["Log in to Import"]
+                            </button>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
+            </div>
+        </div>
+    </div>
+}

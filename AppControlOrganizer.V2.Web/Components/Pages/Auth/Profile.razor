@@ -1,0 +1,846 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="Profile.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/account/profile"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using AppControlOrganizer.V2.Web.Components.Shared
+@using Microsoft.AspNetCore.Authorization
+
+<PageTitle>@Loc["Profile"] - Life Planner</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0"><i class="bi bi-person-gear me-2"></i>@Loc["Profile"]</h1>
+        <p class="text-muted mb-0">@Loc["Manage your account settings"]</p>
+    </div>
+</div>
+
+@if (userId is null)
+{
+    <div class="d-flex justify-content-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+
+        @* ── Photo + Display Name ── *@
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom-0 pt-3">
+                    <h5 class="mb-0"><i class="bi bi-image me-1"></i>@Loc["Profile Photo & Display Name"]</h5>
+                </div>
+                <div class="card-body">
+
+                    @if (!string.IsNullOrEmpty(photoSuccess))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-1"></i> @photoSuccess
+                            <button type="button" class="btn-close" @onclick="() => photoSuccess = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(photoError))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> @photoError
+                            <button type="button" class="btn-close" @onclick="() => photoError = string.Empty"></button>
+                        </div>
+                    }
+
+                    <div class="d-flex align-items-center gap-4 flex-wrap">
+
+                        <div class="profile-avatar-lg">
+                            @if (!string.IsNullOrEmpty(currentPhotoData))
+                            {
+                                <img src="@currentPhotoData" alt="Profile photo" />
+                            }
+                            else
+                            {
+                                <span>@GetInitials()</span>
+                            }
+                        </div>
+
+                        <div class="flex-grow-1" style="min-width:260px; max-width:480px;">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">@Loc["Display Name"]</label>
+                                <input type="text"
+                                       class="form-control"
+                                       placeholder="e.g. John Barros"
+                                       maxlength="100"
+                                       value="@displayNameInput"
+                                       @oninput="OnDisplayNameInput"
+                                       @onchange="SaveDisplayNameAsync" />
+                                <div class="form-text">@Loc["Shown in the navbar. Falls back to username when empty."]</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">@Loc["Profile Photo"]</label>
+                                <InputFile OnChange="OnPhotoSelectedAsync"
+                                           accept="image/png,image/jpeg,image/webp"
+                                           class="form-control"
+                                           disabled="@photoSubmitting" />
+                                <div class="form-text">@Loc["PNG, JPG or WEBP · max 5 MB"]</div>
+                                @if (photoSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm text-primary mt-1" role="status"></span>
+                                }
+
+                                @if (!string.IsNullOrEmpty(currentPhotoData))
+                                {
+                                    <button class="btn btn-outline-danger" @onclick="RemovePhoto" disabled="@photoSubmitting">
+                                        <i class="bi bi-trash me-1"></i>@Loc["Remove Photo"]
+                                    </button>
+                                }
+                            </div>
+
+                            @* ── Interface Language ── *@
+                            <div class="mb-3">
+                                <div class="card shadow-sm border-0 h-100">
+                                    <div class="card-header bg-white border-bottom-0 pt-3">
+                                        <h5 class="mb-0"><i class="bi bi-translate me-1"></i>@Loc["Interface Language"]</h5>
+                                    </div>
+                                    <div class="card-body">
+
+                                        @if (!string.IsNullOrEmpty(langSuccess))
+                                        {
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <i class="bi bi-check-circle-fill me-1"></i> @langSuccess
+                                                <button type="button" class="btn-close" @onclick="() => langSuccess = string.Empty"></button>
+                                            </div>
+                                        }
+
+                                        <div class="d-flex gap-3 mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="lang" id="lang-en"
+                                                       checked='@(selectedLang == "en")'
+                                                       @onchange="OnLangEnChangedAsync" />
+                                                <label class="form-check-label" for="lang-en">@Loc["English"]</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="lang" id="lang-pt"
+                                                       checked='@(selectedLang == "pt")'
+                                                       @onchange="OnLangPtChangedAsync" />
+                                                <label class="form-check-label" for="lang-pt">@Loc["Portuguese (Brazil)"]</label>
+                                            </div>
+                                        </div>
+
+                                        @if (langSubmitting)
+                                        {
+                                            <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* ── Account Info ── *@
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom-0 pt-3">
+                    <h5 class="mb-0"><i class="bi bi-person me-1"></i>@Loc["Account Information"]</h5>
+                </div>
+                <div class="card-body">
+
+                    @if (!string.IsNullOrEmpty(infoSuccess))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-1"></i> @infoSuccess
+                            <button type="button" class="btn-close" @onclick="() => infoSuccess = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(infoError))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> @infoError
+                            <button type="button" class="btn-close" @onclick="() => infoError = string.Empty"></button>
+                        </div>
+                    }
+
+                    <EditForm Model="infoModel" OnValidSubmit="OnUpdateInfoAsync" FormName="ProfileInfoForm">
+                        <LocalizedDataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label for="prof-email" class="form-label fw-semibold">Email</label>
+                            <InputText id="prof-email" class="form-control" @bind-Value="infoModel.Email" />
+                            <ValidationMessage For="() => infoModel.Email" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="prof-username" class="form-label fw-semibold">Username</label>
+                            <InputText id="prof-username" class="form-control" @bind-Value="infoModel.UserName" />
+                            <ValidationMessage For="() => infoModel.UserName" class="text-danger small" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" disabled="@infoSubmitting">
+                            @if (infoSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                <span>@Loc["Saving…"]</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-check-lg me-1"></i>
+                                <span>@Loc["Save Changes"]</span>
+                            }
+                        </button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        @if (isAdmin)
+        {
+            @* ── Admin Security ── *@
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom-0 pt-3">
+                        <h5 class="mb-0"><i class="bi bi-shield-lock me-1"></i>@Loc["Admin Security"]</h5>
+                    </div>
+                    <div class="card-body">
+
+                        @if (!string.IsNullOrEmpty(registrationSuccess))
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill me-1"></i> @registrationSuccess
+                                <button type="button" class="btn-close" @onclick="() => registrationSuccess = string.Empty"></button>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(registrationError))
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> @registrationError
+                                <button type="button" class="btn-close" @onclick="() => registrationError = string.Empty"></button>
+                            </div>
+                        }
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="allow-public-registration"
+                                   @bind="allowPublicRegistration" />
+                            <label class="form-check-label fw-semibold" for="allow-public-registration">
+                                @Loc["Allow public account creation"]
+                            </label>
+                        </div>
+
+                        <p class="text-muted small mb-3">
+                            @Loc["When disabled, visitors can still browse the demo but cannot create a profile."]
+                        </p>
+
+                        <button class="btn btn-primary" @onclick="OnSaveRegistrationSettingAsync" disabled="@registrationSubmitting">
+                            @if (registrationSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                <span>@Loc["Saving…"]</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-floppy me-1"></i>
+                                <span>@Loc["Save"]</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* ── Change Password ── *@
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom-0 pt-3">
+                    <h5 class="mb-0"><i class="bi bi-key me-1"></i>@Loc["Change Password"]</h5>
+                </div>
+                <div class="card-body">
+
+                    @if (!string.IsNullOrEmpty(pwdSuccess))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-1"></i> @pwdSuccess
+                            <button type="button" class="btn-close" @onclick="() => pwdSuccess = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(pwdError))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> @pwdError
+                            <button type="button" class="btn-close" @onclick="() => pwdError = string.Empty"></button>
+                        </div>
+                    }
+
+                    <EditForm Model="pwdModel" OnValidSubmit="OnChangePasswordAsync" FormName="ChangePasswordForm">
+                        <LocalizedDataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label for="pwd-current" class="form-label fw-semibold">@Loc["Current Password"]</label>
+                            <PasswordInput Id="pwd-current" @bind-Value="pwdModel.CurrentPassword" />
+                            <ValidationMessage For="() => pwdModel.CurrentPassword" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pwd-new" class="form-label fw-semibold">@Loc["New Password"]</label>
+                            <PasswordInput Id="pwd-new" Placeholder='@Loc["Min. 8 characters"]' @bind-Value="pwdModel.NewPassword" />
+                            <ValidationMessage For="() => pwdModel.NewPassword" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="pwd-confirm" class="form-label fw-semibold">@Loc["Confirm New Password"]</label>
+                            <PasswordInput Id="pwd-confirm" @bind-Value="pwdModel.ConfirmPassword" />
+                            <ValidationMessage For="() => pwdModel.ConfirmPassword" class="text-danger small" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" disabled="@pwdSubmitting">
+                            @if (pwdSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                <span>@Loc["Updating…"]</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-shield-check me-1"></i>
+                                <span>@Loc["Update Password"]</span>
+                            }
+                        </button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        @* ── Windows Widget ── *@
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom-0 pt-3">
+                    <h5 class="mb-0"><i class="bi bi-window-sidebar me-1"></i>@Loc["Windows Widget"]</h5>
+                </div>
+                <div class="card-body d-flex flex-column gap-3">
+                    <p class="text-muted small mb-0">
+                        @Loc["Pair your local overlay once. The widget will keep using a protected token on this PC."]
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(widgetSuccess))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show py-2 mb-0" role="alert">
+                            <i class="bi bi-check-circle-fill me-1"></i> @widgetSuccess
+                            <button type="button" class="btn-close" @onclick="() => widgetSuccess = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(widgetError))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show py-2 mb-0" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> @widgetError
+                            <button type="button" class="btn-close" @onclick="() => widgetError = string.Empty"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(widgetPairingCode))
+                    {
+                        <div class="border rounded p-3 bg-light">
+                            <div class="text-muted small fw-semibold mb-1">@Loc["Pairing code"]</div>
+                            <div class="display-6 fw-bold letter-spacing-normal">@widgetPairingCode</div>
+                            @if (widgetPairingExpiresAtUtc.HasValue)
+                            {
+                                <div class="text-muted small">
+                                    @Loc["Expires"]: @widgetPairingExpiresAtUtc.Value.ToLocalTime().ToString("HH:mm")
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-primary btn-sm" @onclick="OnCreateWidgetPairingCodeAsync" disabled="@widgetSubmitting">
+                            @if (widgetSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-link-45deg me-1"></i>
+                            }
+                            @Loc["Generate pairing code"]
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" @onclick="OnRevokeWidgetTokensAsync" disabled="@widgetSubmitting">
+                            <i class="bi bi-shield-x me-1"></i>@Loc["Revoke widgets"]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* ── IMAP Sender Mappings ── *@
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom-0 pt-3">
+                    <h5 class="mb-0"><i class="bi bi-arrow-left-right me-1"></i>@Loc["Sender-to-Account Mappings"]</h5>
+                </div>
+                <div class="card-body d-flex flex-column gap-3">
+
+                    <p class="text-muted small mb-0">
+                        @Loc["Map each bank sender (e-mail domain or name) to the account where its transactions should be posted."]
+                    </p>
+
+                    @* ── Interval + Sync Now ── *@
+                    <div class="d-flex align-items-end gap-1 flex-wrap">
+                        <div>
+                            <label class="form-label fw-semibold small mb-1">@Loc["Auto-sync interval (hours)"]</label>
+                            <InputNumber class="form-control form-control-sm" style="width:100px;"
+                                         @bind-Value="syncIntervalHours" min="1" max="168" />
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="OnSaveIntervalAsync"
+                                disabled="@intervalSubmitting">
+                            @if (intervalSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-floppy me-1"></i>
+                            }
+                            @Loc["Save"]
+                        </button>
+                        <button class="btn btn-primary btn-sm" @onclick="OnSyncNowAsync"
+                                disabled="@syncNowRunning">
+                            @if (syncNowRunning)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                <span>@Loc["Syncing…"]</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-arrow-repeat me-1"></i>
+                                <span>@Loc["Sync Now"]</span>
+                            }
+                        </button>
+                    </div>
+
+                    @if (lastSyncedAt.HasValue)
+                    {
+                        <p class="text-muted small mb-0">
+                            <i class="bi bi-clock me-1"></i>
+                            @Loc["Last sync"]: @lastSyncedAt.Value.ToLocalTime().ToString("g", Loc.Culture)
+                        </p>
+                    }
+
+                    @if (!string.IsNullOrEmpty(intervalSuccess))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show py-2 mb-0" role="alert">
+                            <i class="bi bi-check-circle-fill me-1"></i> @intervalSuccess
+                            <button type="button" class="btn-close" @onclick="() => intervalSuccess = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(syncNowSuccess))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show py-2 mb-0" role="alert">
+                            <i class="bi bi-check-circle-fill me-1"></i> @syncNowSuccess
+                            <button type="button" class="btn-close" @onclick="() => syncNowSuccess = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(syncNowError))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show py-2 mb-0" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> @syncNowError
+                            <button type="button" class="btn-close" @onclick="() => syncNowError = string.Empty"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(mappingSuccess))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-1"></i> @mappingSuccess
+                            <button type="button" class="btn-close" @onclick="() => mappingSuccess = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(mappingError))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> @mappingError
+                            <button type="button" class="btn-close" @onclick="() => mappingError = string.Empty"></button>
+                        </div>
+                    }
+
+                    @if (imapMappings.Count > 0)
+                    {
+                        <table class="table table-sm table-borderless align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>@Loc["Sender"]</th>
+                                    <th>@Loc["Account"]</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ImapAccountMappingEntity mapping in imapMappings)
+                                {
+                                    <tr>
+                                        <td><code class="small">@mapping.SenderIdentifier</code></td>
+                                        <td class="small">
+                                            <div class="dash-account-row">
+                                              <div class="dash-account-logo-wrap">
+                                                <img src="@Helper.GetLogoDataUriOrDefault(mapping.Account?.Logo)"
+                                                     width="38" height="38"
+                                                     class="dash-account-logo"
+                                                     alt="@(mapping.Account?.Name ?? string.Empty)" />
+                                                </div>
+                                                @(userAccounts.FirstOrDefault(a => a.Id == mapping.AccountId)?.Name ?? "—")
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <button class="btn btn-outline-danger btn-sm"
+                                                    @onclick="() => OnRemoveMappingAsync(mapping.Id)"
+                                                    disabled="@mappingSubmitting"
+                                                    title="@Loc["Remove mapping"]">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted small fst-italic mb-0">@Loc["No mappings configured yet."]</p>
+                    }
+
+                    <hr class="my-1" />
+
+                    <EditForm Model="newMappingModel" OnValidSubmit="OnAddMappingAsync" FormName="AddMappingForm">
+                        <LocalizedDataAnnotationsValidator />
+
+                        <div class="mb-2">
+                            <label class="form-label fw-semibold small">@Loc["Sender Identifier"]</label>
+                            <InputText class="form-control form-control-sm"
+                                       @bind-Value="newMappingModel.SenderIdentifier"
+                                       placeholder="e.g. nubank.com.br" />
+                            <div class="form-text">@Loc["A name or domain that appears in the sender's address (e.g. nubank.com.br, Itau)."]</div>
+                            <ValidationMessage For="() => newMappingModel.SenderIdentifier" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">@Loc["Destination Account"]</label>
+                            <InputSelect class="form-select form-select-sm" @bind-Value="newMappingModel.AccountId">
+                                <option value="0">@Loc["— select account —"]</option>
+                                @foreach (AccountEntity account in userAccounts)
+                                {
+                                    <option value="@account.Id">@account.Name</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="() => newMappingModel.AccountId" class="text-danger small" />
+                        </div>
+
+                        <button type="submit" class="btn btn-outline-primary btn-sm" disabled="@mappingSubmitting">
+                            @if (mappingSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-plus-lg me-1"></i>
+                            }
+                            @Loc["Add Mapping"]
+                        </button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        @* AI Provider *@
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom-0 pt-3">
+                    <h5 class="mb-0"><i class="bi bi-robot me-1"></i>@Loc["AI Provider"]</h5>
+                </div>
+                <div class="card-body">
+
+                    <p class="text-muted small mb-3">
+                        @Loc["Configure a language provider to enable intelligent analysis in Life Planner. The API key is stored encrypted and is never displayed again after it is saved."]
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(aiSuccess))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-1"></i> @aiSuccess
+                            <button type="button" class="btn-close" @onclick="() => aiSuccess = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(aiError))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> @aiError
+                            <button type="button" class="btn-close" @onclick="() => aiError = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(aiTestSuccess))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-plug-fill me-1"></i> @aiTestSuccess
+                            <button type="button" class="btn-close" @onclick="() => aiTestSuccess = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(aiTestError))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-plug me-1"></i> @aiTestError
+                            <button type="button" class="btn-close" @onclick="() => aiTestError = string.Empty"></button>
+                        </div>
+                    }
+
+                    <EditForm Model="aiModel" OnValidSubmit="OnSaveAiProviderAsync" FormName="AiProviderForm">
+                        <LocalizedDataAnnotationsValidator />
+
+                        @* IsEnabled *@
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="ai-enabled"
+                                   @bind="aiModel.IsEnabled" />
+                            <label class="form-check-label fw-semibold" for="ai-enabled">
+                                @Loc["Enable AI in the system"]
+                            </label>
+                        </div>
+
+                        @* ProviderKind *@
+                        <div class="mb-3">
+                            <label for="ai-kind" class="form-label fw-semibold">@Loc["Provider type"]</label>
+                            <InputSelect id="ai-kind" class="form-select" @bind-Value="aiModel.ProviderKind">
+                                <option value="@AppControlOrganizer.V2.Shared.Enums.AiProviderKind.OpenAICompatible">OpenAI-Compatible (LM Studio, Ollama, Together.ai…)</option>
+                                <option value="@AppControlOrganizer.V2.Shared.Enums.AiProviderKind.OpenAI">OpenAI</option>
+                                <option value="@AppControlOrganizer.V2.Shared.Enums.AiProviderKind.Anthropic">Anthropic</option>
+                                <option value="@AppControlOrganizer.V2.Shared.Enums.AiProviderKind.Gemini">Google Gemini</option>
+                                <option value="@AppControlOrganizer.V2.Shared.Enums.AiProviderKind.Local">Local</option>
+                            </InputSelect>
+                        </div>
+
+                        @* DisplayName *@
+                        <div class="mb-3">
+                            <label for="ai-name" class="form-label fw-semibold">@Loc["Display name"]</label>
+                            <InputText id="ai-name" class="form-control" @bind-Value="aiModel.DisplayName" />
+                            <ValidationMessage For="() => aiModel.DisplayName" class="text-danger small" />
+                        </div>
+
+                        @* BaseUrl *@
+                        <div class="mb-3">
+                            <label for="ai-baseurl" class="form-label fw-semibold">@Loc["Base URL"]</label>
+                            <InputText id="ai-baseurl" class="form-control"
+                                       @bind-Value="aiModel.BaseUrl"
+                                       placeholder="e.g. http://localhost:1234" />
+                            <div class="form-text">@Loc["Required for OpenAI-Compatible and Local providers."]</div>
+                        </div>
+
+                        @* Model *@
+                        <div class="mb-3">
+                            <label for="ai-model" class="form-label fw-semibold">@Loc["Model"]</label>
+                            <InputText id="ai-model" class="form-control"
+                                       @bind-Value="aiModel.Model"
+                                       placeholder="e.g. gpt-4o, claude-3-5-sonnet-20241022" />
+                            <ValidationMessage For="() => aiModel.Model" class="text-danger small" />
+                        </div>
+
+                        @* NewApiKey *@
+                        <div class="mb-3">
+                            <label for="ai-apikey" class="form-label fw-semibold">@Loc["New API Key"]</label>
+                            <input id="ai-apikey" type="password" class="form-control"
+                                   @bind="aiModel.NewApiKey" autocomplete="new-password" />
+                            @if (hasExistingAiApiKey)
+                            {
+                                <div class="form-text text-warning">
+                                    <i class="bi bi-shield-lock me-1"></i>
+                                    @Loc["The current key is not displayed for security. Fill this only if you want to replace it."]
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-text">@Loc["Enter the provider API key."]</div>
+                            }
+                        </div>
+
+                        @* Temperature *@
+                        <div class="mb-3">
+                            <label for="ai-temp" class="form-label fw-semibold">Temperature <span class="text-muted fw-normal">@Loc["(optional)"]</span></label>
+                            <InputNumber id="ai-temp" class="form-control"
+                                         @bind-Value="aiModel.Temperature"
+                                         placeholder="e.g. 0.7" />
+                            <div class="form-text">@Loc["Values between 0.0 and 2.0. Leave empty to use the provider default."]</div>
+                            <ValidationMessage For="() => aiModel.Temperature" class="text-danger small" />
+                        </div>
+
+                        @* MaxTokens *@
+                        <div class="mb-3">
+                            <label for="ai-tokens" class="form-label fw-semibold">Max Tokens <span class="text-muted fw-normal">@Loc["(optional)"]</span></label>
+                            <InputNumber id="ai-tokens" class="form-control"
+                                         @bind-Value="aiModel.MaxTokens"
+                                         placeholder="e.g. 1024" />
+                            <div class="form-text">@Loc["Leave empty to use the provider default."]</div>
+                            <ValidationMessage For="() => aiModel.MaxTokens" class="text-danger small" />
+                        </div>
+
+                        @* PrivacyMode *@
+                        <div class="mb-3">
+                            <label for="ai-privacy" class="form-label fw-semibold">@Loc["Privacy mode"]</label>
+                            <InputSelect id="ai-privacy" class="form-select" @bind-Value="aiModel.PrivacyMode">
+                                <option value="AggregatedDataOnly">@Loc["Aggregated data only (recommended)"]</option>
+                                <option value="None">@Loc["None"]</option>
+                            </InputSelect>
+                            <div class="form-text">@Loc["Controls which data may be sent to the AI provider."]</div>
+                        </div>
+
+                        @* Analysis permissions *@
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">@Loc["Analysis permissions"]</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ai-allow-tx"
+                                       @bind="aiModel.AllowTransactionsAnalysis" />
+                                <label class="form-check-label" for="ai-allow-tx">@Loc["Allow transaction analysis"]</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ai-allow-alloc"
+                                       @bind="aiModel.AllowAllocationsAnalysis" />
+                                <label class="form-check-label" for="ai-allow-alloc">@Loc["Allow allocation analysis"]</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ai-allow-mkt"
+                                       @bind="aiModel.AllowMarketQuotesAnalysis" />
+                                <label class="form-check-label" for="ai-allow-mkt">@Loc["Allow market quote usage"]</label>
+                            </div>
+                        </div>
+
+                        @* Last test status *@
+                        @if (aiLastTestedAtUtc.HasValue)
+                        {
+                            <div class="mb-3 p-2 rounded @(aiLastTestSucceeded == true ? "bg-success-subtle" : "bg-danger-subtle")">
+                                <div class="small fw-semibold">
+                                    <i class="bi @(aiLastTestSucceeded == true ? "bi-check-circle-fill text-success" : "bi-x-circle-fill text-danger") me-1"></i>
+                                    @Loc["Last test"]: @aiLastTestedAtUtc.Value.ToLocalTime().ToString("g", Loc.Culture)
+                                </div>
+                                @if (!string.IsNullOrEmpty(aiLastTestMessage))
+                                {
+                                    <div class="small text-muted mt-1">@Loc[aiLastTestMessage ?? string.Empty]</div>
+                                }
+                            </div>
+                        }
+
+                        @* Buttons *@
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="submit" class="btn btn-primary" disabled="@(aiSubmitting || aiTesting)">
+                                @if (aiSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                    <span>@Loc["Saving…"]</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-floppy me-1"></i>
+                                    <span>@Loc["Save AI provider"]</span>
+                                }
+                            </button>
+
+                            <button type="button" class="btn btn-outline-secondary"
+                                    @onclick="OnTestAiConnectionAsync"
+                                    disabled="@(aiSubmitting || aiTesting)">
+                                @if (aiTesting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                    <span>@Loc["Testing…"]</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-plug me-1"></i>
+                                    <span>@Loc["Test connection"]</span>
+                                }
+                            </button>
+                        </div>
+
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        @* ── IMAP Email Settings ── *@
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom-0 pt-3">
+                    <h5 class="mb-0"><i class="bi bi-envelope-at me-1"></i>@Loc["IMAP Email Settings"]</h5>
+                </div>
+                <div class="card-body">
+
+                    <p class="text-muted small mb-3">
+                        @Loc["Connect your email account so Life Planner can automatically import bank transaction notifications. Use an App Password, not your main account password."]
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(imapSuccess))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-1"></i> @imapSuccess
+                            <button type="button" class="btn-close" @onclick="() => imapSuccess = string.Empty"></button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(imapError))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> @imapError
+                            <button type="button" class="btn-close" @onclick="() => imapError = string.Empty"></button>
+                        </div>
+                    }
+
+                    <EditForm Model="imapModel" OnValidSubmit="OnSaveImapSettingsAsync" FormName="ImapSettingsForm">
+                        <LocalizedDataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label for="imap-email" class="form-label fw-semibold">@Loc["Email Address"]</label>
+                            <InputText id="imap-email" class="form-control" @bind-Value="imapModel.ImapEmail"
+                                       @oninput="OnImapEmailInput" type="email" />
+                            <ValidationMessage For="() => imapModel.ImapEmail" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imap-password" class="form-label fw-semibold">@Loc["App Password"]</label>
+                            <input id="imap-password" type="password" class="form-control"
+                                   @bind="imapModel.ImapPassword" autocomplete="new-password" />
+                            <div class="form-text">@Loc["Use an App Password generated from your email provider, not your main account password."]</div>
+                            <ValidationMessage For="() => imapModel.ImapPassword" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imap-host" class="form-label fw-semibold">@Loc["IMAP Server"]</label>
+                            <InputText id="imap-host" class="form-control" @bind-Value="imapModel.ImapHost"
+                                       placeholder="e.g. imap.gmail.com" />
+                            <div class="form-text">@Loc["Common servers: imap.gmail.com · outlook.office365.com · imap.mail.yahoo.com"]</div>
+                            <ValidationMessage For="() => imapModel.ImapHost" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="imap-port" class="form-label fw-semibold">@Loc["Port"]</label>
+                            <InputNumber id="imap-port" class="form-control" @bind-Value="imapModel.ImapPort" />
+                            <div class="form-text">@Loc["Default: 993 (SSL/TLS)"]</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" disabled="@imapSubmitting">
+                            @if (imapSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                <span>@Loc["Saving…"]</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-floppy me-1"></i>
+                                <span>@Loc["Save IMAP Settings"]</span>
+                            }
+                        </button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}

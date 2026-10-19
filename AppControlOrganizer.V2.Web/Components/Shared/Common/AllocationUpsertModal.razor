@@ -1,0 +1,286 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="AllocationUpsertModal.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@inherits UpsertModalBase
+@using Microsoft.AspNetCore.Components.Authorization
+@if (Visible)
+{
+    <div class="modal fade show d-block"
+         tabindex="-1"
+         style="background-color: rgba(0,0,0,0.5);"
+         @onclick="RequestClose"
+         @onkeydown="HandleKeyDown">
+
+        <div class="modal-dialog modal-lg modal-fullscreen-sm-down" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header lp-modal-header">
+                    <h5 class="modal-title text-white">@(IsEditing ? Loc["Edit Allocation"] : Loc["New Allocation"])</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="RequestClose" disabled="@IsSaving"></button>
+                </div>
+
+                <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+                    <LocalizedDataAnnotationsValidator />
+
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">@Loc["Name"]</label>
+                                <InputText class="form-control" @bind-Value="Model.Name" @oninput="MarkDirty" />
+                                <ValidationMessage For="() => Model.Name" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">@Loc["Initials"]</label>
+                                <InputText class="form-control" @bind-Value="Model.Initials" @oninput="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">@Loc["Type"]</label>
+                                <SearchableDropdown TValue="AllocationType"
+                                                    Items="@AllocationTypeItems"
+                                                    @bind-Value="Model.AllocationType"
+                                                    Placeholder='@Loc["Select type..."]'
+                                                    ShowClearButton="true"
+                                                    OnChange="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">@Loc["Purpose in your plan"]</label>
+                                <InputSelect class="form-select" @bind-Value="Model.PlanningPurpose" @onchange="MarkDirty">
+                                    <option value="@FinancialPurpose.Unclassified">@Loc["Automatic (recommended)"]</option>
+                                    <option value="@FinancialPurpose.OperatingCash">@Loc["Operating cash"]</option>
+                                    <option value="@FinancialPurpose.EmergencyReserve">@Loc["Emergency reserve"]</option>
+                                    <option value="@FinancialPurpose.IdleCash">@Loc["Idle cash"]</option>
+                                    <option value="@FinancialPurpose.LongTermInvestment">@Loc["Long-term investment"]</option>
+                                    <option value="@FinancialPurpose.NonFinancialAsset">@Loc["Non-financial asset"]</option>
+                                    <option value="@FinancialPurpose.Excluded">@Loc["Exclude from planning"]</option>
+                                </InputSelect>
+                                <small class="text-muted">
+                                    @Loc["Leave automatic unless the inferred purpose is wrong."]
+                                    <a class="ms-1 text-decoration-none"
+                                       href="plan#finance">@Loc["View financial plan"]</a>
+                                </small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">@Loc["Account"] *</label>
+                                <SearchableDropdown TValue="int"
+                                                    Items="@AccountDropdownItems"
+                                                    @bind-Value="Model.AccountId"
+                                                    EmptyValue="0"
+                                                    Placeholder='@Loc["Select account..."]'
+                                                    OnChange="MarkDirty" />
+
+                                @{
+                                    AccountEntity? modalSelectedAcc = Accounts != null && Model.AccountId > 0
+                                    ? Accounts.FirstOrDefault(a => a.Id == Model.AccountId)
+                                    : null;
+                                }
+                                @if (modalSelectedAcc != null)
+                                {
+                                    <div class="mt-1">
+                                        <a class="small text-muted text-decoration-none"
+                                           href="@GetAccountHref(modalSelectedAcc.Id)">
+                                            <img src="@Helper.GetLogoDataUriOrDefault(modalSelectedAcc.Logo)" width="16" height="16" class="me-1" alt="Logo" />
+                                            @modalSelectedAcc.Name
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">@Loc["Currency"] *</label>
+                                <SearchableDropdown TValue="Currency"
+                                                    Items="@CurrencyItems"
+                                                    @bind-Value="Model.Currency"
+                                                    Placeholder='@Loc["Select currency..."]'
+                                                    ShowClearButton="true"
+                                                    OnChange="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">@Loc["Quantity"] *</label>
+                                <InputNumber class="form-control" @bind-Value="Model.Quantity" @oninput="MarkDirty" />
+                                <small class="text-muted d-block mt-1">
+                                    @if (IsFixedIncome)
+                                    {
+                                        @Loc["Use 1 when the buy value is the total applied amount."]
+                                    }
+                                    else
+                                    {
+                                        @Loc["Number of units, shares, quotas or coins."]
+                                    }
+                                </small>
+                                <ValidationMessage For="() => Model.Quantity" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">@Loc["Buy Unit Value"] *</label>
+                                <InputNumber class="form-control" @bind-Value="Model.BuyUnitValue" @oninput="MarkDirty" />
+                                <small class="text-muted d-block mt-1">
+                                    @if (IsFixedIncome)
+                                    {
+                                        @Loc["If you enter bank quotas, divide the applied amount by the quota count."]
+                                    }
+                                    else
+                                    {
+                                        @Loc["Price paid for each unit."]
+                                    }
+                                </small>
+                                <ValidationMessage For="() => Model.BuyUnitValue" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">@Loc["Fallback Unit Value"]</label>
+                                @if (!string.IsNullOrEmpty(Model.ProfitType))
+                                {
+                                    <input class="form-control bg-light"
+                                           type="text"
+                                           value="@(Model.CurrentUnitValue.HasValue ? Model.CurrentUnitValue.Value.ToString("N2", Loc.Culture) : "—")"
+                                           disabled />
+                                    <small class="text-info d-block mt-1">
+                                        @Loc["Updated automatically by the system"] (@Model.ProfitType). @Loc["Not editable."]
+                                    </small>
+                                }
+                                else
+                                {
+                                    <InputNumber class="form-control" @bind-Value="Model.CurrentUnitValue" @oninput="MarkDirty" />
+                                    <small class="text-muted d-block mt-1">
+                                        @Loc["When a market quote is available, this value is used only as fallback."]
+                                    </small>
+                                }
+                            </div>
+
+                            <div class="col-12">
+                                <div class="border rounded-2 bg-light p-2 small">
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <span>
+                                            <strong>@Loc["System applied total:"]</strong>
+                                            @FormatMoney(GetAppliedTotal())
+                                        </span>
+                                        <span>
+                                            <strong>@Loc["System current total:"]</strong>
+                                            @FormatMoney(GetCurrentTotal())
+                                        </span>
+                                    </div>
+                                    @if (IsFixedIncome)
+                                    {
+                                        <div class="text-muted mt-1">
+                                            @Loc["For Nubank fixed income, either use quantity 1 with the total applied amount, or use the real quota count with the per-quota value. Do not paste both total applied amount and quota count together."]
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (IsFixedIncome)
+                        {
+                            <hr class="mt-3 mb-2" />
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <small class="text-muted fw-semibold">@Loc["Fixed income automatic yield"]</small>
+                                    <div class="text-muted small">
+                                        @Loc["Copy these fields from the bank details: profitability, application date, and applied amount. The system calculates the current gross value from BACEN CDI/SELIC."]
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">@Loc["Profit Type"]</label>
+                                    <InputSelect class="form-select" @bind-Value="Model.ProfitType" @onchange="MarkDirty">
+                                        <option value="">@Loc["-- Select --"]</option>
+                                        <option value="CDI">CDI (% do CDI)</option>
+                                        <option value="SELIC">SELIC</option>
+                                        <option value="IPCA+">IPCA+</option>
+                                        <option value="Prefixado">Prefixado (% a.a.)</option>
+                                    </InputSelect>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">@Loc["Percentage / Spread"]</label>
+                                    <InputNumber class="form-control" @bind-Value="Model.ProfitPercentage" @oninput="MarkDirty" />
+                                    <small class="text-muted d-block mt-1">
+                                        @Loc["Type only the number shown by the bank. Example: 115 for 115% CDI."]
+                                    </small>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">@Loc["Start Date"]</label>
+                                    <InputDate class="form-control" @bind-Value="Model.ProfitDate" @onchange="MarkDirty" />
+                                    <small class="text-muted d-block mt-1">
+                                        @Loc["Use the application date shown in the bank app, not today's date."]
+                                    </small>
+                                </div>
+                            </div>
+                        }
+
+                        @{
+                            MarketQuoteSnapshot? currentQuote = GetCurrentQuote();
+                        }
+                        <div class="row g-3 mt-2">
+                            <div class="col-12">
+                                <div class="small">
+                                    <strong>@Loc["Latest Quote:"]</strong>
+                                    @if (currentQuote != null)
+                                    {
+                                        <a class="text-success ms-1 text-decoration-none"
+                                           href="@GetQuoteHref()">@FormatQuoteInfo(currentQuote)</a>
+                                        <a class="badge bg-success ms-2 text-decoration-none"
+                                           href="@GetQuoteHref()">@Loc["available"]</a>
+                                    }
+                                    else if (!string.IsNullOrEmpty(Model.ProfitType) && Model.ProfitPercentage.HasValue && Model.ProfitDate.HasValue)
+                                    {
+                                        <span class="text-info ms-1">
+                                            @Model.ProfitType @Model.ProfitPercentage%
+                                            @Loc["since"] @Model.ProfitDate!.Value.ToString("d", Loc.Culture)
+                                            @if (Model.CurrentUnitValue.HasValue)
+                                            {
+                                                <span>→ <strong>@Model.CurrentUnitValue.Value.ToString("N2", Loc.Culture)</strong></span>
+                                            }
+                                        </span>
+                                        <span class="badge bg-info text-dark ms-2">@Loc["Auto-calculated via BACEN"]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted ms-1">@Loc["not available"]</span>
+                                        <span class="badge bg-secondary ms-2">@Loc["fallback will be used"]</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer lp-modal-footer">
+                        <button type="button" class="lp-modal-btn-cancel" @onclick="RequestClose" disabled="@IsSaving">
+                            @Loc["Cancel"]
+                        </button>
+                        <AuthorizeView Context="authContext">
+                            <Authorized>
+                                <button type="submit" class="lp-modal-btn-save" disabled="@IsSaving">
+                                    @if (IsSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                    }
+                                    @Loc["Save"]
+                                </button>
+                            </Authorized>
+                            <NotAuthorized>
+                                <button type="submit" class="lp-modal-btn-save" disabled="true">
+                                    @if (IsSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                    }
+                                    @Loc["Log in to Save"]
+                                </button>
+                            </NotAuthorized>
+                        </AuthorizeView>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}

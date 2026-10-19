@@ -1,0 +1,61 @@
+# EditorConfig to adjust analyzer rules for Blazor Web project
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cs,vb}]
+charset = utf-8-bom
+end_of_line = crlf
+insert_final_newline = true
+
+# Disable ConfigureAwait requirement and fire-and-forget diagnostics for the Blazor Web project
+[AppControlOrganizer.V2.Web/**/*.cs]
+dotnet_diagnostic.CRR0029.severity = none
+dotnet_diagnostic.CRR0054.severity = none
+
+# Reduce noise from style/suggestion analyzers across the whole solution.
+# These are editor-only style suggestions (IDE00xx, simplification rules) and
+# frequently appear as "Messages" in the Error List. Keep them out of the
+# Error List while preserving warnings and errors for real issues.
+[*.cs]
+dotnet_analyzer_diagnostic.category-Style.severity = none
+dotnet_analyzer_diagnostic.category-Simplification.severity = none
+
+# Explicitly silence commonly reported IDE/CRR messages that are purely stylistic
+# or simplifications and generate "Messages" in Visual Studio Error List.
+# If you prefer to enable specific ones later, remove the corresponding entries.
+dotnet_diagnostic.IDE0090.severity = none   # use 'new(...)' simplification suggestion
+dotnet_diagnostic.IDE0028.severity = none   # collection initialization simplification
+dotnet_diagnostic.CRR0046.severity = none  # Roslynator simplification example
+
+# Async methods used by Blazor lifecycle and EventCallback bindings intentionally accept no CancellationToken
+# to simplify component signatures and preserve event binding compatibility. Silence the analyzer that
+# reports missing CancellationToken parameters for such methods across Web project files.
+[AppControlOrganizer.V2.Web/**/*.cs]
+dotnet_diagnostic.IDE0079.severity = none  # (example) suppress missing CancellationToken suggestions in components
+
+
+# ---------------------------------------------------------------------------
+# Project-specific suppressions requested by repository maintainer:
+# 1) UI handlers are internal; CancellationToken requirement is not useful noise here.
+#    Disable CRR0035 for Blazor UI code-behind and Razor files so lifecycle/event handlers
+#    aren't forced to accept CancellationToken parameters.
+# 2) String equality in this codebase intentionally uses ordinal '=='/'!=' for readability.
+#    Enforcing string.Compare reduces readability without benefit. Disable CRR0050.
+# ---------------------------------------------------------------------------
+
+# Disable missing CancellationToken analyzer for Blazor UI files (code-behind and razor)
+[AppControlOrganizer.V2.Web/**/*.razor.cs]
+dotnet_diagnostic.CRR0035.severity = none
+
+[AppControlOrganizer.V2.Web/**/*.razor]
+dotnet_diagnostic.CRR0035.severity = none
+
+# Disable string.Compare enforcement across V2 C# files
+[AppControlOrganizer.V2.Web/**/*.cs]
+dotnet_diagnostic.CRR0050.severity = none
+

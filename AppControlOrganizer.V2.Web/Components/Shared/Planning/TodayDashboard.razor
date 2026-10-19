@@ -1,0 +1,861 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="TodayDashboard.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@using System.Globalization
+@using System.Security.Claims
+@using AppControlOrganizer.V2.Web.Data
+@using AppControlOrganizer.V2.Web.Services.Financial
+@using AppControlOrganizer.V2.Web.Services.Planning
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IPlanningExperienceService PlanningExperience
+@inject IFinancialFactsService FinancialFactsService
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IJSRuntime JSRuntime
+@inject ILogger<TodayDashboard> Logger
+@inject IPlanningActionService PlanningActions
+
+<section class="today-section" aria-labelledby="today-title">
+  <header class="lp-page-header today-page-header mb-3">
+    <div class="today-welcome">
+      @if (!string.IsNullOrWhiteSpace(Greeting) || !string.IsNullOrWhiteSpace(DisplayName))
+      {
+        <span class="today-greeting">@Greeting@(string.IsNullOrWhiteSpace(Greeting) || string.IsNullOrWhiteSpace(DisplayName) ? null : ", ")@DisplayName</span>
+      }
+      <h1 class="lp-page-title mb-0" id="today-title">
+        <i class="bi bi-sun me-2"></i>@Loc["Today"]
+        <span class="today-date">@now.ToString("dddd, dd MMMM", DisplayCulture)</span>
+      </h1>
+      <p class="lp-page-subtitle mb-0">@HeaderSummary</p>
+    </div>
+    @if (!isLoading && string.IsNullOrWhiteSpace(errorMessage))
+    {
+      <div class="today-pulse" aria-label="@Loc["Quick context"]">
+        @if (facts?.UsdBrlRate is > 0m)
+        {
+          <a href="allocations?panel=quotes" title="@UsdBrlTitle"><i class="bi bi-currency-dollar"></i><span>@Loc["Dollar"]</span><strong>@facts.UsdBrlRate.Value.ToString("N2", DisplayCulture)</strong></a>
+        }
+        <a href="routine"><i class="bi bi-check2-circle"></i><span>@Loc["Day"]</span><strong>@CompletedMomentCount/@todayItems.Count</strong></a>
+        @if (annualProgressPercent.HasValue)
+        {
+          <a href="plan"><i class="bi bi-bullseye"></i><span>@Loc["Annual target"]</span><strong>@annualProgressPercent.Value.ToString("N0")%</strong></a>
+        }
+      </div>
+    }
+    <div class="lp-action-bar today-actions">
+      <a class="lp-btn-ghost" href="routine"><i class="bi bi-calendar-week me-1"></i>@Loc["Adjust routine"]</a>
+      <a class="lp-btn-primary" href="plan"><i class="bi bi-compass me-1"></i>@Loc["Open plan"]</a>
+    </div>
+  </header>
+
+  @if (isLoading)
+  {
+    <div class="lp-card today-loading">
+      <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+      <span>@Loc["Bringing your day together..."]</span>
+    </div>
+  }
+  else if (!string.IsNullOrWhiteSpace(errorMessage))
+  {
+    <div class="alert alert-warning mb-0">@errorMessage</div>
+  }
+  else
+  {
+    <div class="today-layout">
+      <article class="lp-card today-current-card" style="--today-accent:@(currentItem?.Color ?? "#3b82f6")">
+        <div class="today-current-copy">
+          <a class="today-current-primary" href="@GetTodayItemHref(currentItem)">
+            <div class="today-card-heading">
+              <div>
+                <span class="today-section-label">@Loc["Now"]</span>
+                <strong>@now.ToString("HH:mm")</strong>
+              </div>
+              <span class="today-source-pill">@(currentItem?.Source ?? Loc["Open space"])</span>
+            </div>
+            @if (currentItem != null)
+            {
+              <h2>@currentItem.Title</h2>
+              <p>@currentItem.Start.ToString("HH:mm")–@currentItem.End.ToString("HH:mm") · @currentItem.Category</p>
+              <div class="today-progress" aria-label="@Loc["Current block progress"]">
+                <span style="width:@CurrentProgressPercent%"></span>
+              </div>
+              <div class="today-context-grid">
+                <div><span>@Loc["Duration"]</span><strong>@FormatDuration(currentItem.End - currentItem.Start)</strong></div>
+                <div><span>@Loc["Remaining"]</span><strong>@FormatDuration(currentItem.End - now)</strong></div>
+                <div><span>@Loc["This week"]</span><strong>@SimilarMomentCount×</strong></div>
+              </div>
+            }
+            else
+            {
+              <h2>@Loc["Open space"]</h2>
+              <p>@Loc["Nothing planned for this moment."]</p>
+            }
+          </a>
+
+          @if (nextItem != null)
+          {
+            <a class="today-next" href="@GetTodayItemHref(nextItem)">
+              <i class="bi bi-arrow-right-circle"></i>
+              <div>
+                <span>@Loc["Next"]</span>
+                <strong>@nextItem.Title</strong>
+                <small>@GetNextLabel(nextItem)</small>
+              </div>
+            </a>
+          }
+        </div>
+        <a class="today-scene @CurrentTheme.CssClass" href="@GetTodayItemHref(currentItem)" aria-label="@(currentItem?.Title ?? Loc["Adjust routine"])">
+          <span class="today-scene-orbit orbit-one"></span>
+          <span class="today-scene-orbit orbit-two"></span>
+          <i class="@CurrentTheme.IconCss"></i>
+          <small>@(currentItem?.Category ?? Loc["Open space"])</small>
+        </a>
+      </article>
+
+      <article class="lp-card today-action-card">
+        <div class="today-card-header">
+          <a class="today-card-heading-link" href="plan">
+            <span class="today-section-label">@Loc["Action center"]</span>
+            <strong>@ActionCardSubtitle</strong>
+          </a>
+          <WriteGuard>
+            <button class="today-card-link today-link-button" type="button" disabled="@isRefreshingActions" @onclick="RefreshPlanningActionsAsync">
+              <i class="bi bi-arrow-repeat"></i>@Loc["Update"]
+            </button>
+          </WriteGuard>
+        </div>
+        @if (planningActions.Count == 0)
+        {
+          <a class="today-empty" href="plan#finance">@Loc["No urgent action right now. Keep the plan visible and execute when something changes."]</a>
+        }
+        else
+        {
+          <div class="today-action-list">
+            @foreach (PlanningActionEntity action in planningActions.Take(VisibleActionCount))
+            {
+              <div class="today-action-item">
+                <a class="today-action-main" href="@action.DestinationHref">
+                  <span class="today-action-icon @GetActionTone(action.ActionType)">
+                    <i class="@action.IconCss"></i>
+                  </span>
+                  <span class="today-action-copy">
+                    <strong>@Loc[action.TitleKey]</strong>
+                    <small>@Loc[action.DetailKey]</small>
+                    @if (!string.IsNullOrWhiteSpace(action.EvidenceText))
+                    {
+                      <em>@FormatActionEvidence(action)</em>
+                    }
+                  </span>
+                </a>
+                <div class="today-action-buttons">
+                  <a href="@action.DestinationHref" title="@Loc[action.PrimaryActionKey]"><i class="bi bi-arrow-up-right"></i></a>
+                  <WriteGuard>
+                    <button type="button" title="@Loc["Done"]" @onclick="() => CompletePlanningActionAsync(action.Id)"><i class="bi bi-check2"></i></button>
+                    <button type="button" title="@Loc["Dismiss"]" @onclick="() => DismissPlanningActionAsync(action.Id)"><i class="bi bi-x"></i></button>
+                  </WriteGuard>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </article>
+
+      <article class="lp-card today-timeline-card">
+          <div class="today-card-header">
+            <a class="today-card-heading-link" href="routine">
+              <span class="today-section-label">@Loc["Today timeline"]</span>
+              <strong>@todayItems.Count @Loc["planned moments"]</strong>
+            </a>
+            <a class="today-card-link" href="routine">@Loc["View all"] <i class="bi bi-arrow-right"></i></a>
+          </div>
+          @if (todayItems.Count == 0)
+          {
+            <p class="today-empty">@Loc["Your day is open. Add a routine block when it is useful."]</p>
+          }
+          else
+          {
+            <div class="today-timeline">
+              @foreach (TodayItem item in TimelinePreview)
+              {
+                <a class="today-timeline-item @(item.IsCurrent ? "current" : null)" href="@GetTodayItemHref(item)">
+                  <time>@item.Start.ToString("HH:mm")</time>
+                  <span class="today-dot" style="--today-item-color:@item.Color"></span>
+                  <div><strong>@item.Title</strong><small>@item.Source</small></div>
+                </a>
+              }
+            </div>
+          }
+        </article>
+
+      <article class="lp-card today-support-card today-focus-card">
+          <div class="today-card-header">
+            <a class="today-card-heading-link" href="plan#week">
+              <span class="today-section-label">@Loc["This week's focus"]</span>
+              <strong>@(focuses.Count > 0 ? Loc["Only what deserves attention"] : Loc["Suggested from your current plan"])</strong>
+            </a>
+            <a class="today-card-link" href="plan#week">@Loc["Edit"]</a>
+          </div>
+          @if (DisplayFocuses.Count == 0)
+          {
+            <a class="today-empty" href="plan#week">@Loc["Choose up to three priorities for this week."]</a>
+          }
+          else
+          {
+            <ol class="today-focus-list @(focuses.Count == 0 ? "suggested" : null)">
+              @foreach (WeeklyFocusEntity focus in DisplayFocuses)
+              {
+                <li><a href="@GetFocusHref(focus)"><span>@Loc[focus.Text]</span>@if (focuses.Count == 0){<small>@Loc["Suggested"]</small>}</a></li>
+              }
+            </ol>
+          }
+        </article>
+
+    </div>
+  }
+</section>
+
+@code {
+    /// <summary>Gets or sets the localized greeting supplied by the Home page.</summary>
+  [Parameter]
+  public string Greeting { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the current user's display name.</summary>
+  [Parameter]
+  public string DisplayName { get; set; } = string.Empty;
+
+  private DateTime now = DateTime.UtcNow;
+  private CultureInfo DisplayCulture => CultureInfo.GetCultureInfo(Loc.Language == "pt" ? "pt-BR" : "en-US");
+  private bool isLoading = true;
+  private string errorMessage = string.Empty;
+  private RoutineTemplateEntity? routine;
+  private AnnualPlanEntity? annualPlan;
+  private TodayItem? currentItem;
+  private TodayItem? nextItem;
+  private List<WeeklyFocusEntity> focuses = new();
+  private List<WeeklyFocusEntity> focusSuggestions = new();
+  private List<PlanningActionEntity> planningActions = new();
+  private List<TodayItem> todayItems = new();
+  private FinancialFacts? facts;
+  private string userId = LifePlannerContext.DemoUserId;
+
+  /// <summary>Gets a value indicating whether the current session browses the read-only showcase tenant.</summary>
+  private bool IsReadOnly => userId == LifePlannerContext.DemoUserId;
+  private bool isRefreshingActions;
+  private PeriodicTimer? clockTimer;
+  private CancellationTokenSource? clockTimerCts;
+  private TimeSpan? clientUtcOffset;
+  private bool isSilentRefreshRunning;
+  private DateTime lastDataRefresh = DateTime.MinValue;
+  private IReadOnlyList<WeeklyFocusEntity> DisplayFocuses => focuses.Count > 0 ? focuses : focusSuggestions;
+  private IReadOnlyList<TodayItem> TimelinePreview => BuildTimelinePreview();
+  private const int VisibleActionCount = 3;
+  private string ActionCardSubtitle => planningActions.Count > VisibleActionCount
+    ? string.Format(Loc["Showing {0} of {1} action(s) waiting"], VisibleActionCount, planningActions.Count)
+    : planningActions.Count > 0
+      ? string.Format(Loc["{0} action(s) waiting"], planningActions.Count)
+      : Loc["Nothing critical"];
+  private int CompletedMomentCount => todayItems.Count(item => item.End <= now);
+  private int CurrentProgressPercent => currentItem == null || currentItem.End <= currentItem.Start
+    ? 0
+    : (int)Math.Clamp((now - currentItem.Start).TotalMinutes / (currentItem.End - currentItem.Start).TotalMinutes * 100d, 0d, 100d);
+  private int SimilarMomentCount => currentItem == null || routine == null
+    ? 0
+    : Math.Max(1, routine.Blocks.Count(item => !item.Deleted
+      && string.Equals(item.Title, currentItem.Title, StringComparison.OrdinalIgnoreCase)));
+  private decimal? annualProgressPercent => annualPlan?.TargetNetWorth > 0m && facts != null
+    ? Math.Clamp(facts.NetWorth / annualPlan.TargetNetWorth * 100m, 0m, 100m)
+    : null;
+  private ActivityTheme CurrentTheme => ResolveActivityTheme(currentItem);
+  private string HeaderSummary => BuildHeaderSummary();
+  private string UsdBrlTitle => facts?.UsdBrlRetrievedAtUtc is DateTime retrieved
+    ? $"{Loc["Retrieved:"]} {retrieved.ToLocalTime().ToString(Loc.CompactDayMonthPattern + " HH:mm", Loc.Culture)}"
+    : string.Empty;
+
+  /// <inheritdoc />
+  public async ValueTask DisposeAsync()
+  {
+    if (clockTimerCts != null)
+    {
+      await clockTimerCts.CancelAsync();
+      clockTimerCts.Dispose();
+    }
+
+    clockTimer?.Dispose();
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    now = ResolveCurrentTime();
+    await LoadTodayDataAsync(showLoading: true, runMaintenance: true);
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      try
+      {
+        DateTime previousDate = now.Date;
+        await ResolveClientClockAsync();
+        if (previousDate != now.Date)
+        {
+          await LoadTodayDataAsync(showLoading: false, runMaintenance: false);
+        }
+        else
+        {
+          RecalculateTimelineState();
+        }
+
+        await InvokeAsync(StateHasChanged);
+      }
+      catch { }
+
+      StartClockTimer();
+    }
+  }
+
+  private async Task LoadTodayDataAsync(bool showLoading, bool runMaintenance)
+  {
+    DateOnly today = DateOnly.FromDateTime(now);
+    AnnualPlanEntity? plan = null;
+    bool loaded = false;
+    try
+    {
+      if (showLoading)
+      {
+        isLoading = true;
+      }
+
+      errorMessage = string.Empty;
+      AuthenticationState state = await AuthStateProvider.GetAuthenticationStateAsync();
+      userId = state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? LifePlannerContext.DemoUserId;
+      today = DateOnly.FromDateTime(now);
+      Task<FinancialFacts> seedFactsTask = FinancialFactsService.GetAsync(userId, today);
+      Task<AnnualPlanEntity?> planTask = PlanningExperience.GetAnnualPlanAsync(userId, today.Year);
+      Task<RoutineTemplateEntity?> routineTask = PlanningExperience.GetActiveRoutineAsync(userId);
+      Task<List<WeeklyFocusEntity>> focusTask = PlanningExperience.GetWeeklyFocusesAsync(userId, today);
+      Task<List<WeeklyFocusEntity>> suggestionsTask = PlanningExperience.GetWeeklyFocusSuggestionsAsync(userId, today);
+      Task<List<PlanningActionEntity>> actionsTask = PlanningActions.GetOpenActionsAsync(userId, 6);
+      await Task.WhenAll(seedFactsTask, planTask, routineTask, focusTask, suggestionsTask, actionsTask);
+      FinancialFacts seedFacts = await seedFactsTask;
+      plan = await planTask
+        ?? (IsReadOnly
+          ? null
+          : await PlanningExperience.GetOrCreateAnnualPlanAsync(userId, today.Year, seedFacts));
+      annualPlan = plan;
+      facts = await FinancialFactsService.GetWithAnnualPlanAsync(userId, today);
+      routine = await routineTask;
+      focuses = await focusTask;
+      focusSuggestions = MergeFocusSuggestions(await suggestionsTask, facts.Signals);
+      planningActions = await actionsTask;
+      BuildTimeline();
+      lastDataRefresh = now;
+      loaded = true;
+    }
+    catch (Exception exception)
+    {
+      Logger.LogWarning(exception, "Could not assemble the Today dashboard for user {UserId}.", userId);
+      if (showLoading)
+      {
+        errorMessage = Loc["We could not assemble your day right now. Your existing financial dashboard is still available below."];
+      }
+    }
+    finally
+    {
+      if (showLoading)
+      {
+        isLoading = false;
+      }
+    }
+
+    await InvokeAsync(StateHasChanged);
+    if (IsReadOnly || !runMaintenance || !loaded || plan == null || facts == null)
+    {
+      return;
+    }
+
+    try
+    {
+      await Task.WhenAll(
+        PlanningExperience.RefreshFinancialKeyResultsAsync(userId, facts),
+        FinancialFactsService.CaptureSnapshotAsync(userId, today, plan));
+    }
+    catch (Exception exception)
+    {
+      Logger.LogWarning(exception, "Could not refresh Today maintenance data for user {UserId}.", userId);
+    }
+  }
+
+  private void StartClockTimer()
+  {
+    if (clockTimer != null)
+    {
+      return;
+    }
+
+    clockTimerCts = new CancellationTokenSource();
+    clockTimer = new PeriodicTimer(TimeSpan.FromSeconds(10));
+    _ = RunClockTimerAsync(clockTimerCts.Token);
+  }
+
+  private async Task RunClockTimerAsync(CancellationToken cancellationToken)
+  {
+    if (clockTimer == null)
+    {
+      return;
+    }
+
+    try
+    {
+      while (!cancellationToken.IsCancellationRequested && await clockTimer.WaitForNextTickAsync())
+      {
+        if (cancellationToken.IsCancellationRequested)
+        {
+          return;
+        }
+
+        await InvokeAsync(() => RefreshClockAsync());
+      }
+    }
+    catch (OperationCanceledException)
+    {
+    }
+    catch (Exception exception)
+    {
+      Logger.LogWarning(exception, "Could not keep the Today dashboard clock running for user {UserId}.", userId);
+    }
+  }
+
+  private async Task RefreshClockAsync()
+  {
+    if (isSilentRefreshRunning)
+    {
+      return;
+    }
+
+    DateTime previousMinute = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0);
+    now = ResolveCurrentTime();
+    DateTime currentMinute = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0);
+    if (currentMinute == previousMinute)
+    {
+      return;
+    }
+
+    RecalculateTimelineState();
+    StateHasChanged();
+    if ((now - lastDataRefresh).TotalMinutes < 1d)
+    {
+      return;
+    }
+
+    isSilentRefreshRunning = true;
+    try
+    {
+      await LoadTodayDataAsync(showLoading: false, runMaintenance: false);
+    }
+    finally
+    {
+      isSilentRefreshRunning = false;
+    }
+  }
+
+  private async Task ResolveClientClockAsync()
+  {
+    string? clientLocalIso = await JSRuntime.InvokeAsync<string?>(
+      "lpGetClientLocalIso",
+      TimeSpan.FromSeconds(5));
+
+    if (DateTime.TryParseExact(
+      clientLocalIso,
+      "yyyy-MM-ddTHH:mm:ss",
+      CultureInfo.InvariantCulture,
+      DateTimeStyles.None,
+      out DateTime clientLocalNow))
+    {
+      DateTime utcNow = DateTime.UtcNow;
+      clientUtcOffset = clientLocalNow - utcNow;
+      now = clientLocalNow;
+      return;
+    }
+
+    now = ResolveCurrentTime();
+  }
+
+  private DateTime ResolveCurrentTime()
+  {
+    DateTime utcNow = DateTime.UtcNow;
+    if (clientUtcOffset.HasValue)
+    {
+      return utcNow.Add(clientUtcOffset.Value);
+    }
+
+    HttpContext? ctx = HttpContextAccessor?.HttpContext;
+    if (ctx is not null
+        && ctx.Request.Cookies.TryGetValue("tz_hour", out string? hourStr)
+        && int.TryParse(hourStr, out int cookieHour)
+        && cookieHour is >= 0 and <= 23)
+    {
+      DateTime serverLocalNow = DateTime.Now;
+      int hourDelta = cookieHour - serverLocalNow.Hour;
+      if (hourDelta > 12)
+      {
+        hourDelta -= 24;
+      }
+      else if (hourDelta < -12)
+      {
+        hourDelta += 24;
+      }
+
+      return serverLocalNow.AddHours(hourDelta);
+    }
+
+    return DateTime.Now;
+  }
+
+  private void RecalculateTimelineState()
+  {
+    foreach (TodayItem item in todayItems)
+    {
+      item.IsCurrent = item.Start <= now && now < item.End;
+    }
+
+    currentItem = todayItems
+      .Where(item => item.IsCurrent)
+      .FirstOrDefault();
+    nextItem = todayItems.FirstOrDefault(item => item.Start > now) ?? FindNextRoutineItem();
+  }
+
+  private void BuildTimeline()
+  {
+    List<RoutineBlockEntity> blocks = routine?.Blocks
+      .Where(item => item.DayOfWeek == now.DayOfWeek && !item.Deleted)
+      .OrderBy(item => item.StartTime)
+      .ToList() ?? new List<RoutineBlockEntity>();
+
+    todayItems = blocks.Select(item => new TodayItem
+      {
+        Start = now.Date.Add(item.StartTime.ToTimeSpan()),
+        End = now.Date.Add(item.EndTime.ToTimeSpan()),
+        Title = item.Title,
+        Source = Loc["Routine"],
+        Category = string.IsNullOrWhiteSpace(item.Category) ? Loc["Routine"] : item.Category,
+        IconCss = item.IconCss,
+        Color = item.ColorHex,
+        SourceId = item.Id,
+        IsCurrent = now.Date.Add(item.StartTime.ToTimeSpan()) <= now && now < now.Date.Add(item.EndTime.ToTimeSpan()),
+      })
+      .OrderBy(item => item.Start)
+      .ToList();
+    RecalculateTimelineState();
+  }
+
+  private TodayItem? FindNextRoutineItem()
+  {
+    if (routine == null)
+    {
+      return null;
+    }
+
+    for (int offset = 1; offset <= 7; offset++)
+    {
+      DateTime date = now.Date.AddDays(offset);
+      DayOfWeek day = date.DayOfWeek;
+      RoutineBlockEntity? candidate = routine.Blocks
+        .Where(item => item.DayOfWeek == day && !item.Deleted)
+        .OrderBy(item => item.StartTime)
+        .FirstOrDefault();
+      if (candidate != null)
+      {
+        return new TodayItem
+        {
+          Start = date.Add(candidate.StartTime.ToTimeSpan()),
+          End = date.Add(candidate.EndTime.ToTimeSpan()),
+          Title = candidate.Title,
+          Source = Loc["Routine"],
+          Category = string.IsNullOrWhiteSpace(candidate.Category) ? Loc["Routine"] : candidate.Category,
+          IconCss = candidate.IconCss,
+          Color = candidate.ColorHex,
+          SourceId = candidate.Id,
+        };
+      }
+    }
+
+    return null;
+  }
+
+  private string GetNextLabel(TodayItem item)
+  {
+    return item.Start.Date == now.Date
+      ? $"{Loc["Today"]}, {item.Start:HH:mm}"
+      : $"{GetDayName(item.Start.DayOfWeek)}, {item.Start:HH:mm}";
+  }
+
+  private async Task RefreshPlanningActionsAsync()
+  {
+    if (IsReadOnly)
+    {
+      return;
+    }
+
+    isRefreshingActions = true;
+    try
+    {
+      planningActions = await PlanningActions.GenerateForUserAsync(
+        userId,
+        DateOnly.FromDateTime(now),
+        manual: true);
+    }
+    catch (Exception exception)
+    {
+      Logger.LogWarning(exception, "Could not refresh planning actions for user {UserId}.", userId);
+    }
+    finally
+    {
+      isRefreshingActions = false;
+    }
+  }
+
+  private async Task CompletePlanningActionAsync(int actionId)
+  {
+    if (IsReadOnly)
+    {
+      return;
+    }
+
+    await PlanningActions.CompleteActionAsync(actionId, userId);
+    planningActions.RemoveAll(action => action.Id == actionId);
+  }
+
+  private async Task DismissPlanningActionAsync(int actionId)
+  {
+    if (IsReadOnly)
+    {
+      return;
+    }
+
+    await PlanningActions.DismissActionAsync(actionId, userId);
+    planningActions.RemoveAll(action => action.Id == actionId);
+  }
+
+  private string GetTodayItemHref(TodayItem? item)
+  {
+    if (item == null)
+    {
+      return "routine";
+    }
+
+    return item.SourceId > 0 ? $"routine?blockId={item.SourceId}" : "routine";
+  }
+
+  private static string GetFocusHref(WeeklyFocusEntity focus)
+  {
+    if (focus.RoutineBlockId.HasValue)
+    {
+      return $"routine?blockId={focus.RoutineBlockId.Value}";
+    }
+
+    if (focus.QuarterTaskId.HasValue)
+    {
+      return $"planning/quarters?taskId={focus.QuarterTaskId.Value}#quarter-task-{focus.QuarterTaskId.Value}";
+    }
+
+    if (focus.KeyResultId.HasValue)
+    {
+      return $"planning/okrs?keyResultId={focus.KeyResultId.Value}";
+    }
+
+    if (focus.ObjectiveId.HasValue)
+    {
+      return $"planning/okrs?objectiveId={focus.ObjectiveId.Value}";
+    }
+
+    return "plan#week";
+  }
+
+  private string GetTransactionsHref() => $"transactions?month={now.Month}&year={now.Year}";
+
+  private string GetDayName(DayOfWeek day) => day switch
+  {
+    DayOfWeek.Sunday => Loc["Sunday"],
+    DayOfWeek.Monday => Loc["Monday"],
+    DayOfWeek.Tuesday => Loc["Tuesday"],
+    DayOfWeek.Wednesday => Loc["Wednesday"],
+    DayOfWeek.Thursday => Loc["Thursday"],
+    DayOfWeek.Friday => Loc["Friday"],
+    _ => Loc["Saturday"],
+  };
+
+  private string LocalizeSignal(FinancialSignal signal) => $"{Loc[signal.TitleKey]} — {Loc[signal.DetailKey]}";
+
+  private string FormatActionEvidence(PlanningActionEntity action)
+  {
+    if (action.SourceCode == "PLAN_REVIEW_DUE")
+    {
+      return string.IsNullOrWhiteSpace(action.EvidenceText)
+        ? Loc["No review yet"]
+        : string.Format(Loc["{0} day(s) since last review"], action.EvidenceText);
+    }
+
+    if (action.SourceCode is "FIN_UNPRICED_POSITIONS" or "DATA_ALLOCATION_PURPOSE")
+    {
+      return string.Format(Loc["{0} allocation(s)"], action.EvidenceText);
+    }
+
+    if (action.SourceCode == "DATA_TRANSACTION_IMPACT")
+    {
+      return string.Format(Loc["{0} transaction(s)"], action.EvidenceText);
+    }
+
+    return action.EvidenceText;
+  }
+
+  private static string GetActionTone(PlanningActionType actionType) => actionType switch
+  {
+    PlanningActionType.Apply => "apply",
+    PlanningActionType.Correct => "correct",
+    PlanningActionType.Decide => "decide",
+    PlanningActionType.Register => "register",
+    PlanningActionType.Review => "review",
+    _ => "execute",
+  };
+
+  private string BuildHeaderSummary()
+  {
+    if (isLoading)
+    {
+      return Loc["Bringing your day together..."];
+    }
+
+    if (todayItems.Count == 0)
+    {
+      return Loc["Your day is open right now."];
+    }
+
+    return nextItem?.Start.Date == now.Date
+      ? string.Format(Loc["{0} moments today · next: {1} at {2}"], todayItems.Count, nextItem.Title, nextItem.Start.ToString("HH:mm"))
+      : string.Format(Loc["{0} moments today · your schedule is clear from here"], todayItems.Count);
+  }
+
+  private IReadOnlyList<TodayItem> BuildTimelinePreview()
+  {
+    List<TodayItem> upcoming = todayItems
+      .Where(item => item.IsCurrent || item.Start > now)
+      .Take(5)
+      .ToList();
+    if (upcoming.Count == 0)
+    {
+      return todayItems.TakeLast(5).ToList();
+    }
+
+    return upcoming;
+  }
+
+  private static string FormatDuration(TimeSpan duration)
+  {
+    if (duration < TimeSpan.Zero)
+    {
+      duration = TimeSpan.Zero;
+    }
+
+    int totalMinutes = (int)Math.Ceiling(duration.TotalMinutes);
+    return totalMinutes >= 60
+      ? $"{totalMinutes / 60}h {totalMinutes % 60:D2}min"
+      : $"{totalMinutes} min";
+  }
+
+  private static List<WeeklyFocusEntity> MergeFocusSuggestions(
+    List<WeeklyFocusEntity> planSuggestions,
+    IReadOnlyCollection<FinancialSignal> signals)
+  {
+    List<WeeklyFocusEntity> merged = planSuggestions.Take(3).ToList();
+    foreach (FinancialSignal signal in signals.Where(item => item.RequiresAttention))
+    {
+      if (merged.Count == 3)
+      {
+        break;
+      }
+
+      if (!merged.Any(item => string.Equals(item.Text, signal.TitleKey, StringComparison.OrdinalIgnoreCase)))
+      {
+        merged.Add(new WeeklyFocusEntity { Text = signal.TitleKey, SortOrder = merged.Count + 1 });
+      }
+    }
+
+    return merged;
+  }
+
+  private static ActivityTheme ResolveActivityTheme(TodayItem? item)
+  {
+    if (item == null)
+    {
+      return new ActivityTheme("open", "bi bi-cup-hot");
+    }
+
+    string context = $"{item.Title} {item.Category}";
+    if (ContainsAny(context, "treino", "atividade física", "academia", "bicicleta", "futebol", "corrida"))
+    {
+      return new ActivityTheme("active", "bi bi-bicycle");
+    }
+
+    if (ContainsAny(context, "curso", "estudo", "leitura", "escola"))
+    {
+      return new ActivityTheme("study", "bi bi-book");
+    }
+
+    if (ContainsAny(context, "almoço", "comer", "jantar", "café"))
+    {
+      return new ActivityTheme("meal", "bi bi-cup-hot");
+    }
+
+    if (ContainsAny(context, "casa", "banho", "serviço"))
+    {
+      return new ActivityTheme("home", "bi bi-house-heart");
+    }
+
+    if (ContainsAny(context, "relax", "descanso", "sono"))
+    {
+      return new ActivityTheme("rest", "bi bi-moon-stars");
+    }
+
+    if (ContainsAny(context, "música"))
+    {
+      return new ActivityTheme("music", "bi bi-music-note-beamed");
+    }
+
+    if (ContainsAny(context, "trabalho", "empresa", "network", "reunião"))
+    {
+      return new ActivityTheme("work", "bi bi-briefcase");
+    }
+
+    return new ActivityTheme("default", string.IsNullOrWhiteSpace(item.IconCss) ? "bi bi-circle" : item.IconCss);
+  }
+
+  private static bool ContainsAny(string value, params string[] terms)
+  {
+    return terms.Any(term => CultureInfo.InvariantCulture.CompareInfo.IndexOf(
+      value,
+      term,
+      CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0);
+  }
+
+  private sealed class TodayItem
+  {
+    public DateTime Start { get; set; }
+    public DateTime End { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Source { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public string IconCss { get; set; } = "bi bi-circle";
+    public string Color { get; set; } = "#64748b";
+    public int SourceId { get; set; }
+    public bool IsCurrent { get; set; }
+  }
+
+  private sealed record ActivityTheme(string CssClass, string IconCss);
+}

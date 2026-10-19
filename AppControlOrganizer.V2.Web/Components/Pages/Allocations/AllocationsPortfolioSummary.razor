@@ -1,0 +1,220 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="AllocationsPortfolioSummary.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+<section class="lp-portfolio-summary mb-4" aria-label='@Loc["Portfolio summary"]'>
+  <div class="lp-portfolio-card-grid">
+    <article class="lp-card lp-portfolio-chart-card lp-portfolio-overview-card">
+      <div class="lp-portfolio-card-header">
+        <div>
+          <h2>@Loc["Portfolio summary"]</h2>
+          <p>@GetPortfolioMeta()</p>
+        </div>
+      </div>
+
+      <div class="lp-portfolio-overview">
+        <a href="@AllAllocationsHref"
+           title='@Loc["View all allocations"]'
+           class="lp-portfolio-overview-item lp-portfolio-overview-invested">
+          <span>@Loc["Total Invested"]</span>
+          @if (IsLoadingSummary)
+          {
+            <div class="spinner-border spinner-border-sm lp-portfolio-spinner" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          }
+          else
+          {
+            <strong>@ValuesVis.Mask(Helper.FormatBrl(TotalInvested))</strong>
+          }
+        </a>
+
+        <a href="@DashboardHref"
+           title='@Loc["Open portfolio summary"]'
+           class="lp-portfolio-overview-item lp-portfolio-overview-current">
+          <span>@Loc["Current Value"]</span>
+          @if (IsLoadingSummary)
+          {
+            <div class="spinner-border spinner-border-sm lp-portfolio-spinner" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          }
+          else
+          {
+            <strong>@ValuesVis.Mask(Helper.FormatBrl(TotalCurrent))</strong>
+          }
+          <small>@GetCurrentMeta()</small>
+        </a>
+
+        <a href="@DashboardHref"
+           title='@Loc["Open portfolio summary"]'
+           class="lp-portfolio-overview-item @(Profit >= 0m ? "lp-portfolio-overview-profit" : "lp-portfolio-overview-loss")">
+          <span>@Loc["Profit"]</span>
+          @if (IsLoadingSummary)
+          {
+            <div class="spinner-border spinner-border-sm lp-portfolio-spinner" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          }
+          else
+          {
+            <strong>@ValuesVis.Mask(Helper.FormatBrl(Profit))</strong>
+          }
+          <small>@GetProfitMeta()</small>
+        </a>
+      </div>
+    </article>
+
+    <article class="lp-card lp-portfolio-chart-card lp-portfolio-mix-card">
+        <div class="lp-portfolio-card-header">
+          <div>
+            <h2>@Loc["Allocation Mix"]</h2>
+            <p>@Loc["Current value by type"]</p>
+          </div>
+          <a href="@AllAllocationsHref">@Loc["View all"]</a>
+        </div>
+
+        <div class="lp-portfolio-mix">
+          <div class="lp-portfolio-pie"
+               role="img"
+               style="background: @BuildTypePieStyle()"
+               title="@BuildTypeAriaLabel()"
+               aria-label="@BuildTypeAriaLabel()">
+          </div>
+          <div class="lp-portfolio-segments">
+            @foreach (PortfolioSegmentItem item in GetTypeLegendItems())
+            {
+              <a class="lp-portfolio-segment"
+                 href="@item.Href"
+                 title="@item.FullLabel">
+                <span class="lp-portfolio-segment-dot" style="background-color: @item.Color"></span>
+                <span class="lp-portfolio-segment-name">@item.Label</span>
+                <strong>@ValuesVis.Mask(Helper.FormatBrl(item.Value))</strong>
+                <small>@item.Percentage</small>
+              </a>
+            }
+          </div>
+        </div>
+    </article>
+
+    <article class="lp-card lp-portfolio-chart-card">
+        <div class="lp-portfolio-card-header">
+          <div>
+            <h2>@Loc["Top Positions"]</h2>
+            <p>@Loc["Largest portfolio weights"]</p>
+          </div>
+        </div>
+
+        <div class="lp-portfolio-bars">
+          @if (!TopPositions.Any())
+          {
+            <div class="lp-portfolio-empty">@Loc["No data."]</div>
+          }
+          else
+          {
+            decimal maxCurrent = TopPositions.Max(item => item.Current);
+            if (maxCurrent <= 0m)
+            {
+              maxCurrent = 1m;
+            }
+
+            @foreach (TopPositionVm item in TopPositions.Take(5))
+            {
+              decimal width = item.Current / maxCurrent * 100m;
+              <button type="button"
+                      class="lp-portfolio-bar"
+                      title="@item.Name"
+                      @onclick="() => OpenAllocationAsync(item.AllocationId)">
+                <span class="lp-portfolio-bar-label">@GetCompactLabel(GetPositionLabel(item))</span>
+                <span class="lp-portfolio-bar-track">
+                  <span style="width: @($"{width:F0}%")"></span>
+                </span>
+                <strong>@ValuesVis.Mask(Helper.FormatBrl(item.Current))</strong>
+              </button>
+            }
+          }
+        </div>
+    </article>
+
+    <article class="lp-card lp-portfolio-chart-card">
+        <div class="lp-portfolio-card-header">
+          <div>
+            <h2>@Loc["Currency Split"]</h2>
+            <p>@Loc["Approx. BRL (quotes)"]</p>
+          </div>
+        </div>
+
+        @if (!CurrencySummaries.Any())
+        {
+          <div class="lp-portfolio-empty">@Loc["No data."]</div>
+        }
+        else
+        {
+          <div class="lp-portfolio-stack" aria-label='@Loc["Currency Split"]'>
+            @foreach (PortfolioCurrencyItem item in GetCurrencyItems())
+            {
+              <a href="@GetCurrencyHref(item.Currency)"
+                 style="width: @item.Percentage"
+                 title="@item.FullLabel">
+                <span style="background-color: @item.Color"></span>
+              </a>
+            }
+          </div>
+
+          <div class="lp-portfolio-currencies">
+            @foreach (PortfolioCurrencyItem item in GetCurrencyItems())
+            {
+              <a href="@GetCurrencyHref(item.Currency)" title="@item.FullLabel">
+                <span class="lp-portfolio-segment-dot" style="background-color: @item.Color"></span>
+                <span>@item.Currency</span>
+                <strong>@item.Percentage</strong>
+              </a>
+            }
+          </div>
+        }
+    </article>
+
+    <article class="lp-card lp-portfolio-chart-card">
+      <div class="lp-portfolio-card-header">
+        <div>
+          <h2>@Loc["Accounts"]</h2>
+          <p>@Loc["Current value by account"]</p>
+        </div>
+        <a href="accounts">@Loc["View all"]</a>
+      </div>
+
+      <div class="lp-portfolio-bars">
+        @if (!AccountSummaries.Any())
+        {
+          <div class="lp-portfolio-empty">@Loc["No data."]</div>
+        }
+        else
+        {
+          decimal maxAccountCurrent = AccountSummaries.Max(item => item.CurrentTotal);
+          if (maxAccountCurrent <= 0m)
+          {
+            maxAccountCurrent = 1m;
+          }
+
+          @foreach (AccountSummaryVm item in AccountSummaries.Take(5))
+          {
+            decimal width = item.CurrentTotal / maxAccountCurrent * 100m;
+            <a class="lp-portfolio-bar"
+               href="@GetAccountHref(item.AccountId)"
+               title="@item.AccountName">
+              <span class="lp-portfolio-bar-label">@GetCompactLabel(item.AccountName)</span>
+              <span class="lp-portfolio-bar-track">
+                <span style="width: @($"{width:F0}%")"></span>
+              </span>
+              <strong>@ValuesVis.Mask(Helper.FormatBrl(item.CurrentTotal))</strong>
+            </a>
+          }
+        }
+      </div>
+    </article>
+  </div>
+</section>

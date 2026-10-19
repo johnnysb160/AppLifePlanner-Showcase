@@ -1,0 +1,262 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="CategoryManagementModal.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+/* ── Modal header (shared via lp-modal-header from TransactionUpsertModal) ── */
+/* Classes lp-modal-header, lp-modal-footer, lp-modal-label, lp-modal-input,
+   lp-modal-btn-save, lp-modal-btn-cancel are defined in TransactionUpsertModal.razor.css
+   but are scoped to that component. We redefine only what is specific here. */
+
+.lp-modal-header {
+  background: linear-gradient(135deg, var(--lp-bg-dark) 0%, var(--lp-bg-dark-2) 100%);
+  border-bottom: none;
+  padding: 1.1rem 1.25rem;
+}
+
+.lp-modal-footer {
+  border-top: 1px solid var(--lp-border);
+  padding: 0.85rem 1.25rem;
+  gap: 0.5rem;
+}
+
+.lp-modal-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--lp-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+
+.lp-modal-input,
+::deep .lp-modal-input {
+  border-radius: var(--lp-radius-sm);
+  border: 1px solid var(--lp-border);
+  font-size: 0.9rem;
+  color: var(--lp-text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+  .lp-modal-input:focus,
+  ::deep .lp-modal-input:focus {
+    border-color: var(--lp-accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    outline: none;
+  }
+
+.lp-modal-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-surface);
+  color: var(--lp-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+  .lp-modal-btn-cancel:hover:not(:disabled) {
+    background: var(--lp-surface-muted);
+    color: var(--lp-text-primary);
+  }
+
+  .lp-modal-btn-cancel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+.lp-modal-btn-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.4rem;
+  border: none;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+  .lp-modal-btn-save:hover:not(:disabled) {
+    background: var(--lp-accent-hover);
+  }
+
+  .lp-modal-btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+.lp-modal-btn-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.4rem;
+  border: none;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-danger);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+  .lp-modal-btn-delete:hover:not(:disabled) {
+    background: #dc2626;
+  }
+
+  .lp-modal-btn-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+/* ── Primary button (toolbar) ────────────────────────────────────────── */
+.lp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 1rem;
+  border: none;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+  .lp-btn-primary:hover:not(:disabled) {
+    background: var(--lp-accent-hover);
+  }
+
+  .lp-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+/* ── Inline form card ────────────────────────────────────────────────── */
+.cat-form-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.cat-form-header {
+  background: linear-gradient(135deg, var(--lp-bg-dark) 0%, var(--lp-bg-dark-2) 100%);
+  color: #fff;
+  padding: 0.7rem 1.1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.cat-form-body {
+  padding: 1rem 1.1rem;
+}
+
+/* ── Table extras ────────────────────────────────────────────────────── */
+.cat-count-label {
+  font-size: 0.8rem;
+  color: var(--lp-text-muted);
+  font-weight: 500;
+}
+
+.cat-lock-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  background: var(--lp-surface-muted);
+  border: 1px solid var(--lp-border);
+  color: var(--lp-text-muted);
+}
+
+.cat-usage-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--lp-surface-muted);
+  border: 1px solid var(--lp-border);
+  color: var(--lp-text-secondary);
+  white-space: nowrap;
+}
+
+.cat-row-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+  .cat-row-link:hover {
+    color: var(--lp-accent);
+  }
+
+/* ── Action buttons (redefined locally — lp-tx-* classes are scoped to Transactions) ── */
+.lp-tx-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--lp-radius-sm);
+  border: 1px solid var(--lp-border);
+  background: transparent;
+  color: var(--lp-text-muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  padding: 0;
+}
+
+  .lp-tx-action-btn:hover:not(:disabled) {
+    background: var(--lp-surface-muted);
+    color: var(--lp-text-primary);
+    border-color: #cbd5e1;
+  }
+
+  .lp-tx-action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+.lp-tx-action-btn-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--lp-danger);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* ── In/Out badges (redefined locally) ──────────────────────────────── */
+.lp-tx-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.lp-tx-badge-in {
+  background: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+}
+
+.lp-tx-badge-out {
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
+}

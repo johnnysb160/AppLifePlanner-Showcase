@@ -1,0 +1,60 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="DatabaseStatusBanner.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@using AppControlOrganizer.V2.Web.Services
+@implements IDisposable
+@inject DatabaseHealthService HealthService
+
+@*
+  Admin-only: the indicator reveals which database backend is live and whether the primary is down.
+  That is infrastructure reconnaissance, so it must never render for demo or anonymous visitors.
+*@
+<AuthorizeView Roles="Admin">
+  <Authorized>
+    <div class="db-status-indicator" data-bs-toggle="tooltip" data-bs-placement="bottom"
+         title="@StatusTooltip">
+      <i class="bi @StatusIcon @AnimationClass"></i>
+    </div>
+  </Authorized>
+</AuthorizeView>
+
+@code {
+  private string StatusIcon => HealthService.IsRecoveryTriggered
+    ? "bi-arrow-repeat text-info"
+    : HealthService.IsUsingStandby
+      ? "bi-database-exclamation text-warning"
+      : HealthService.IsPrimaryReachable && HealthService.IsStandbyReachable
+      ? "bi-database-check text-success"
+      : "bi-database-dash text-warning";
+
+  private string AnimationClass => HealthService.IsRecoveryTriggered
+    ? "spin-animation" : "";
+
+  private string StatusTooltip => HealthService.IsRecoveryTriggered
+    ? Loc["Syncing Supabase to Neon"]
+    : HealthService.IsUsingStandby
+      ? Loc["Running on secondary (Neon)"]
+      : HealthService.IsStandbyReachable
+        ? Loc["Running on primary (Supabase) - Neon standby available"]
+        : Loc["Running on primary (Supabase) - Neon standby unavailable"];
+
+  protected override void OnInitialized()
+  {
+    HealthService.OnStatusChanged += HandleStatusChanged;
+  }
+
+  private void HandleStatusChanged()
+  {
+    InvokeAsync(StateHasChanged);
+  }
+
+  public void Dispose()
+  {
+    HealthService.OnStatusChanged -= HandleStatusChanged;
+  }
+}

@@ -1,0 +1,68 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="AllocationUpsertModal.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+.lp-modal-header {
+  background: linear-gradient(135deg, var(--lp-bg-dark) 0%, var(--lp-bg-dark-2) 100%);
+  border-bottom: none;
+  padding: 1.1rem 1.25rem;
+}
+
+.lp-modal-footer {
+  border-top: 1px solid var(--lp-border);
+  padding: 0.85rem 1.25rem;
+  gap: 0.5rem;
+}
+
+.lp-modal-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-surface);
+  color: var(--lp-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+  .lp-modal-btn-cancel:hover:not(:disabled) {
+    background: var(--lp-surface-muted);
+    color: var(--lp-text-primary);
+  }
+
+  .lp-modal-btn-cancel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+.lp-modal-btn-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.4rem;
+  border: none;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+  .lp-modal-btn-save:hover:not(:disabled) {
+    background: var(--lp-accent-hover);
+  }
+
+  .lp-modal-btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }

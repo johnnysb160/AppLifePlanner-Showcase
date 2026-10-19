@@ -1,0 +1,163 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="TransactionUpsertModal.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@inherits UpsertModalBase
+@using Microsoft.AspNetCore.Components.Authorization
+@using AppControlOrganizer.V2.Shared.Entities
+@if (Visible)
+{
+    <div class="modal fade show d-block"
+         tabindex="-1"
+         style="background-color: rgba(0,0,0,0.5);"
+         @onclick="RequestClose"
+         @onkeydown="HandleKeyDown">
+
+        <div class="modal-dialog modal-fullscreen-sm-down" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header lp-modal-header">
+                    <h5 class="modal-title text-white">@(IsEditing ? Loc["Edit Transaction"] : Loc["New Transaction"])</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="RequestClose" disabled="@IsSaving"></button>
+                </div>
+
+                <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+                    <LocalizedDataAnnotationsValidator />
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="lp-modal-label">@Loc["Date"] *</label>
+                            <InputDate class="form-control lp-modal-input" @bind-Value="Model.Date" @oninput="MarkDirty" />
+                            <ValidationMessage For="() => Model.Date" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="lp-modal-label">@Loc["Description"] *</label>
+                            <InputText class="form-control lp-modal-input" @bind-Value="Model.Description" @oninput="MarkDirty" />
+                            <ValidationMessage For="() => Model.Description" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="lp-modal-label">@Loc["Category"] *</label>
+                            <InputSelect class="form-select lp-modal-input" @bind-Value="Model.Category" @onchange="MarkDirty">
+                                @foreach (Category cat in Enum.GetValues<Category>())
+                                {
+                                    <option value="@cat">@Loc[cat.GetDisplayName()]</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        @if (Accounts.Count > 0)
+                        {
+                          <div class="mb-3">
+                            <div class="lp-modal-label-row">
+                              <label class="lp-modal-label">@Loc["Account"]</label>
+                              @if (SelectedAccount != null)
+                              {
+                                <a class="lp-modal-context-link" href="@GetAccountHref(SelectedAccount.Id)">
+                                  <i class="bi bi-bank"></i>@Loc["Open account"]
+                                </a>
+                              }
+                            </div>
+                            <select class="form-select lp-modal-input" value="@Model.AccountId" @onchange="OnAccountChanged">
+                              <option value="">@Loc["None"]</option>
+                              @foreach (AccountEntity account in Accounts)
+                              {
+                                <option value="@account.Id">@account.Name</option>
+                              }
+                            </select>
+                          </div>
+                        }
+
+                        <div class="mb-3">
+                            <label class="lp-modal-label">@Loc["Amount"] *</label>
+                            <InputNumber class="form-control lp-modal-input" @bind-Value="Model.Value" @oninput="MarkDirty" />
+                            <ValidationMessage For="() => Model.Value" />
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <InputCheckbox class="form-check-input" @bind-Value="Model.Income" id="incomeCheck" @onchange="MarkDirty" />
+                                <label class="form-check-label" for="incomeCheck">
+                                    @(Model.Income ? Loc["Income"] : Loc["Expense"])
+                                </label>
+                            </div>
+                        </div>
+
+                        <details>
+                            <summary class="small text-primary">@Loc["Planning classification"]</summary>
+                            <div class="mt-2">
+                                <div class="lp-modal-label-row">
+                                    <label class="lp-modal-label">@Loc["Impact on your plan"]</label>
+                                    <a class="lp-modal-context-link" href="plan#finance">
+                                        <i class="bi bi-compass"></i>@Loc["Open plan"]
+                                    </a>
+                                </div>
+                                <InputSelect class="form-select lp-modal-input" @bind-Value="Model.PlanningImpact" @onchange="MarkDirty">
+                                    <option value="@TransactionPlanningImpact.Unclassified">@Loc["Automatic (recommended)"]</option>
+                                    <option value="@TransactionPlanningImpact.Operating">@Loc["Ordinary income or expense"]</option>
+                                    <option value="@TransactionPlanningImpact.InternalTransfer">@Loc["Transfer between my accounts"]</option>
+                                    <option value="@TransactionPlanningImpact.Contribution">@Loc["Investment contribution"]</option>
+                                    <option value="@TransactionPlanningImpact.AssetMovement">@Loc["Asset purchase, sale or movement"]</option>
+                                    <option value="@TransactionPlanningImpact.Extraordinary">@Loc["Extraordinary event"]</option>
+                                    <option value="@TransactionPlanningImpact.Ignored">@Loc["Ignore in planning"]</option>
+                                </InputSelect>
+                                <small class="text-muted">@Loc["The automatic option detects transfers and recurring operating patterns from your history."]</small>
+                            </div>
+                        </details>
+
+                        <div class="lp-modal-source-row mt-3">
+                            <span><i class="bi bi-box-arrow-in-down"></i>@Loc["Source"]</span>
+                            <strong>@Loc[GetSourceKindLabel(Model.SourceKind)]</strong>
+                            <button type="button" class="lp-modal-inline-action" @onclick="OpenCategoriesAsync">
+                                <i class="bi bi-tags"></i>@Loc["Manage categories"]
+                            </button>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.TransactionTime) || !string.IsNullOrWhiteSpace(Model.SourceDetails))
+                        {
+                            <div class="mt-2 small text-muted">
+                                @if (!string.IsNullOrWhiteSpace(Model.TransactionTime))
+                                {
+                                    <div><i class="bi bi-clock me-1"></i>@Loc["Time"]: <strong>@Model.TransactionTime</strong></div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.SourceDetails))
+                                {
+                                    <div class="text-break"><i class="bi bi-card-text me-1"></i>@Loc["Original details"]: @Model.SourceDetails</div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="modal-footer lp-modal-footer">
+                        <button type="button" class="lp-modal-btn-cancel" @onclick="RequestClose" disabled="@IsSaving">
+                            @Loc["Cancel"]
+                        </button>
+                        <AuthorizeView Context="authContext">
+                            <Authorized>
+                                <button type="submit" class="lp-modal-btn-save" disabled="@IsSaving">
+                                    @if (IsSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                    }
+                                    @Loc["Save"]
+                                </button>
+                            </Authorized>
+                            <NotAuthorized>
+                                <button type="submit" class="lp-modal-btn-save" disabled>
+                                    @if (IsSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                    }
+                                    @Loc["Log in to Save"]
+                                </button>
+                            </NotAuthorized>
+                        </AuthorizeView>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}

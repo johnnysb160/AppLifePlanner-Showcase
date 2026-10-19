@@ -1,0 +1,273 @@
+﻿@*
+// <copyright file="QuarterPlans.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+*@
+
+@page "/planning/quarters"
+@rendermode InteractiveServer
+@using AppControlOrganizer.V2.Shared.Entities
+@using AppControlOrganizer.V2.Shared.Enums
+@using AppControlOrganizer.V2.Web.Services.Planning
+
+<PageTitle>@Loc["Quarterly Plans"] - Life Planner</PageTitle>
+
+<div class="lp-page-header mb-3">
+  <div>
+    <div class="lp-page-title"><i class="bi bi-calendar3 me-2"></i>@Loc["Quarterly Plans"]</div>
+  </div>
+  <div class="lp-action-bar">
+    <AuthorizeView>
+      <Authorized>
+        <button class="lp-btn-primary" @onclick="AddQuarterPlan">
+          <i class="bi bi-plus-lg me-1"></i>@Loc["New Quarter"]
+        </button>
+      </Authorized>
+      <NotAuthorized>
+        <button class="lp-btn-ghost" disabled title='@Loc["Log in to create"]'>
+          <i class="bi bi-lock me-1"></i>@Loc["Log in to create"]
+        </button>
+      </NotAuthorized>
+    </AuthorizeView>
+  </div>
+</div>
+
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+  <div class="alert alert-warning">@statusMessage</div>
+}
+
+@if (isLoading)
+{
+  <div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>
+}
+else if (!plans.Any())
+{
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>@Loc["No quarterly plans created. Click \"New Quarter\" to get started."]
+  </div>
+}
+else
+{
+  <div class="row g-3">
+    @foreach (QuarterPlanEntity plan in plans)
+    {
+      <div class="col-md-6 col-xl-4">
+        <div class="lp-card h-100 p-0">
+          <div class='lp-quarter-header d-flex align-items-center gap-2 py-2 px-3 @QuarterHeaderClass(plan.Status)'>
+            <span class="fw-bold flex-grow-1">Q@(plan.Quarter) / @plan.Year</span>
+            <span class='badge @RagBadge(plan.Status)'>@RagLabel(plan.Status)</span>
+            <AuthorizeView Context="qPlanAuth">
+              <Authorized>
+                <button class="lp-tx-action-btn" @onclick='() => AddTask(plan)' title='@Loc["Add Task"]'>
+                  <i class="bi bi-plus"></i>
+                </button>
+                <button class="lp-tx-action-btn" @onclick='() => EditPlan(plan)' title='@Loc["Edit"]'>
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick='() => ConfirmDeletePlan(plan)' title='@Loc["Delete"]'>
+                  <i class="bi bi-trash"></i>
+                </button>
+              </Authorized>
+              <NotAuthorized>
+                <button class="lp-tx-action-btn" disabled><i class="bi bi-plus"></i></button>
+                <button class="lp-tx-action-btn" disabled><i class="bi bi-pencil"></i></button>
+                <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled><i class="bi bi-trash"></i></button>
+              </NotAuthorized>
+            </AuthorizeView>
+          </div>
+          <div class="px-3 pt-2 pb-1">
+            <p class="mb-1"><span class="text-muted small">@Loc["Focus:"]</span> <strong>@plan.Focus</strong></p>
+            @if (!string.IsNullOrEmpty(plan.Delivery))
+            {
+              <p class="mb-1 small"><span class="text-muted">@Loc["Delivery:"]</span> @plan.Delivery</p>
+            }
+            @if (!string.IsNullOrEmpty(plan.KpiDescription))
+            {
+              <p class="mb-1 small"><span class="text-muted">KPI:</span> @plan.KpiDescription</p>
+            }
+            @if (plan.TargetDate.HasValue)
+            {
+              <p class="mb-1 small"><span class="text-muted">@Loc["Deadline:"]</span> @plan.TargetDate.Value.ToString("d", Loc.Culture)</p>
+            }
+            @if (!string.IsNullOrEmpty(plan.WeeklyCadence))
+            {
+              <p class="mb-1 small"><span class="text-muted">@Loc["Cadence:"]</span> @plan.WeeklyCadence</p>
+            }
+
+            @if (plan.Tasks.Any())
+            {
+              <hr class="my-2" />
+              <p class="small text-muted mb-1 fw-semibold">@Loc["Tasks"]</p>
+              <ul class="list-unstyled mb-0">
+                @foreach (QuarterTaskEntity task in plan.Tasks.OrderBy(t => t.SortOrder))
+                {
+                  <li id="quarter-task-@task.Id" class="d-flex align-items-center gap-2 mb-1 quarter-task-link-target @(RequestedTaskId == task.Id ? "highlighted" : null)">
+                    <AuthorizeView Context="qTaskToggleAuth">
+                      <Authorized>
+                        <input type="checkbox" class="form-check-input mt-0" checked="@task.Done"
+                               @onchange='async () => await ToggleTask(task)' />
+                      </Authorized>
+                      <NotAuthorized>
+                        <input type="checkbox" class="form-check-input mt-0" checked="@task.Done" disabled />
+                      </NotAuthorized>
+                    </AuthorizeView>
+                    <span class='@(task.Done ? "text-decoration-line-through text-muted" : "") small'>@task.Text</span>
+                    <AuthorizeView Context="qTaskDeleteAuth">
+                      <Authorized>
+                        <button class="btn btn-link btn-sm p-0 ms-auto text-danger" @onclick='() => ConfirmDeleteTask(task)'>
+                          <i class="bi bi-x" style="font-size:.8rem"></i>
+                        </button>
+                      </Authorized>
+                      <NotAuthorized>
+                        <button class="btn btn-link btn-sm p-0 ms-auto text-danger" disabled>
+                          <i class="bi bi-x" style="font-size:.8rem"></i>
+                        </button>
+                      </NotAuthorized>
+                    </AuthorizeView>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+          <div class="px-3 pb-2 text-end">
+            <span class="text-muted" style="font-size:.7rem">
+              @(plan.Tasks.Count(t => t.Done))/@(plan.Tasks.Count) @Loc["tasks completed"]
+            </span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@* -- Quarter Plan Modal -- *@
+@if (showPlanModal)
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down">
+      <div class="modal-content">
+        <div class="modal-header lp-modal-header">
+          <h5 class="modal-title text-white">@(editingPlan.Id == 0 ? Loc["New Quarterly Plan"] : Loc["Edit Plan"])</h5>
+          <button type="button" class="btn-close btn-close-white" @onclick="ClosePlanModal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Year *"]</label>
+              <input type="number" class="form-control lp-modal-input" @bind="editingPlan.Year" />
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Quarter *"]</label>
+              <select class="form-select lp-modal-input" @bind="editingPlan.Quarter">
+                <option value="1">Q1 (Jan-Mar)</option>
+                <option value="2">Q2 (Apr-Jun)</option>
+                <option value="3">Q3 (Jul-Sep)</option>
+                <option value="4">Q4 (Oct-Dec)</option>
+              </select>
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Status"]</label>
+              <select class="form-select lp-modal-input" @bind="editingPlan.Status">
+                <option value="@RagStatus.Green">@Loc["Green"]</option>
+                <option value="@RagStatus.Amber">@Loc["Amber"]</option>
+                <option value="@RagStatus.Red">@Loc["Red"]</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Main focus *"]</label>
+            <input class="form-control lp-modal-input" @bind="editingPlan.Focus" placeholder='@Loc["What does this quarter need to deliver?"]' />
+          </div>
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Main delivery"]</label>
+            <input class="form-control lp-modal-input" @bind="editingPlan.Delivery" placeholder='@Loc["Expected result or deliverable"]' />
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">KPI</label>
+              <input class="form-control lp-modal-input" @bind="editingPlan.KpiDescription" placeholder='@Loc["Success indicator"]' />
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Deadline"]</label>
+              <input type="date" class="form-control lp-modal-input"
+                     value='@(editingPlan.TargetDate.HasValue ? editingPlan.TargetDate.Value.ToString("yyyy-MM-dd") : "")'
+                     @onchange='e => editingPlan.TargetDate = string.IsNullOrEmpty(e.Value?.ToString()) ? null : DateTime.Parse(e.Value!.ToString()!).ToUniversalTime()' />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Weekly cadence"]</label>
+            <textarea class="form-control lp-modal-input" rows="2" @bind="editingPlan.WeeklyCadence" placeholder='@Loc["Meetings, check-ins, routines..."]'></textarea>
+          </div>
+        </div>
+        <div class="modal-footer lp-modal-footer">
+          <button class="lp-modal-btn-cancel" @onclick="ClosePlanModal">@Loc["Cancel"]</button>
+          <AuthorizeView>
+            <Authorized>
+              <button class="lp-modal-btn-save" @onclick="SavePlan" disabled="@isSaving">
+                @(isSaving ? Loc["Saving..."] : Loc["Save"])
+              </button>
+            </Authorized>
+            <NotAuthorized>
+              <button class="lp-modal-btn-cancel" disabled>
+                <i class="bi bi-lock me-1"></i>@Loc["Log in to save"]
+              </button>
+            </NotAuthorized>
+          </AuthorizeView>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@* -- Task Modal -- *@
+@if (showTaskModal)
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-sm modal-fullscreen-sm-down">
+      <div class="modal-content">
+        <div class="modal-header lp-modal-header">
+          <h5 class="modal-title text-white">@Loc["New Task"]</h5>
+          <button type="button" class="btn-close btn-close-white" @onclick="CloseTaskModal"></button>
+        </div>
+        <div class="modal-body">
+          <input class="form-control lp-modal-input" @bind="newTaskText" placeholder='@Loc["Task description..."]' @onkeyup='async e => { if (e.Key == "Enter") await SaveTask(); }' />
+        </div>
+        <div class="modal-footer lp-modal-footer">
+          <button class="lp-modal-btn-cancel" @onclick="CloseTaskModal">@Loc["Cancel"]</button>
+          <AuthorizeView>
+            <Authorized>
+              <button class="lp-modal-btn-save" @onclick="SaveTask" disabled="@isSaving">
+                @(isSaving ? Loc["Saving..."] : Loc["Add"])
+              </button>
+            </Authorized>
+            <NotAuthorized>
+              <button class="lp-modal-btn-cancel" disabled>
+                <i class="bi bi-lock me-1"></i>@Loc["Log in to save"]
+              </button>
+            </NotAuthorized>
+          </AuthorizeView>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@* -- Delete Confirm Modal -- *@
+@if (!string.IsNullOrEmpty(deleteMessage))
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4">
+          <i class="bi bi-exclamation-triangle text-danger" style="font-size:2rem"></i>
+          <p class="mt-2 mb-0">@deleteMessage</p>
+        </div>
+        <div class="modal-footer justify-content-center border-0 pt-0">
+          <button class="lp-modal-btn-cancel" @onclick='() => deleteMessage = ""'>@Loc["Cancel"]</button>
+          <button class="btn btn-danger btn-sm" @onclick="ExecuteDelete" disabled="@isSaving">@Loc["Delete"]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

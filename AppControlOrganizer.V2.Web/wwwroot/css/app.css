@@ -1,0 +1,424 @@
+/* Custom styles for AppControlOrganizer V2 */
+
+/* ── Design tokens ───────────────────────────────────────────────────── */
+:root {
+  /* Background */
+  --lp-bg-dark:          #0f2340;
+  --lp-bg-dark-2:        #1a3a5c;
+
+  /* Accent */
+  --lp-accent:           #3b82f6;
+  --lp-accent-hover:     #2563eb;
+  --lp-purple:           #8b5cf6;
+
+  /* Surfaces */
+  --lp-surface:          #ffffff;
+  --lp-surface-muted:    #f8fafc;
+  --lp-border:           #e2e8f0;
+
+  /* Text */
+  --lp-text-primary:     #0f172a;
+  --lp-text-secondary:   #64748b;
+  --lp-text-muted:       #94a3b8;
+
+  /* States */
+  --lp-success:          #22c55e;
+  --lp-danger:           #ef4444;
+  --lp-warning:          #f59e0b;
+  --lp-info:             #06b6d4;
+
+  /* Shape */
+  --lp-radius:           12px;
+  --lp-radius-sm:        8px;
+
+  /* Shadow */
+  --lp-shadow:           0 2px 8px rgba(0, 0, 0, 0.08);
+  --lp-shadow-md:        0 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* Typography */
+  --lp-font:             'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────── */
+body {
+  font-family: var(--lp-font);
+  color: var(--lp-text-primary);
+}
+
+/* ── Utility card ─────────────────────────────────────────────────────── */
+.lp-card {
+  background: var(--lp-surface);
+  border-radius: var(--lp-radius);
+  box-shadow: var(--lp-shadow);
+  border: 1px solid var(--lp-border);
+  padding: 1.25rem;
+}
+
+/* ── Utility badges ───────────────────────────────────────────────────── */
+.lp-badge-success,
+.lp-badge-danger,
+.lp-badge-warning,
+.lp-badge-info {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.lp-badge-success {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+
+.lp-badge-danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+.lp-badge-warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+.lp-badge-info {
+  background: rgba(6, 182, 212, 0.12);
+  color: #0891b2;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* The hover transform creates a CSS containing block for position:fixed children
+   AND a z-index:auto stacking context — both break the SearchableDropdown menu
+   positioning.  Remove the transform specifically for filter cards. */
+.filter-card:hover {
+    transform: none !important;
+}
+
+
+.toast-container .toast {
+    min-width: 300px;
+}
+
+.modal.show {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    .table {
+        font-size: 0.875rem;
+    }
+}
+
+.btn-expandable {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); 
+}
+
+    .btn-expandable .btn-text {
+        max-width: 0;
+        opacity: 0;
+        display: inline-block;
+        transition: max-width 0.4s ease, opacity 0.3s ease, margin 0.4s ease;
+        pointer-events: none;
+    }
+
+@media (hover: hover) {
+    .btn-expandable:hover {
+        padding-right: 1rem;
+    }
+
+        .btn-expandable:hover .btn-text {
+            max-width: 150px;
+            opacity: 1;
+            margin-left: 0.5rem;
+        }
+
+    .touch-shield {
+        display: none;
+    }
+}
+
+/* ── Mobile scrollbar — hide on small screens ─── */
+@media (max-width: 991.98px) {
+    html, body {
+        scrollbar-width: none;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* ── Mobile main-content padding — offsets fixed header + clears fixed bottom nav ─── */
+@media (max-width: 991.98px) {
+    main.flex-grow-1 {
+        padding-top: calc(64px + env(safe-area-inset-top, 0px)) !important;
+        margin-top: 0 !important;
+    }
+
+    .mobile-main-content {
+        padding-top: 0 !important;
+        padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MOBILE BOTTOM NAV — global (cannot be scoped: NavLink child component)
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Bar container */
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1040;
+    display: flex;
+    align-items: stretch;
+    background: var(--lp-bg-dark);
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    height: calc(66px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Every tab — NavLink renders <a>, "Mais" is a <button> */
+.mobile-bottom-nav .mobile-nav-item,
+.mobile-bottom-nav a.mobile-nav-item,
+.mobile-bottom-nav a.mobile-nav-item:link,
+.mobile-bottom-nav a.mobile-nav-item:visited,
+.mobile-bottom-nav a.mobile-nav-item:hover,
+.mobile-bottom-nav button.mobile-nav-item {
+    flex: 1;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px;
+    color: rgba(255, 255, 255, 0.35) !important;
+    text-decoration: none !important;
+    border: none;
+    background: transparent;
+    padding: 10px 2px 6px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    transition: color 0.15s ease;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+/* Icon pill */
+.mobile-bottom-nav .mobile-nav-icon {
+    width: 38px;
+    height: 28px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    transition: background 0.2s ease, color 0.2s ease;
+    color: rgba(255, 255, 255, 0.35);
+    line-height: 1;
+}
+
+/* Label */
+.mobile-bottom-nav .mobile-nav-label {
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 62px;
+    color: rgba(255, 255, 255, 0.35);
+    display: block;
+}
+
+/* Active tab (Blazor NavLink adds class="active") */
+.mobile-bottom-nav a.mobile-nav-item.active,
+.mobile-bottom-nav a.mobile-nav-item.active:link,
+.mobile-bottom-nav a.mobile-nav-item.active:visited {
+    color: #fff !important;
+}
+
+.mobile-bottom-nav a.mobile-nav-item.active .mobile-nav-icon {
+    background: rgba(59, 130, 246, 0.22);
+    color: #60a5fa;
+}
+
+.mobile-bottom-nav a.mobile-nav-item.active .mobile-nav-label {
+    color: #fff;
+}
+
+/* Hover on any item */
+.mobile-bottom-nav .mobile-nav-item:hover .mobile-nav-icon {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.account-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Fullscreen modal: clip content and allow body scroll */
+@media (max-width: 575.98px) {
+    .modal-fullscreen-sm-down .modal-content {
+        overflow: hidden;
+    }
+
+    .modal-fullscreen-sm-down .modal-body {
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        max-height: calc(100dvh - 130px);
+    }
+}
+
+.account-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ── Shared page layout ───────────────────────────────────────────────── */
+.lp-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.lp-page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--lp-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.lp-page-subtitle {
+  font-size: 0.875rem;
+  color: var(--lp-text-secondary);
+  margin-top: 0.125rem;
+}
+
+.lp-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ── Shared action-bar buttons ────────────────────────────────────────── */
+.lp-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-surface);
+  color: var(--lp-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.lp-btn-ghost:hover:not(:disabled) {
+  background: var(--lp-surface-muted);
+  color: var(--lp-text-primary);
+  border-color: #cbd5e1;
+}
+
+.lp-btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lp-btn-ghost-active {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: var(--lp-accent);
+  color: var(--lp-accent);
+}
+
+.lp-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 1rem;
+  border: none;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.lp-btn-primary:hover:not(:disabled) {
+  background: var(--lp-accent-hover);
+}
+
+.lp-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

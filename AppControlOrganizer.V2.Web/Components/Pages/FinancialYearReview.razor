@@ -1,0 +1,341 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="FinancialYearReview.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/finance/year-review"
+@rendermode InteractiveServer
+@using AppControlOrganizer.V2.Web.Services.Financial
+@inject AppControlOrganizer.V2.Web.Services.UI.ValuesVisibilityService ValuesVis
+
+<PageTitle>@Loc["Financial year"] - Life Planner</PageTitle>
+
+<div class="year-review-page">
+  <header class="lp-page-header mb-4">
+    <div>
+      <h1 class="lp-page-title mb-0 d-flex align-items-center">
+        <i class="bi bi-calendar-range me-2"></i>@Loc["Financial year"]
+      </h1>
+      <p class="lp-page-subtitle mb-0">@Loc["Annual financial consolidation from your existing records."]</p>
+    </div>
+    <div class="lp-action-bar">
+      <select class="form-select year-review-select"
+              disabled="@isLoading"
+              value="@selectedYear"
+              @onchange="OnYearChanged">
+        @foreach (int year in AvailableYears)
+        {
+          <option value="@year">@year</option>
+        }
+      </select>
+      <button type="button"
+              class="lp-btn-ghost"
+              disabled="@isLoading"
+              title='@Loc["Refresh"]'
+              @onclick="RefreshAsync">
+        <i class="bi bi-arrow-clockwise"></i><span class="d-none d-xl-inline ms-1">@Loc["Refresh"]</span>
+      </button>
+      <a class="lp-btn-ghost" href="@GetTransactionsHref()">
+        <i class="bi bi-cash-stack"></i><span class="d-none d-xl-inline ms-1">@Loc["Transactions"]</span>
+      </a>
+    </div>
+  </header>
+
+  @if (isLoading)
+  {
+    <div class="lp-card year-review-loading">
+      <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+      <span>@Loc["Assembling annual financial review..."]</span>
+    </div>
+  }
+  else if (!string.IsNullOrWhiteSpace(errorMessage))
+  {
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+  else if (review != null)
+  {
+    @if (!review.HasYearActivity)
+    {
+      <a class="lp-card year-review-empty mb-4" href="transactions">
+        <span><i class="bi bi-receipt"></i></span>
+        <div>
+          <strong>@Loc["No annual activity found."]</strong>
+          <small>@Loc["Create or import transactions to make this review useful."]</small>
+        </div>
+        <i class="bi bi-arrow-right"></i>
+      </a>
+    }
+
+    <section class="lp-card year-review-command mb-4" aria-label='@Loc["Annual summary"]'>
+      <div class="year-review-command-main">
+        <span class="year-review-eyebrow">@Loc["Annual dashboard"]</span>
+        <h2>@Loc.Format("YearReview.PerformanceBoard", review.Year)</h2>
+        <p>@Loc["Consolidated cash flow, patrimony and investment reading from existing data."]</p>
+        <strong class="year-review-command-value @(review.AnnualResult >= 0m ? "positive" : "negative")">
+          @FormatMoney(review.AnnualResult)
+        </strong>
+        <div class="year-review-command-strip">
+          <div>
+            <small>@Loc["Operating income"]</small>
+            <strong>@FormatMoney(review.AnnualOperatingIncome)</strong>
+          </div>
+          <div>
+            <small>@Loc["Expenses"]</small>
+            <strong>@FormatMoney(review.AnnualOperatingExpense)</strong>
+          </div>
+          <div>
+            <small>@Loc["Contributions"]</small>
+            <strong>@FormatMoney(review.AnnualContributions)</strong>
+          </div>
+          <div>
+            <small>@Loc["Net Worth"]</small>
+            <strong>@FormatMoney(review.NetWorth)</strong>
+          </div>
+        </div>
+      </div>
+      <div class="year-review-command-side">
+        <div class="year-review-gauge" style="--pct:@GetGaugePercent(review.SavingsRate);--tone:#16a34a">
+          <div><strong>@FormatPercent(review.SavingsRate)</strong><span>@Loc["Savings rate"]</span></div>
+        </div>
+        <div class="year-review-gauge" style="--pct:@GetSignedGaugePercent(review.InvestmentReturnPercentage);--tone:@GetInvestmentToneColor()">
+          <div><strong>@FormatPercent(review.InvestmentReturnPercentage)</strong><span>@Loc["Investment return"]</span></div>
+        </div>
+        <div class="year-review-side-metrics">
+          <div><span>@Loc["Estimated movement"]</span><strong>@FormatMoney(review.NetWorthChange)</strong></div>
+          <div><span>@Loc["Investment exits"]</span><strong>@FormatMoney(review.InvestmentExits)</strong></div>
+          <div><span>@Loc["Transactions"]</span><strong>@review.TransactionCount</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="year-review-dashboard-grid mb-4">
+      <section class="lp-card year-review-panel year-review-panel-wide">
+        <header class="year-review-panel-header">
+          <div>
+            <span>@Loc["Month by month"]</span>
+            <h2>@Loc["Annual cash-flow chart"]</h2>
+          </div>
+        </header>
+        <div class="year-review-line-chart" role="img" aria-label='@Loc["Annual cash-flow chart"]'>
+          <svg viewBox="0 0 802 190" preserveAspectRatio="none" focusable="false">
+            <line x1="16" y1="@GetCashChartZeroY()" x2="786" y2="@GetCashChartZeroY()" class="zero"></line>
+            <polyline points="@BuildCashChartAreaPoints(month => month.OperatingIncome)" class="income-area"></polyline>
+            <polyline points="@BuildCashChartAreaPoints(month => month.OperatingExpense)" class="expense-area"></polyline>
+            <polyline points="@BuildCashChartPoints(month => month.OperatingIncome)" class="income-line"></polyline>
+            <polyline points="@BuildCashChartPoints(month => month.OperatingExpense)" class="expense-line"></polyline>
+            <polyline points="@BuildCashChartPoints(month => month.Result)" class="result-line"></polyline>
+          </svg>
+          <div class="year-review-line-months">
+            @foreach (FinancialYearReviewMonth month in review.Months)
+            {
+              <span>@GetShortMonthName(month.Month)</span>
+            }
+          </div>
+        </div>
+        <div class="year-review-month-bars">
+          @foreach (FinancialYearReviewMonth month in review.Months)
+          {
+            <a class="year-review-month"
+               href="@GetTransactionsHref(month.Month)"
+               title="@GetMonthName(month.Month)">
+              <span class="year-review-month-label">@GetShortMonthName(month.Month)</span>
+              <span class="year-review-month-track">
+                <span class="income" style="height:@GetMonthBarHeight(month.OperatingIncome)%"></span>
+                <span class="expense" style="height:@GetMonthBarHeight(month.OperatingExpense)%"></span>
+              </span>
+              <strong class="@(month.Result >= 0m ? "positive" : "negative")">@FormatCompactMoney(month.Result)</strong>
+            </a>
+          }
+        </div>
+        <div class="year-review-legend">
+          <span><i class="income"></i>@Loc["Income"]</span>
+          <span><i class="expense"></i>@Loc["Expenses"]</span>
+          <span><i class="result"></i>@Loc["Annual result"]</span>
+        </div>
+      </section>
+
+      <section class="lp-card year-review-panel">
+        <header class="year-review-panel-header">
+          <div>
+            <span>@Loc["Highlights"]</span>
+            <h2>@Loc["Best and hardest months"]</h2>
+          </div>
+        </header>
+        <div class="year-review-rank-list">
+          @foreach (FinancialYearReviewMonth month in TopIncomeMonths)
+          {
+            <a href="@GetTransactionsHref(month.Month)">
+              <span><i class="bi bi-arrow-down-left text-success"></i>@GetMonthName(month.Month)</span>
+              <strong>@FormatMoney(month.OperatingIncome)</strong>
+            </a>
+          }
+          @foreach (FinancialYearReviewMonth month in TopExpenseMonths)
+          {
+            <a href="@GetTransactionsHref(month.Month, false)">
+              <span><i class="bi bi-arrow-up-right text-danger"></i>@GetMonthName(month.Month)</span>
+              <strong>@FormatMoney(month.OperatingExpense)</strong>
+            </a>
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="year-review-dashboard-grid mb-4">
+      <section class="lp-card year-review-panel year-review-category-panel">
+        <header class="year-review-panel-header">
+          <div>
+            <span>@Loc["Categories"]</span>
+            <h2>@Loc["Largest expense categories"]</h2>
+          </div>
+        </header>
+        @if (review.TopExpenseCategories.Count == 0)
+        {
+          <div class="year-review-muted">@Loc["No expenses recorded for this year."]</div>
+        }
+        else
+        {
+          <div class="year-review-category-dashboard">
+            <div class="year-review-donut"
+                 role="img"
+                 style="background:@BuildCategoryPieStyle()"
+                 aria-label='@Loc["Largest expense categories"]'>
+              <div>
+                <strong>@review.TopExpenseCategories.Count</strong>
+                <span>@Loc["categories"]</span>
+              </div>
+            </div>
+            <div class="year-review-category-leader">
+              <span>@Loc["Largest category"]</span>
+              <strong>@Loc[review.TopExpenseCategories[0].NameKey]</strong>
+              <small>@FormatPercent(review.TopExpenseCategories[0].Percentage) @Loc["of annual expenses"]</small>
+            </div>
+          </div>
+          <div class="year-review-category-list">
+            @foreach ((FinancialYearReviewCategory category, int index) in review.TopExpenseCategories.Select((category, index) => (category, index)))
+            {
+              <a href="@GetCategoryHref(category)" style="--category-tone:@GetCategoryTone(index)">
+                <span>
+                  <strong>@Loc[category.NameKey]</strong>
+                  <small>@category.Count @Loc["transactions"]</small>
+                </span>
+                <span class="year-review-category-meter">
+                  <span style="width:@FormatInvariantPercent(category.Percentage)"></span>
+                </span>
+                <strong>@FormatMoney(category.Total)</strong>
+              </a>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="lp-card year-review-panel">
+        <header class="year-review-panel-header">
+          <div>
+            <span>@Loc["Position"]</span>
+            <h2>@Loc["Patrimony and investments"]</h2>
+          </div>
+        </header>
+        <div class="year-review-worth-stack" aria-label='@Loc["Patrimony and investments"]'>
+          @foreach (FinancialCompositionItem item in GetCompositionItems())
+          {
+            <span style="width:@FormatInvariantPercent(item.Percentage);background:@item.Color" title="@item.Label"></span>
+          }
+        </div>
+        <div class="year-review-investment-card">
+          <div>
+            <span>@Loc["Applied value"]</span>
+            <strong>@FormatMoney(review.InvestmentAppliedValue)</strong>
+          </div>
+          <i class="bi bi-arrow-right"></i>
+          <div>
+            <span>@Loc["Current value"]</span>
+            <strong class="@(review.InvestmentProfit >= 0m ? "positive" : "negative")">@FormatMoney(review.InvestmentCurrentValue)</strong>
+          </div>
+        </div>
+        <div class="year-review-split-list">
+          <div><span>@Loc["Account cash"]</span><strong>@FormatMoney(review.AccountCash)</strong></div>
+          <div><span>@Loc["Emergency reserve"]</span><strong>@FormatMoney(review.EmergencyReserve)</strong></div>
+          <div><span>@Loc["Idle cash"]</span><strong>@FormatMoney(review.IdleCash)</strong></div>
+          <div><span>@Loc["Long-term investments"]</span><strong>@FormatMoney(review.LongTermInvestments)</strong></div>
+          <div><span>@Loc["Applied value"]</span><strong>@FormatMoney(review.InvestmentAppliedValue)</strong></div>
+          <div><span>@Loc["Current value"]</span><strong>@FormatMoney(review.InvestmentCurrentValue)</strong></div>
+        </div>
+        @if (review.UnpricedPositionCount > 0)
+        {
+          <a class="year-review-warning" href="allocations?panel=quotes">
+            <i class="bi bi-exclamation-circle"></i>
+            @Loc.Format("YearReview.UnpricedPositions", review.UnpricedPositionCount)
+          </a>
+        }
+      </section>
+    </div>
+
+    <section class="lp-card year-review-panel year-review-investments-detail mb-4">
+      <header class="year-review-panel-header">
+        <div>
+          <span>@Loc["Investment breakdown"]</span>
+          <h2>@Loc["Performance by position"]</h2>
+        </div>
+      </header>
+      @if (review.InvestmentPositions.Count == 0)
+      {
+        <div class="year-review-muted">@Loc["No investment positions found."]</div>
+      }
+      else
+      {
+        <div class="year-review-position-chart">
+          @foreach (FinancialYearReviewInvestmentPosition position in review.InvestmentPositions)
+          {
+            <article class="year-review-position-card">
+              <div class="year-review-position-name">
+                <strong>@position.Symbol</strong>
+                <span>@position.Name</span>
+              </div>
+              <div class="year-review-position-values">
+                <span>@FormatPositionMoney(position, position.AppliedValue)</span>
+                <strong class="@(position.Profit >= 0m ? "positive" : "negative")">@FormatPositionMoney(position, position.CurrentValue)</strong>
+              </div>
+              <div class="year-review-return-chart @(position.Profit >= 0m ? "positive" : "negative")">
+                <span style="width:@GetInvestmentReturnWidth(position)%"></span>
+              </div>
+              <div class="year-review-position-meta">
+                <span>@position.Type · @position.Currency</span>
+                <strong class="@(position.Profit >= 0m ? "positive" : "negative")">@FormatPercent(position.ReturnPercentage)</strong>
+                @if (!position.HasCurrentPrice)
+                {
+                  <small>@Loc["estimated"]</small>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="lp-card year-review-panel year-review-analysis">
+      <header class="year-review-panel-header">
+        <div>
+          <span>@Loc["Analyst summary"]</span>
+          <h2>@Loc["Financial reading of the year"]</h2>
+        </div>
+      </header>
+      <div class="year-review-analysis-grid">
+        @foreach (FinancialYearReviewInsight insight in review.AnalystInsights)
+        {
+          <article class="year-review-analysis-card @insight.Tone">
+            <i class="@insight.IconCss"></i>
+            <div>
+              <strong>@Loc[insight.TitleKey]</strong>
+              <p>@Loc[insight.BodyKey]</p>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+</div>

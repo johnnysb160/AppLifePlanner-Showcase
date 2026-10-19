@@ -1,0 +1,514 @@
+﻿@*
+// <copyright file="OKRs.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+*@
+
+@page "/planning/okrs"
+@rendermode InteractiveServer
+@using AppControlOrganizer.V2.Shared.Entities
+@using AppControlOrganizer.V2.Shared.Enums
+@using AppControlOrganizer.V2.Web.Services.Planning
+
+<PageTitle>OKRs - Life Planner</PageTitle>
+
+<div class="lp-page-content">
+<div class="lp-page-header mb-3">
+  <div>
+    <div class="lp-page-title"><i class="bi bi-bullseye me-2"></i>OKRs</div>
+  </div>
+  <div class="lp-action-bar">
+    <AuthorizeView>
+      <Authorized>
+        <button class="lp-btn-primary" @onclick="AddPillar">
+          <i class="bi bi-plus-lg me-1"></i>@Loc["New Pillar"]
+        </button>
+      </Authorized>
+      <NotAuthorized>
+        <button class="lp-btn-ghost" disabled title='@Loc["Log in to create"]'>
+          <i class="bi bi-lock me-1"></i>@Loc["Log in to create"]
+        </button>
+      </NotAuthorized>
+    </AuthorizeView>
+  </div>
+</div>
+
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+  <div class="alert alert-warning">@statusMessage</div>
+}
+
+@if (isLoading)
+{
+  <div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>
+}
+else if (!pillars.Any())
+{
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>@Loc["No pillars created yet. Create your first pillar to get started with OKRs."]
+  </div>
+}
+else
+{
+  @foreach (PillarEntity pillar in pillars)
+  {
+    <div class="card mb-3 border-0 shadow-sm">
+      <div class="card-header d-flex align-items-center flex-wrap gap-2 py-2" style='border-left: 4px solid @pillar.ColorHex'>
+        <span class="fw-semibold flex-grow-1">
+          @if (!string.IsNullOrEmpty(pillar.IconCss))
+          {
+            <i class='@pillar.IconCss me-2'></i>
+          }
+          @pillar.Name
+        </span>
+        <AuthorizeView Context="okrPillarAuth">
+          <Authorized>
+            <button class="lp-tx-action-btn" @onclick='() => AddObjective(pillar.Id)' title='@Loc["Add Objective"]'>
+              <i class="bi bi-plus"></i>
+            </button>
+            <button class="lp-tx-action-btn" @onclick='() => EditPillar(pillar)' title='@Loc["Edit pillar"]'>
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick='() => ConfirmDeletePillar(pillar)' title='@Loc["Delete pillar"]'>
+              <i class="bi bi-trash"></i>
+            </button>
+          </Authorized>
+          <NotAuthorized>
+            <button class="lp-tx-action-btn" disabled><i class="bi bi-plus"></i></button>
+            <button class="lp-tx-action-btn" disabled><i class="bi bi-pencil"></i></button>
+            <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled><i class="bi bi-trash"></i></button>
+          </NotAuthorized>
+        </AuthorizeView>
+      </div>
+
+      @if (pillar.Objectives.Any())
+      {
+        @* ── Desktop table (md+) ── *@
+        <div class="card-body p-0 d-none d-md-block">
+          <table class="table table-sm table-hover mb-0 okr-table">
+            <thead class="table-light">
+              <tr>
+                <th style="width:30px"></th>
+                <th>@Loc["Objective / Key Result"]</th>
+                <th style="width:100px">@Loc["Baseline"]</th>
+                <th style="width:100px">@Loc["Current"]</th>
+                <th style="width:100px">@Loc["Target"]</th>
+                <th style="width:80px">@Loc["Progress"]</th>
+                <th style="width:70px">@Loc["Status"]</th>
+                <th style="width:90px">@Loc["Deadline"]</th>
+                <th style="width:80px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (ObjectiveEntity obj in pillar.Objectives)
+              {
+                <tr class="table-secondary">
+                  <td></td>
+                  <td colspan="6" class="fw-semibold py-2">
+                    <i class="bi bi-arrow-right-circle me-1 text-primary"></i>@obj.Title
+                  </td>
+                  <td class="text-muted small">@(obj.Deadline.HasValue ? obj.Deadline.Value.ToString("MM/yyyy") : "")</td>
+                  <td class="text-end">
+                    @{ RagStatus objRag = obj.Status; }
+                    <span class='badge @RagBadge(objRag) me-1'>@RagLabel(objRag)</span>
+                    <AuthorizeView Context="okrObjAuth">
+                      <Authorized>
+                        <button class="lp-tx-action-btn" @onclick='() => AddKeyResult(obj.Id)' title='@Loc["Add KR"]'>
+                          <i class="bi bi-plus"></i>
+                        </button>
+                        <button class="lp-tx-action-btn" @onclick='() => EditObjective(obj)' title='@Loc["Edit"]'>
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick='() => ConfirmDeleteObjective(obj)' title='@Loc["Delete"]'>
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </Authorized>
+                      <NotAuthorized>
+                        <button class="lp-tx-action-btn" disabled><i class="bi bi-plus"></i></button>
+                        <button class="lp-tx-action-btn" disabled><i class="bi bi-pencil"></i></button>
+                        <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled><i class="bi bi-trash"></i></button>
+                      </NotAuthorized>
+                    </AuthorizeView>
+                  </td>
+                </tr>
+
+                @foreach (KeyResultEntity kr in obj.KeyResults)
+                {
+                  double pct = kr.Target != kr.Baseline
+                    ? Math.Clamp(Math.Round((double)(kr.Current - kr.Baseline) / (double)(kr.Target - kr.Baseline) * 100, 0), 0, 100)
+                    : 0;
+                  <tr>
+                    <td class="text-muted ps-3" style="font-size:.75rem">KR</td>
+                    <td class="ps-4 small">@kr.Title @(!string.IsNullOrEmpty(kr.MetricUnit) ? $"({kr.MetricUnit})" : "")</td>
+                    <td class="text-center small">@KeyResultValue(kr, kr.Baseline)</td>
+                    <td class="text-center small fw-semibold">@KeyResultValue(kr, kr.Current)</td>
+                    <td class="text-center small">@KeyResultValue(kr, kr.Target)</td>
+                    <td>
+                      <div class="progress" style="height:6px" title='@pct%'>
+                        <div class='progress-bar @ProgressBarColor(pct)' style='width:@pct%'></div>
+                      </div>
+                      <div class="text-center" style="font-size:.65rem">@pct%</div>
+                    </td>
+                    <td class="text-center">
+                      @{ RagStatus krRag = kr.Status; }
+                      <span class='badge @RagBadge(krRag)'>@RagLabel(krRag)</span>
+                    </td>
+                    <td class="text-muted small">@(kr.Deadline.HasValue ? kr.Deadline.Value.ToString("MM/yyyy") : "")</td>
+                    <td class="text-end">
+                      <AuthorizeView Context="okrKrAuth">
+                        <Authorized>
+                          <button class="lp-tx-action-btn" @onclick='() => EditKeyResult(kr)' title='@Loc["Edit KR"]'>
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick='() => ConfirmDeleteKeyResult(kr)' title='@Loc["Delete KR"]'>
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </Authorized>
+                        <NotAuthorized>
+                          <button class="lp-tx-action-btn" disabled><i class="bi bi-pencil"></i></button>
+                          <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled><i class="bi bi-trash"></i></button>
+                        </NotAuthorized>
+                      </AuthorizeView>
+                    </td>
+                  </tr>
+                  @if (!string.IsNullOrEmpty(kr.WeeklyNote))
+                  {
+                    <tr class="table-light">
+                      <td></td>
+                      <td colspan="8" class="ps-5 py-1 text-muted small fst-italic">
+                        <i class="bi bi-chat-left-text me-1"></i>@kr.WeeklyNote
+                      </td>
+                    </tr>
+                  }
+                }
+
+                @if (!obj.KeyResults.Any())
+                {
+                  <tr class="table-light">
+                    <td></td>
+                    <td colspan="8" class="ps-5 text-muted small fst-italic py-1">@Loc["No Key Results yet."]</td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @* ── Mobile card view (< md) ── *@
+        <div class="d-block d-md-none px-3 pt-2 pb-1">
+          @foreach (ObjectiveEntity obj in pillar.Objectives)
+          {
+            RagStatus objRag2 = obj.Status;
+            <div class="okr-mobile-obj mb-3">
+              <div class="d-flex align-items-start gap-2 mb-2">
+                <i class="bi bi-arrow-right-circle text-primary mt-1" style="font-size:.9rem;flex-shrink:0"></i>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold" style="font-size:.88rem;line-height:1.25">@obj.Title</div>
+                  @if (obj.Deadline.HasValue)
+                  {
+                    <div class="text-muted" style="font-size:.72rem">@obj.Deadline.Value.ToString("MM/yyyy")</div>
+                  }
+                </div>
+                <span class='badge @RagBadge(objRag2) flex-shrink-0'>@RagLabel(objRag2)</span>
+              </div>
+              <div class="d-flex gap-1 mb-2 ps-4">
+                <AuthorizeView Context="okrMobObjAuth">
+                  <Authorized>
+                    <button class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:.72rem" @onclick='() => AddKeyResult(obj.Id)'>
+                      <i class="bi bi-plus"></i> KR
+                    </button>
+                    <button class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:.72rem" @onclick='() => EditObjective(obj)'>
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size:.72rem" @onclick='() => ConfirmDeleteObjective(obj)'>
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </Authorized>
+                  <NotAuthorized>
+                    <button class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:.72rem" disabled><i class="bi bi-plus"></i></button>
+                    <button class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:.72rem" disabled><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size:.72rem" disabled><i class="bi bi-trash"></i></button>
+                  </NotAuthorized>
+                </AuthorizeView>
+              </div>
+
+              @if (obj.KeyResults.Any())
+              {
+                <div class="ps-3">
+                  @foreach (KeyResultEntity kr2 in obj.KeyResults)
+                  {
+                    double pct2 = kr2.Target != kr2.Baseline
+                      ? Math.Clamp(Math.Round((double)(kr2.Current - kr2.Baseline) / (double)(kr2.Target - kr2.Baseline) * 100, 0), 0, 100)
+                      : 0;
+                    RagStatus krRag2 = kr2.Status;
+                    <div class="okr-mobile-kr mb-2 p-2 rounded">
+                      <div class="d-flex align-items-start justify-content-between gap-1 mb-1">
+                        <div>
+                          <span class="badge bg-secondary me-1" style="font-size:.6rem">KR</span>
+                          <span style="font-size:.8rem;font-weight:500">@kr2.Title</span>
+                          @if (!string.IsNullOrEmpty(kr2.MetricUnit))
+                          {
+                            <span class="text-muted" style="font-size:.72rem"> (@kr2.MetricUnit)</span>
+                          }
+                        </div>
+                        <span class='badge @RagBadge(krRag2) flex-shrink-0' style="font-size:.6rem">@RagLabel(krRag2)</span>
+                      </div>
+                      <div class="progress mb-1" style="height:5px">
+                        <div class='progress-bar @ProgressBarColor(pct2)' style='width:@pct2%'></div>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted" style="font-size:.68rem">@KeyResultValue(kr2, kr2.Baseline) → @KeyResultValue(kr2, kr2.Current) → @KeyResultValue(kr2, kr2.Target)</span>
+                        <span style="font-size:.68rem;font-weight:600">@pct2%</span>
+                      </div>
+                      @if (!string.IsNullOrEmpty(kr2.WeeklyNote))
+                      {
+                        <div class="text-muted fst-italic mt-1" style="font-size:.68rem">
+                          <i class="bi bi-chat-left-text me-1"></i>@kr2.WeeklyNote
+                        </div>
+                      }
+                      @if (kr2.Deadline.HasValue)
+                      {
+                        <div class="text-muted mt-1" style="font-size:.65rem">
+                          <i class="bi bi-calendar me-1"></i>@kr2.Deadline.Value.ToString("MM/yyyy")
+                        </div>
+                      }
+                      <div class="d-flex gap-1 mt-1">
+                        <AuthorizeView Context="okrMobKrAuth">
+                          <Authorized>
+                            <button class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:.65rem" @onclick='() => EditKeyResult(kr2)'>
+                              <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size:.65rem" @onclick='() => ConfirmDeleteKeyResult(kr2)'>
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </Authorized>
+                          <NotAuthorized>
+                            <button class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:.65rem" disabled><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size:.65rem" disabled><i class="bi bi-trash"></i></button>
+                          </NotAuthorized>
+                        </AuthorizeView>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+              else
+              {
+                <div class="ps-4 text-muted fst-italic" style="font-size:.75rem">@Loc["No Key Results yet."]</div>
+              }
+            </div>
+            <hr class="my-2" />
+          }
+        </div>
+      }
+      else
+      {
+        <div class="card-body py-2 text-muted small">@Loc["No objectives yet. Click \"+ Objective\" to add one."]</div>
+      }
+    </div>
+  }
+}
+
+@* -- Pillar Modal -- *@
+@if (showPillarModal)
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-md modal-fullscreen-sm-down">
+      <div class="modal-content">
+        <div class="modal-header lp-modal-header">
+          <h5 class="modal-title text-white">@(editingPillar.Id == 0 ? Loc["New Pillar"] : Loc["Edit Pillar"])</h5>
+          <button type="button" class="btn-close btn-close-white" @onclick="ClosePillarModal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Name *"]</label>
+            <input class="form-control lp-modal-input" @bind="editingPillar.Name" placeholder='@Loc["e.g. Health, Finance..."]' />
+          </div>
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Description"]</label>
+            <textarea class="form-control lp-modal-input" rows="2" @bind="editingPillar.Description"></textarea>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Color"]</label>
+              <input type="color" class="form-control form-control-color" @bind="editingPillar.ColorHex" />
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Icon (Bootstrap Icons CSS)"]</label>
+              <input class="form-control lp-modal-input" @bind="editingPillar.IconCss" placeholder="bi bi-heart" />
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Order"]</label>
+              <input type="number" class="form-control lp-modal-input" @bind="editingPillar.SortOrder" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer lp-modal-footer">
+          <button class="lp-modal-btn-cancel" @onclick="ClosePillarModal">@Loc["Cancel"]</button>
+          <AuthorizeView>
+            <Authorized>
+              <button class="lp-modal-btn-save" @onclick="SavePillar" disabled="@isSaving">
+                @(isSaving ? Loc["Saving..."] : Loc["Save"])
+              </button>
+            </Authorized>
+            <NotAuthorized>
+              <button class="lp-modal-btn-cancel" disabled>
+                <i class="bi bi-lock me-1"></i>@Loc["Log in to save"]
+              </button>
+            </NotAuthorized>
+          </AuthorizeView>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@* -- Objective Modal -- *@
+@if (showObjectiveModal)
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-fullscreen-sm-down">
+      <div class="modal-content">
+        <div class="modal-header lp-modal-header">
+          <h5 class="modal-title text-white">@(editingObjective.Id == 0 ? Loc["New Objective"] : Loc["Edit Objective"])</h5>
+          <button type="button" class="btn-close btn-close-white" @onclick="CloseObjectiveModal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Title *"]</label>
+            <input class="form-control lp-modal-input" @bind="editingObjective.Title" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Description"]</label>
+            <textarea class="form-control lp-modal-input" rows="2" @bind="editingObjective.Description"></textarea>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Deadline"]</label>
+              <input type="date" class="form-control lp-modal-input"
+                     value='@(editingObjective.Deadline.HasValue ? editingObjective.Deadline.Value.ToString("yyyy-MM-dd") : "")'
+                     @onchange='e => editingObjective.Deadline = string.IsNullOrEmpty(e.Value?.ToString()) ? null : DateTime.Parse(e.Value!.ToString()!).ToUniversalTime()' />
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Status"]</label>
+              <select class="form-select lp-modal-input" @bind="editingObjective.Status">
+                <option value="@RagStatus.Green">@Loc["Green"]</option>
+                <option value="@RagStatus.Amber">@Loc["Amber"]</option>
+                <option value="@RagStatus.Red">@Loc["Red"]</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer lp-modal-footer">
+          <button class="lp-modal-btn-cancel" @onclick="CloseObjectiveModal">@Loc["Cancel"]</button>
+          <AuthorizeView>
+            <Authorized>
+              <button class="lp-modal-btn-save" @onclick="SaveObjective" disabled="@isSaving">
+                @(isSaving ? Loc["Saving..."] : Loc["Save"])
+              </button>
+            </Authorized>
+            <NotAuthorized>
+              <button class="lp-modal-btn-cancel" disabled>
+                <i class="bi bi-lock me-1"></i>@Loc["Log in to save"]
+              </button>
+            </NotAuthorized>
+          </AuthorizeView>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@* -- Key Result Modal -- *@
+@if (showKrModal)
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down">
+      <div class="modal-content">
+        <div class="modal-header lp-modal-header">
+          <h5 class="modal-title text-white">@(editingKr.Id == 0 ? Loc["New Key Result"] : Loc["Edit Key Result"])</h5>
+          <button type="button" class="btn-close btn-close-white" @onclick="CloseKrModal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Title *"]</label>
+            <input class="form-control lp-modal-input" @bind="editingKr.Title" />
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Metric (unit)"]</label>
+              <input class="form-control lp-modal-input" @bind="editingKr.MetricUnit" placeholder="kg, $, %, h/wk..." />
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Baseline"]</label>
+              <input type="number" step="0.01" class="form-control lp-modal-input" @bind="editingKr.Baseline" />
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Current"]</label>
+              <input type="number" step="0.01" class="form-control lp-modal-input" @bind="editingKr.Current" />
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Target"]</label>
+              <input type="number" step="0.01" class="form-control lp-modal-input" @bind="editingKr.Target" />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Weekly note"]</label>
+            <textarea class="form-control lp-modal-input" rows="2" @bind="editingKr.WeeklyNote" placeholder='@Loc["This week's progress..."]'></textarea>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Deadline"]</label>
+              <input type="date" class="form-control lp-modal-input"
+                     value='@(editingKr.Deadline.HasValue ? editingKr.Deadline.Value.ToString("yyyy-MM-dd") : "")'
+                     @onchange='e => editingKr.Deadline = string.IsNullOrEmpty(e.Value?.ToString()) ? null : DateTime.Parse(e.Value!.ToString()!).ToUniversalTime()' />
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Status"]</label>
+              <select class="form-select lp-modal-input" @bind="editingKr.Status">
+                <option value="@RagStatus.Green">@Loc["Green"]</option>
+                <option value="@RagStatus.Amber">@Loc["Amber"]</option>
+                <option value="@RagStatus.Red">@Loc["Red"]</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer lp-modal-footer">
+          <button class="lp-modal-btn-cancel" @onclick="CloseKrModal">@Loc["Cancel"]</button>
+          <AuthorizeView>
+            <Authorized>
+              <button class="lp-modal-btn-save" @onclick="SaveKeyResult" disabled="@isSaving">
+                @(isSaving ? Loc["Saving..."] : Loc["Save"])
+              </button>
+            </Authorized>
+            <NotAuthorized>
+              <button class="lp-modal-btn-cancel" disabled>
+                <i class="bi bi-lock me-1"></i>@Loc["Log in to save"]
+              </button>
+            </NotAuthorized>
+          </AuthorizeView>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@* -- Delete Confirm Modal -- *@
+@if (!string.IsNullOrEmpty(deleteMessage))
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4">
+          <i class="bi bi-exclamation-triangle text-danger" style="font-size:2rem"></i>
+          <p class="mt-2 mb-0">@deleteMessage</p>
+        </div>
+        <div class="modal-footer justify-content-center border-0 pt-0">
+          <button class="lp-modal-btn-cancel" @onclick='() => deleteMessage = ""'>@Loc["Cancel"]</button>
+          <button class="btn btn-danger btn-sm" @onclick="ExecuteDelete" disabled="@isSaving">@Loc["Delete"]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+</div>

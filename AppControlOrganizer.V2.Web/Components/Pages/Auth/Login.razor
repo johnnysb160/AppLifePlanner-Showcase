@@ -1,0 +1,252 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="Login.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/auth/login"
+@page "/auth/register"
+@page "/auth/forgot-password"
+@page "/auth/reset-password"
+@using AppControlOrganizer.V2.Web.Components.Shared
+@rendermode InteractiveServer
+
+<PageTitle>@pageTitle - Life Planner</PageTitle>
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-sm border-0" style="max-width: 460px; width: 100%;">
+        <div class="card-body p-4">
+
+            @* ── Header ── *@
+            <div class="text-center mb-4">
+                <i class="bi @headerIcon fs-1 text-primary"></i>
+                <h3 class="mt-2 mb-1">@pageTitle</h3>
+                <p class="text-muted small mb-0">@pageSubtitle</p>
+            </div>
+
+            @* ── Alerts ── *@
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> @errorMessage
+                    <button type="button" class="btn-close" @onclick="() => errorMessage = string.Empty"></button>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-1"></i> @successMessage
+                </div>
+            }
+
+            @* ══════════ LOGIN ══════════ *@
+            @if (currentMode == LoginMode.Login)
+            {
+                <EditForm Model="loginModel" OnValidSubmit="OnLoginAsync" FormName="LoginForm">
+                    <LocalizedDataAnnotationsValidator />
+
+                    <div class="mb-3">
+                        <label for="login-email" class="form-label fw-semibold">Email or Username</label>
+                        <InputText id="login-email" class="form-control" @bind-Value="loginModel.Email" placeholder="you@example.com" />
+                        <ValidationMessage For="() => loginModel.Email" class="text-danger small" />
+                        <div class="form-text small text-muted">You can use your email address or username.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="login-password" class="form-label fw-semibold">Password</label>
+                        <PasswordInput Id="login-password" @bind-Value="loginModel.Password" Placeholder="Your password" />
+                        <ValidationMessage For="() => loginModel.Password" class="text-danger small" />
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <InputCheckbox id="remember" class="form-check-input" @bind-Value="loginModel.RememberMe" />
+                        <label for="remember" class="form-check-label small">Remember me</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            <span>Signing in…</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-box-arrow-in-right me-1"></i>
+                            <span>Sign In</span>
+                        }
+                    </button>
+                </EditForm>
+
+                <div class="text-center mt-3 d-flex justify-content-between">
+                    <a href="/auth/forgot-password" class="text-decoration-none small">Forgot password?</a>
+                    @if (publicRegistrationAllowed)
+                    {
+                        <a href="/auth/register" class="text-decoration-none small">Create account</a>
+                    }
+                </div>
+
+                @if (showSetupLink)
+                {
+                    <div class="text-center mt-2">
+                        <a href="/setup" class="text-decoration-none small text-muted">
+                            <i class="bi bi-gear me-1"></i>First time? Create admin account
+                        </a>
+                    </div>
+                }
+            }
+
+            @* ══════════ REGISTER ══════════ *@
+            @if (currentMode == LoginMode.Register)
+            {
+                @if (!publicRegistrationAllowed)
+                {
+                    <div class="text-center">
+                        <i class="bi bi-shield-lock fs-1 text-secondary"></i>
+                        <p class="mt-2">@Loc["Public account creation is currently disabled."]</p>
+                    </div>
+                }
+                else if (string.IsNullOrEmpty(successMessage))
+                {
+                    <EditForm Model="registerModel" OnValidSubmit="OnRegisterAsync" FormName="RegisterForm">
+                        <LocalizedDataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label for="reg-username" class="form-label fw-semibold">Username</label>
+                            <InputText id="reg-username" class="form-control" @bind-Value="registerModel.Username" placeholder="yourname" />
+                            <ValidationMessage For="() => registerModel.Username" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="reg-email" class="form-label fw-semibold">Email</label>
+                            <InputText id="reg-email" class="form-control" @bind-Value="registerModel.Email" placeholder="you@example.com" />
+                            <ValidationMessage For="() => registerModel.Email" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="reg-password" class="form-label fw-semibold">Password</label>
+                            <PasswordInput Id="reg-password" @bind-Value="registerModel.Password" Placeholder="Min. 8 characters" />
+                            <ValidationMessage For="() => registerModel.Password" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="reg-confirm" class="form-label fw-semibold">Confirm Password</label>
+                            <PasswordInput Id="reg-confirm" @bind-Value="registerModel.ConfirmPassword" Placeholder="Repeat password" />
+                            <ValidationMessage For="() => registerModel.ConfirmPassword" class="text-danger small" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                <span>Creating account…</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-person-plus me-1"></i>
+                                <span>Create Account</span>
+                            }
+                        </button>
+                    </EditForm>
+                }
+                else
+                {
+                    <div class="text-center">
+                        <i class="bi bi-check-circle fs-1 text-success"></i>
+                        <p class="mt-2">@successMessage</p>
+                        <a href="/auth/login" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                        </a>
+                    </div>
+                }
+
+                <div class="text-center mt-3">
+                    <a href="/auth/login" class="text-decoration-none small">
+                        <i class="bi bi-arrow-left me-1"></i>Back to sign in
+                    </a>
+                </div>
+            }
+
+            @* ══════════ FORGOT PASSWORD ══════════ *@
+            @if (currentMode == LoginMode.ForgotPassword)
+            {
+                <EditForm Model="forgotModel" OnValidSubmit="OnForgotPasswordAsync" FormName="ForgotForm">
+                    <LocalizedDataAnnotationsValidator />
+
+                    <div class="mb-4">
+                        <label for="forgot-email" class="form-label fw-semibold">Email</label>
+                        <InputText id="forgot-email" class="form-control" @bind-Value="forgotModel.Email" placeholder="you@example.com" />
+                        <ValidationMessage For="() => forgotModel.Email" class="text-danger small" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            <span>Sending…</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-envelope me-1"></i>
+                            <span>Send Reset Link</span>
+                        }
+                    </button>
+                </EditForm>
+
+                <div class="text-center mt-3">
+                    <a href="/auth/login" class="text-decoration-none small">
+                        <i class="bi bi-arrow-left me-1"></i>Back to sign in
+                    </a>
+                </div>
+            }
+
+            @* ══════════ RESET PASSWORD ══════════ *@
+            @if (currentMode == LoginMode.ResetPassword)
+            {
+                @if (!resetCompleted)
+                {
+                    <EditForm Model="resetModel" OnValidSubmit="OnResetPasswordAsync" FormName="ResetForm">
+                        <LocalizedDataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label for="reset-password" class="form-label fw-semibold">New Password</label>
+                            <PasswordInput Id="reset-password" @bind-Value="resetModel.NewPassword" Placeholder="Min. 8 characters" />
+                            <ValidationMessage For="() => resetModel.NewPassword" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="reset-confirm" class="form-label fw-semibold">Confirm Password</label>
+                            <PasswordInput Id="reset-confirm" @bind-Value="resetModel.ConfirmPassword" Placeholder="Repeat password" />
+                            <ValidationMessage For="() => resetModel.ConfirmPassword" class="text-danger small" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                <span>Resetting…</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-key me-1"></i>
+                                <span>Reset Password</span>
+                            }
+                        </button>
+                    </EditForm>
+                }
+                else
+                {
+                    <div class="text-center">
+                        <i class="bi bi-check-circle fs-1 text-success"></i>
+                        <p class="mt-2">Your password has been reset successfully.</p>
+                        <a href="/auth/login" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                        </a>
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+</div>

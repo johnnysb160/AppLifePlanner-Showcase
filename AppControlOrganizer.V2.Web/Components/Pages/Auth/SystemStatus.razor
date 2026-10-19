@@ -1,0 +1,910 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="SystemStatus.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/account/system-status"
+@page "/demo/system-status"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+
+<PageTitle>@Loc["System status"] - Life Planner</PageTitle>
+
+<div class="d-flex justify-content-between align-items-start gap-3 mb-4 flex-wrap">
+  <div>
+    <h1 class="mb-1"><i class="bi bi-activity me-2"></i>@Loc["System status"]</h1>
+    <p class="text-muted mb-0">@(isDemoMode ? Loc["Demo operational snapshot. Values are simulated and no live integrations are queried."] : Loc["Read-only operational snapshot. Secrets are never displayed."])</p>
+  </div>
+</div>
+
+@if (isLoading)
+{
+  <div class="alert alert-info py-2 small mb-4">
+    <i class="bi @(isDemoMode ? "bi-display" : "bi-shield-lock") me-1"></i>@(isDemoMode ? Loc["Demo mode uses simulated monitoring data."] : Loc["Only admin users can access this page."])
+  </div>
+
+  <div class="row g-3 mb-4" aria-busy="true">
+    @for (int index = 0; index < 4; index++)
+    {
+      <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="placeholder-glow">
+              <span class="placeholder col-5 mb-2"></span>
+              <span class="placeholder col-9"></span>
+              <span class="placeholder col-7 mt-3"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="row g-3" aria-busy="true">
+    @for (int index = 0; index < 6; index++)
+    {
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-bottom-0 pt-3">
+            <span class="placeholder col-4"></span>
+          </div>
+          <div class="card-body pt-2">
+            <div class="placeholder-glow">
+              <span class="placeholder col-12 mb-2"></span>
+              <span class="placeholder col-10 mb-2"></span>
+              <span class="placeholder col-8"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+else if (snapshot is not null)
+{
+  <div class="alert alert-info py-2 small mb-4">
+    <i class="bi @(isDemoMode ? "bi-display" : "bi-shield-lock") me-1"></i>@(isDemoMode ? Loc["Demo mode uses simulated monitoring data."] : Loc["Only admin users can access this page."])
+  </div>
+
+  <ul class="nav nav-pills gap-2 mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="@TabButtonClass("operations")" type="button" role="tab" aria-selected="@(activeTab == "operations")" @onclick="@(() => SetActiveTab("operations"))">
+        <i class="bi bi-activity me-1"></i>@Loc["Operations"]
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="@TabButtonClass("observability")" type="button" role="tab" aria-selected="@(activeTab == "observability")" @onclick="@(() => SetActiveTab("observability"))">
+        <i class="bi bi-search-heart me-1"></i>@Loc["Logs and metrics"]
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="@TabButtonClass("case-study")" type="button" role="tab" aria-selected="@(activeTab == "case-study")" @onclick="@(() => SetActiveTab("case-study"))">
+        <i class="bi bi-diagram-3 me-1"></i>@Loc["Technical case study"]
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="@TabButtonClass("access-analytics")" type="button" role="tab" aria-selected="@(activeTab == "access-analytics")" @onclick="@(() => SetActiveTab("access-analytics"))">
+        <i class="bi bi-graph-up me-1"></i>@Loc["Access analytics"]
+      </button>
+    </li>
+  </ul>
+
+  @if (activeTab == "operations")
+  {
+    <div class="row g-3 mb-4">
+      @foreach (SystemStatusTile tile in snapshot.TopTiles)
+      {
+        <div class="col-md-6 col-xl-3">
+          <div class="card border-0 shadow-sm h-100" title="@tile.Tooltip">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between gap-2">
+                <div>
+                  <div class="text-muted small fw-semibold text-uppercase">@Loc[tile.Label]</div>
+                  <div class="fs-5 fw-semibold">@tile.Value</div>
+                </div>
+                <span class="@GetBadgeClass(tile.State)">@Loc[tile.StateLabel]</span>
+              </div>
+              @if (!string.IsNullOrWhiteSpace(tile.Detail))
+              {
+                <div class="text-muted small mt-2">@tile.Detail</div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="row g-3">
+      @foreach (SystemStatusGroup group in snapshot.Groups)
+      {
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi @group.IconCss me-1"></i>@Loc[group.Title]</h5>
+            </div>
+            <div class="card-body pt-2">
+              <div class="list-group list-group-flush">
+                @foreach (SystemStatusLine line in group.Lines)
+                {
+                  <div class="list-group-item px-0 d-flex align-items-start justify-content-between gap-3">
+                    <div title="@line.Tooltip">
+                      <div class="fw-semibold">@Loc[line.Label]</div>
+                      @if (!string.IsNullOrWhiteSpace(line.Detail))
+                      {
+                        <div class="text-muted small">@line.Detail</div>
+                      }
+                      @if (!string.IsNullOrWhiteSpace(line.Url) && !string.IsNullOrWhiteSpace(line.UrlLabel))
+                      {
+                        <a class="small" href="@line.Url" target="_blank" rel="noopener noreferrer">
+                          <i class="bi bi-box-arrow-up-right me-1"></i>@line.UrlLabel
+                        </a>
+                      }
+                    </div>
+                    <span class="@GetBadgeClass(line.State)" title="@line.Tooltip">@Loc[line.Value]</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+  else if (activeTab == "observability")
+  {
+    <section aria-label="@Loc["Logs and metrics"]">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
+            <div>
+              <div class="text-muted small fw-semibold text-uppercase">@Loc["Observability"]</div>
+              <h2 class="h3 mb-2">@Loc["Logs and metrics"]</h2>
+              <p class="text-muted mb-0">@snapshot.Observability.Detail</p>
+            </div>
+            <span class="@GetBadgeClass(snapshot.Observability.State)">@snapshot.Observability.SourceLabel</span>
+          </div>
+
+          <div class="row g-3">
+            @foreach (ObservabilityMetric metric in snapshot.Observability.Metrics)
+            {
+              <div class="col-md-6 col-xl-3">
+                <div class="border rounded-3 p-3 h-100" title="@metric.Detail">
+                  <div class="d-flex align-items-start justify-content-between gap-2">
+                    <div>
+                      <div class="text-muted small fw-semibold text-uppercase">@Loc[metric.Label]</div>
+                      <div class="fs-4 fw-semibold">@metric.Value</div>
+                    </div>
+                    <span class="@GetBadgeClass(metric.State)">@Loc[metric.State]</span>
+                  </div>
+                  <div class="text-muted small mt-2">@metric.Detail</div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-xl-5">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-speedometer2 me-1"></i>@Loc["Operation metrics"]</h5>
+            </div>
+            <div class="card-body pt-2">
+              @if (snapshot.Observability.Operations.Count == 0)
+              {
+                <div class="text-muted small">@Loc["No structured operation sample is available in this environment."]</div>
+              }
+              else
+              {
+                <div class="list-group list-group-flush">
+                  @foreach (OperationMetric operation in snapshot.Observability.Operations)
+                  {
+                    <div class="list-group-item px-0 d-flex align-items-start justify-content-between gap-3">
+                      <div>
+                        <div class="fw-semibold">@operation.Name</div>
+                        <div class="text-muted small">
+                          @operation.Count @Loc["event(s)"] · @operation.Failures @Loc["failure(s)"] · @Loc["avg"] @operation.AverageElapsed
+                        </div>
+                      </div>
+                      <span class="@GetBadgeClass(operation.State)">@Loc[operation.State]</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-7">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-list-check me-1"></i>@Loc["Recent events"]</h5>
+            </div>
+            <div class="card-body pt-2">
+              @if (snapshot.Observability.Events.Count == 0)
+              {
+                <div class="text-muted small">@Loc["No recent local events were found. In production, inspect Render console logs with the same correlation and operation fields."]</div>
+              }
+              else
+              {
+                <div class="list-group list-group-flush">
+                  @foreach (LogEventRow item in snapshot.Observability.Events)
+                  {
+                    <div class="list-group-item px-0">
+                      <div class="d-flex align-items-start justify-content-between gap-3">
+                        <div>
+                          <div class="fw-semibold">@item.Operation</div>
+                          <div class="text-muted small">@item.When · @item.Process · @item.Message</div>
+                        </div>
+                        <span class="@GetBadgeClass(item.State)">@item.Level</span>
+                      </div>
+                      <div class="d-flex gap-2 flex-wrap mt-2">
+                        <span class="badge text-bg-light border">@Loc["Status"]: @Loc[item.Status]</span>
+                        <span class="badge text-bg-light border">@Loc["Elapsed"]: @item.Elapsed ms</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+  else if (activeTab == "access-analytics")
+  {
+    <section aria-label="@Loc["Access analytics"]">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
+            <div>
+              <div class="text-muted small fw-semibold text-uppercase">@Loc["Access analytics"]</div>
+              <h2 class="h3 mb-2">@Loc["Access analytics"]</h2>
+              <p class="text-muted mb-0">@snapshot.AccessAnalytics.Detail</p>
+            </div>
+            <span class="@GetBadgeClass(snapshot.AccessAnalytics.State)">@Loc[snapshot.AccessAnalytics.State]</span>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Unique visitors"]</div>
+                <div class="fs-4 fw-semibold">@snapshot.AccessAnalytics.UniqueVisitors</div>
+                <div class="text-muted small mt-2">7d</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Sessions"]</div>
+                <div class="fs-4 fw-semibold">@snapshot.AccessAnalytics.Sessions</div>
+                <div class="text-muted small mt-2">7d</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Page views"]</div>
+                <div class="fs-4 fw-semibold">@snapshot.AccessAnalytics.PageViews</div>
+                <div class="text-muted small mt-2">7d</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Avg. session length"]</div>
+                <div class="fs-4 fw-semibold">@snapshot.AccessAnalytics.AvgSessionLength</div>
+                <div class="text-muted small mt-2">7d</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom-0 pt-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <h5 class="mb-0"><i class="bi bi-graph-up me-1"></i>@Loc["Access trend"]</h5>
+          <div class="btn-group" role="group">
+            <button type="button" class="@ChartRangeButtonClass("week")" @onclick="@(() => SetChartRange("week"))">@Loc["Week"]</button>
+            <button type="button" class="@ChartRangeButtonClass("month")" @onclick="@(() => SetChartRange("month"))">@Loc["Month"]</button>
+            <button type="button" class="@ChartRangeButtonClass("year")" @onclick="@(() => SetChartRange("year"))">@Loc["Year"]</button>
+          </div>
+        </div>
+        <div class="card-body pt-3">
+          @{
+            IReadOnlyList<AccessTrendPoint> trendWindow = GetTrendWindow();
+          }
+          @if (trendWindow.Count == 0)
+          {
+            <div class="text-muted small">@Loc["No access data has been recorded yet. Metrics appear once traffic reaches the live application."]</div>
+          }
+          else
+          {
+            <svg viewBox="0 0 640 160" preserveAspectRatio="none" class="w-100" style="height: 160px;" role="img" aria-label="@Loc["Access trend"]">
+              <polyline fill="none" stroke="#0d6efd" stroke-width="2" points="@BuildTrendPolylinePoints(trendWindow, 640, 160)" />
+              @if (trendWindow.Count == 1)
+              {
+                <circle cx="320" cy="80" r="5" fill="#0d6efd" />
+              }
+            </svg>
+            <div class="d-flex justify-content-between text-muted small mt-1">
+              <span>@trendWindow[0].Date.ToString(Loc.CompactDayMonthPattern)</span>
+              <span>@trendWindow[^1].Date.ToString(Loc.CompactDayMonthPattern)</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-file-earmark-text me-1"></i>@Loc["Top pages"]</h5>
+            </div>
+            <div class="card-body pt-2">
+              @if (snapshot.AccessAnalytics.TopPages.Count == 0)
+              {
+                <div class="text-muted small">@Loc["No access data has been recorded yet. Metrics appear once traffic reaches the live application."]</div>
+              }
+              else
+              {
+                <div class="list-group list-group-flush">
+                  @foreach (RankedItem item in snapshot.AccessAnalytics.TopPages)
+                  {
+                    <div class="list-group-item px-0 d-flex align-items-center justify-content-between gap-3">
+                      <span class="text-truncate">@item.Label</span>
+                      <span class="badge text-bg-light border">@item.Count</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-lightning-charge me-1"></i>@Loc["Top features"]</h5>
+            </div>
+            <div class="card-body pt-2">
+              @if (snapshot.AccessAnalytics.TopFeatures.Count == 0)
+              {
+                <div class="text-muted small">@Loc["No access data has been recorded yet. Metrics appear once traffic reaches the live application."]</div>
+              }
+              else
+              {
+                <div class="list-group list-group-flush">
+                  @foreach (RankedItem item in snapshot.AccessAnalytics.TopFeatures)
+                  {
+                    <div class="list-group-item px-0 d-flex align-items-center justify-content-between gap-3">
+                      <span class="text-truncate">@item.Label</span>
+                      <span class="badge text-bg-light border">@item.Count</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-phone me-1"></i>@Loc["Browser & device"]</h5>
+            </div>
+            <div class="card-body pt-2">
+              @if (snapshot.AccessAnalytics.Browsers.Count == 0 && snapshot.AccessAnalytics.DeviceTypes.Count == 0)
+              {
+                <div class="text-muted small">@Loc["No access data has been recorded yet. Metrics appear once traffic reaches the live application."]</div>
+              }
+              else
+              {
+                <div class="text-muted small fw-semibold text-uppercase mb-1">@Loc["Browsers"]</div>
+                <div class="list-group list-group-flush mb-3">
+                  @foreach (RankedItem item in snapshot.AccessAnalytics.Browsers)
+                  {
+                    <div class="list-group-item px-0 d-flex align-items-center justify-content-between gap-3">
+                      <span class="text-truncate">@item.Label</span>
+                      <span class="badge text-bg-light border">@item.Count</span>
+                    </div>
+                  }
+                </div>
+                <div class="text-muted small fw-semibold text-uppercase mb-1">@Loc["Device types"]</div>
+                <div class="list-group list-group-flush">
+                  @foreach (RankedItem item in snapshot.AccessAnalytics.DeviceTypes)
+                  {
+                    <div class="list-group-item px-0 d-flex align-items-center justify-content-between gap-3">
+                      <span class="text-truncate">@item.Label</span>
+                      <span class="badge text-bg-light border">@item.Count</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-globe-americas me-1"></i>@Loc["Countries"]</h5>
+            </div>
+            <div class="card-body pt-2">
+              @if (snapshot.AccessAnalytics.Countries.Count == 0)
+              {
+                <div class="text-muted small">@Loc["No access data has been recorded yet. Metrics appear once traffic reaches the live application."]</div>
+              }
+              else
+              {
+                <div class="list-group list-group-flush">
+                  @foreach (RankedItem item in snapshot.AccessAnalytics.Countries)
+                  {
+                    <div class="list-group-item px-0 d-flex align-items-center justify-content-between gap-3">
+                      <span class="text-truncate">@item.Label</span>
+                      <span class="badge text-bg-light border">@item.Count</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+  else
+  {
+    <section aria-label="@Loc["Technical case study"]">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
+            <div>
+              <div class="text-muted small fw-semibold text-uppercase">@Loc["Reference product"]</div>
+              <h2 class="h3 mb-2">@Loc["Production story"]</h2>
+              <p class="text-muted mb-0">@Loc["A compact product dossier showing how the system is built, operated, recovered and kept inside a lean architecture."]</p>
+            </div>
+            <span class="badge rounded-pill text-bg-success">@Loc["Active"]</span>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Runtime"]</div>
+                <div class="fs-5 fw-semibold">@Loc["Blazor Web"]</div>
+                <div class="text-muted small">@Loc["One Docker Web service owns UI, APIs, hosted services and widgets."]</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Database"]</div>
+                <div class="fs-5 fw-semibold">PostgreSQL</div>
+                <div class="text-muted small">@Loc["Primary PostgreSQL plus standby recovery target."]</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Governance"]</div>
+                <div class="fs-5 fw-semibold">CI/CD</div>
+                <div class="text-muted small">@Loc["Build, Docker, policy and documentation freshness are checked together."]</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Cost posture"]</div>
+                <div class="fs-5 fw-semibold">@Loc["Controlled footprint"]</div>
+                <div class="text-muted small">@Loc["No Azure dependency; observability and providers stay optional."]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom-0 pt-3">
+          <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+            <div>
+              <h5 class="mb-1"><i class="bi bi-boxes me-1"></i>@Loc["Complete product architecture"]</h5>
+              <div class="text-muted small">@Loc["End-to-end view from clients to hosting, domain services, data, integrations, jobs, governance and recovery."]</div>
+            </div>
+            <span class="badge rounded-pill text-bg-primary">@Loc["Web + mobile"]</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="border rounded-3 p-3 p-lg-4 mb-3 overflow-auto">
+            <div class="d-flex align-items-stretch gap-3" style="min-width: 1180px;" role="img" aria-label="@Loc["Full AppLifePlanner architecture blueprint"]">
+              <div class="d-flex flex-column gap-3" style="width: 220px;">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Clients"]</div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">WEB</span>
+                  <div class="fw-semibold fs-5">@Loc["Web product"]</div>
+                  <div class="text-muted small">@Loc["Today, finance, planning and admin."]</div>
+                </div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">DEMO</span>
+                  <div class="fw-semibold fs-5">@Loc["Demo visitor"]</div>
+                  <div class="text-muted small">@Loc["Read-only showcase tenant."]</div>
+                </div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">WID</span>
+                  <div class="fw-semibold fs-5">@Loc["Widget clients"]</div>
+                  <div class="text-muted small">@Loc["Windows overlay and iOS Scriptable."]</div>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center text-primary fs-3 px-1">
+                <i class="bi bi-arrow-right"></i>
+              </div>
+
+              <div class="d-flex flex-column gap-3 justify-content-center" style="width: 190px;">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Access"]</div>
+                <div class="border rounded-3 p-3 bg-white">
+                  <span class="badge rounded-pill text-bg-primary mb-2">AUTH</span>
+                  <div class="fw-semibold fs-5">@Loc["Access boundary"]</div>
+                  <div class="text-muted small">@Loc["Cookies, JWT, roles and rate limits."]</div>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center text-primary fs-3 px-1">
+                <i class="bi bi-arrow-right"></i>
+              </div>
+
+              <div class="d-flex flex-column gap-3" style="width: 240px;">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Application host"]</div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">WEB</span>
+                  <div class="fw-semibold fs-5">@Loc["Render Docker Web"]</div>
+                  <div class="text-muted small">@Loc["One Web service hosts the product surface."]</div>
+                </div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">API</span>
+                  <div class="fw-semibold fs-5">@Loc["Blazor + APIs"]</div>
+                  <div class="text-muted small">@Loc["Interactive UI and Minimal APIs."]</div>
+                </div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">JOB</span>
+                  <div class="fw-semibold fs-5">@Loc["Hosted jobs"]</div>
+                  <div class="text-muted small">@Loc["Quotes, IMAP, demo, health and planning."]</div>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center text-primary fs-3 px-1">
+                <i class="bi bi-arrow-right"></i>
+              </div>
+
+              <div class="d-flex flex-column gap-3" style="width: 230px;">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Data and recovery"]</div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">DB</span>
+                  <div class="fw-semibold fs-5">@Loc["Supabase primary"]</div>
+                  <div class="text-muted small">@Loc["PostgreSQL source of truth."]</div>
+                </div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">DR</span>
+                  <div class="fw-semibold fs-5">@Loc["Neon standby"]</div>
+                  <div class="text-muted small">@Loc["Manual recovery target."]</div>
+                </div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">REL</span>
+                  <div class="fw-semibold fs-5">@Loc["GitHub Releases"]</div>
+                  <div class="text-muted small">@Loc["Encrypted database dumps."]</div>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center text-primary fs-3 px-1">
+                <i class="bi bi-arrow-right"></i>
+              </div>
+
+              <div class="d-flex flex-column gap-3" style="width: 230px;">
+                <div class="text-muted small fw-semibold text-uppercase">@Loc["Operations"]</div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">CI</span>
+                  <div class="fw-semibold fs-5">@Loc["GitHub Actions"]</div>
+                  <div class="text-muted small">@Loc["Build, tests, Docker and guards."]</div>
+                </div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">OPS</span>
+                  <div class="fw-semibold fs-5">@Loc["Status page"]</div>
+                  <div class="text-muted small">@Loc["Live checks and last failures."]</div>
+                </div>
+                <div class="border rounded-3 p-3 bg-white h-100">
+                  <span class="badge rounded-pill text-bg-primary mb-2">EXT</span>
+                  <div class="fw-semibold fs-5">@Loc["Providers"]</div>
+                  <div class="text-muted small">@Loc["Quotes, IMAP, SMTP and AI."]</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap mt-3">
+              <span class="badge text-bg-light border">@Loc["EF Core owner-scoped writes"]</span>
+              <span class="badge text-bg-light border">@Loc["Backup sync and restore evidence"]</span>
+            </div>
+          </div>
+
+          <div class="row g-3 align-items-stretch text-center mb-3">
+            <div class="col-md-6 col-xl">
+              <div class="border rounded-3 p-3 h-100">
+                <i class="bi bi-phone fs-3 text-primary"></i>
+                <div class="fw-semibold mt-2">@Loc["Client surfaces"]</div>
+                <div class="small text-muted">@Loc["Responsive Web, demo visitor, Windows widget and iOS Scriptable widgets."]</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl">
+              <div class="border rounded-3 p-3 h-100">
+                <i class="bi bi-shield-lock fs-3 text-primary"></i>
+                <div class="fw-semibold mt-2">@Loc["Access boundary"]</div>
+                <div class="small text-muted">@Loc["Identity cookies, JWT APIs, admin-only status, rate limits and localization."]</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl">
+              <div class="border rounded-3 p-3 h-100">
+                <i class="bi bi-hdd-network fs-3 text-primary"></i>
+                <div class="fw-semibold mt-2">@Loc["Docker Web service"]</div>
+                <div class="small text-muted">@Loc["Blazor UI, Minimal APIs, Swagger, DI scopes and hosted services run together."]</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl">
+              <div class="border rounded-3 p-3 h-100">
+                <i class="bi bi-diagram-2 fs-3 text-primary"></i>
+                <div class="fw-semibold mt-2">@Loc["Domain capabilities"]</div>
+                <div class="small text-muted">@Loc["Finance, planning, routine, vehicles, imports, quotes, widgets and actions."]</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl">
+              <div class="border rounded-3 p-3 h-100">
+                <i class="bi bi-database-gear fs-3 text-primary"></i>
+                <div class="fw-semibold mt-2">@Loc["Data foundation"]</div>
+                <div class="small text-muted">@Loc["EF Core, PostgreSQL, tenant filters, encryption converters and migrations."]</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center gap-2 text-muted small flex-wrap mb-4">
+            <span><i class="bi bi-arrow-right me-1"></i>HTTPS</span>
+            <span><i class="bi bi-arrow-right me-1"></i>@Loc["Auth and rate limit"]</span>
+            <span><i class="bi bi-arrow-right me-1"></i>@Loc["Server circuit or API"]</span>
+            <span><i class="bi bi-arrow-right me-1"></i>@Loc["Scoped service"]</span>
+            <span><i class="bi bi-arrow-right me-1"></i>@Loc["PostgreSQL transaction"]</span>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="fw-semibold"><i class="bi bi-github me-1"></i>@Loc["Delivery and governance"]</div>
+                <div class="text-muted small mt-2">@Loc["GitHub Actions validates restore, build, tests, Docker image, changed files and Context Bank freshness."]</div>
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                  <span class="badge text-bg-light border">CI</span>
+                  <span class="badge text-bg-light border">Docker</span>
+                  <span class="badge text-bg-light border">Context Bank</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="fw-semibold"><i class="bi bi-plug me-1"></i>@Loc["External systems"]</div>
+                <div class="text-muted small mt-2">@Loc["Render hosts Web; Supabase is primary; Neon is standby; GitHub Releases hold encrypted backups; IMAP, SMTP, AI and quote providers are optional."]</div>
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                  <span class="badge text-bg-light border">Render</span>
+                  <span class="badge text-bg-light border">Supabase</span>
+                  <span class="badge text-bg-light border">Neon</span>
+                  <span class="badge text-bg-light border">GitHub</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="fw-semibold"><i class="bi bi-arrow-repeat me-1"></i>@Loc["Jobs and processes"]</div>
+                <div class="text-muted small mt-2">@Loc["Quote updater, IMAP sync, planning action generator, demo refresh, database health probe and logo backfill run inside the Web host."]</div>
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                  <span class="badge text-bg-light border">@Loc["Quotes"]</span>
+                  <span class="badge text-bg-light border">IMAP</span>
+                  <span class="badge text-bg-light border">@Loc["Planning"]</span>
+                  <span class="badge text-bg-light border">@Loc["Health"]</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="fw-semibold"><i class="bi bi-life-preserver me-1"></i>@Loc["Recovery and observability"]</div>
+                <div class="text-muted small mt-2">@Loc["System Status exposes live checks; encrypted dump releases and Neon standby keep the manual recovery route visible."]</div>
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                  <span class="badge text-bg-light border">@Loc["Status"]</span>
+                  <span class="badge text-bg-light border">@Loc["Backup"]</span>
+                  <span class="badge text-bg-light border">@Loc["Restore"]</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-lg-4">
+              <div class="border-start border-4 border-primary ps-3 h-100">
+                <div class="fw-semibold">@Loc["Mobile path"]</div>
+                <div class="text-muted small">@Loc["Widgets use paired tokens and server APIs; iOS Scriptable remains the immediate install path while native WidgetKit is a future signed-app path."]</div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="border-start border-4 border-success ps-3 h-100">
+                <div class="fw-semibold">@Loc["Web product path"]</div>
+                <div class="text-muted small">@Loc["Authenticated users use the same Blazor service for Today, finance, routine, planning, transactions, allocations and admin status."]</div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="border-start border-4 border-warning ps-3 h-100">
+                <div class="fw-semibold">@Loc["Operational path"]</div>
+                <div class="text-muted small">@Loc["Background jobs refresh quotes, sync email, generate planning actions, seed demo data and publish health signals to the status page."]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-xl-8">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-diagram-3 me-1"></i>@Loc["Architecture map"]</h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3 align-items-stretch text-center">
+                <div class="col-md-3">
+                  <div class="border rounded-3 p-3 h-100">
+                    <i class="bi bi-people fs-3 text-primary"></i>
+                    <div class="fw-semibold mt-2">@Loc["Users and demo"]</div>
+                    <div class="small text-muted">@Loc["Admin, authenticated profile and read-only demo visitor."]</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="border rounded-3 p-3 h-100">
+                    <i class="bi bi-window-sidebar fs-3 text-primary"></i>
+                    <div class="fw-semibold mt-2">@Loc["Blazor Web"]</div>
+                    <div class="small text-muted">@Loc["Interactive UI, Minimal APIs, Identity and rate limits."]</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="border rounded-3 p-3 h-100">
+                    <i class="bi bi-cpu fs-3 text-primary"></i>
+                    <div class="fw-semibold mt-2">@Loc["Domain services"]</div>
+                    <div class="small text-muted">@Loc["Finance facts, planning actions, quotes, IMAP and widgets."]</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="border rounded-3 p-3 h-100">
+                    <i class="bi bi-database-check fs-3 text-primary"></i>
+                    <div class="fw-semibold mt-2">@Loc["PostgreSQL core"]</div>
+                    <div class="small text-muted">@Loc["Owner-scoped data, encrypted fields and EF migrations."]</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center gap-2 my-3 text-muted small flex-wrap">
+                <span><i class="bi bi-arrow-right me-1"></i>@Loc["Request"]</span>
+                <span><i class="bi bi-arrow-right me-1"></i>@Loc["Decision"]</span>
+                <span><i class="bi bi-arrow-right me-1"></i>@Loc["Persistence"]</span>
+                <span><i class="bi bi-arrow-repeat me-1"></i>@Loc["Operation"]</span>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="border-start border-4 border-success ps-3">
+                    <div class="fw-semibold">@Loc["Recovery path"]</div>
+                    <div class="text-muted small">@Loc["Supabase primary is backed up into encrypted GitHub Releases and synchronized into Neon as standby target."]</div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="border-start border-4 border-info ps-3">
+                    <div class="fw-semibold">@Loc["Showcase path"]</div>
+                    <div class="text-muted small">@Loc["The demo route presents realistic operations without querying live secrets or external systems."]</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-bar-chart-line me-1"></i>@Loc["Engineering maturity"]</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small fw-semibold"><span>@Loc["Data ownership"]</span><span>95%</span></div>
+                <div class="progress" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100" style="height: 8px;"><div class="progress-bar bg-success" style="width: 95%"></div></div>
+              </div>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small fw-semibold"><span>@Loc["Cost control"]</span><span>90%</span></div>
+                <div class="progress" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100" style="height: 8px;"><div class="progress-bar bg-success" style="width: 90%"></div></div>
+              </div>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small fw-semibold"><span>@Loc["Operational visibility"]</span><span>82%</span></div>
+                <div class="progress" role="progressbar" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100" style="height: 8px;"><div class="progress-bar bg-info" style="width: 82%"></div></div>
+              </div>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small fw-semibold"><span>@Loc["Recovery readiness"]</span><span>78%</span></div>
+                <div class="progress" role="progressbar" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100" style="height: 8px;"><div class="progress-bar bg-warning" style="width: 78%"></div></div>
+              </div>
+              <div>
+                <div class="d-flex justify-content-between small fw-semibold"><span>@Loc["Automated tests"]</span><span>35%</span></div>
+                <div class="progress" role="progressbar" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100" style="height: 8px;"><div class="progress-bar bg-danger" style="width: 35%"></div></div>
+              </div>
+              <div class="text-muted small mt-3">@Loc["The next visible gap is focused automated coverage, not another hosting service."]</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-shield-check me-1"></i>@Loc["Security model"]</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <div class="fw-semibold">@Loc["Tenant boundary"]</div>
+                <div class="text-muted small">@Loc["Owner filters and demo write guards protect real user data."]</div>
+              </div>
+              <div class="mb-3">
+                <div class="fw-semibold">@Loc["Secrets"]</div>
+                <div class="text-muted small">@Loc["Connection strings, encryption keys and provider tokens stay outside tracked files."]</div>
+              </div>
+              <div>
+                <div class="fw-semibold">@Loc["Admin surface"]</div>
+                <div class="text-muted small">@Loc["Live operations are admin-only; demo uses simulated operational data."]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-arrow-repeat me-1"></i>@Loc["Operating loop"]</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <span class="badge rounded-pill text-bg-primary me-2">@Loc["Build"]</span>
+                <span class="text-muted small">@Loc["GitHub Actions validates solution build, tests, Docker image and policy guards."]</span>
+              </div>
+              <div class="mb-3">
+                <span class="badge rounded-pill text-bg-success me-2">@Loc["Run"]</span>
+                <span class="text-muted small">@Loc["Render hosts the Web service; hosted services process quotes, IMAP and planning actions."]</span>
+              </div>
+              <div>
+                <span class="badge rounded-pill text-bg-warning me-2">@Loc["Recover"]</span>
+                <span class="text-muted small">@Loc["Encrypted backup releases and Neon standby keep a manual recovery route visible."]</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+              <h5 class="mb-0"><i class="bi bi-stars me-1"></i>@Loc["Career signal"]</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <div class="fw-semibold">@Loc["End-to-end ownership"]</div>
+                <div class="text-muted small">@Loc["The system shows product, architecture, data, delivery and operations in one coherent portfolio artifact."]</div>
+              </div>
+              <div class="mb-3">
+                <div class="fw-semibold">@Loc["Real constraints"]</div>
+                <div class="text-muted small">@Loc["The design favors lean services, optional integrations and explicit recovery choices."]</div>
+              </div>
+              <div>
+                <div class="fw-semibold">@Loc["Next proof"]</div>
+                <div class="text-muted small">@Loc["Focused tests and restore drills are the highest-value next evidence."]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+}

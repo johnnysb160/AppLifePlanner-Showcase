@@ -1,0 +1,154 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="ProjectionDetailsPopover.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@using System.Globalization
+@using AppControlOrganizer.V2.Web.Services.Financial
+@using AppControlOrganizer.V2.Web.Services.UI
+@implements IDisposable
+@inject ValuesVisibilityService ValuesVis
+
+<FinancialDetailsPopover
+  AriaLabel="@Loc["Projection details"]"
+  Header="@Loc["Projection details"]"
+  HeaderValue="@FormatAmount(Facts.PlannedYearEndNetWorth)"
+  Rows="@BuildRows()" />
+
+@code {
+  /// <summary>Gets or sets the projection facts to explain.</summary>
+  [Parameter]
+  public FinancialFacts Facts { get; set; } = new FinancialFacts();
+
+  private decimal CurrentAssetAppreciation => this.Facts.AllocationCurrentValue - this.Facts.AllocationAppliedValue;
+
+  /// <inheritdoc />
+  public void Dispose()
+  {
+    ValuesVis.OnChange -= this.OnValuesVisibilityChanged;
+  }
+
+  /// <inheritdoc />
+  protected override void OnInitialized()
+  {
+    ValuesVis.OnChange += this.OnValuesVisibilityChanged;
+  }
+
+  private void OnValuesVisibilityChanged()
+  {
+    _ = this.InvokeAsync(this.StateHasChanged);
+  }
+
+  private string FormatAmount(decimal amount)
+  {
+    return ValuesVis.Mask(Helper.FormatBrl(amount));
+  }
+
+  private string FormatSignedAmount(decimal amount)
+  {
+    if (amount < 0m)
+    {
+      return $"-{this.FormatAmount(Math.Abs(amount))}";
+    }
+
+    return this.FormatAmount(amount);
+  }
+
+  private string GetAmountTone(decimal amount)
+  {
+    if (amount < 0m)
+    {
+      return "negative";
+    }
+
+    return amount > 0m ? "positive" : "neutral";
+  }
+
+  private string GetContributionSourceLabel()
+  {
+    if (this.Facts.YearToDateContributionMonths > 0)
+    {
+      return Loc["real contribution run-rate"];
+    }
+
+    return Loc["income and spending capacity"];
+  }
+
+  private string GetObservedMonthsLabel()
+  {
+    if (this.Facts.YearToDateContributionMonths == 1)
+    {
+      return Loc["1 observed month"];
+    }
+
+    return string.Format(
+      CultureInfo.CurrentCulture,
+      Loc["{0} observed months"],
+      this.Facts.YearToDateContributionMonths);
+  }
+
+  private IReadOnlyList<FinancialDetailsPopoverRow> BuildRows()
+  {
+    return
+    [
+      new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-wallet2",
+        Title = Loc["Current net worth"],
+        Detail = Loc["starting point"],
+        Amount = this.FormatAmount(this.Facts.NetWorth),
+      },
+      new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-piggy-bank",
+        Title = Loc["Effective monthly contribution"],
+        Detail = this.GetContributionSourceLabel(),
+        Amount = this.FormatAmount(this.Facts.EffectivePlannedContribution),
+        Tone = "positive",
+      },
+      new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-calendar2-check",
+        Title = Loc["Year-to-date contributions"],
+        Detail = this.GetObservedMonthsLabel(),
+        Amount = this.FormatSignedAmount(this.Facts.YearToDateContributions),
+        Tone = "positive",
+      },
+      new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-arrow-repeat",
+        Title = Loc["Projected remaining contributions"],
+        Detail = Loc["until year-end"],
+        Amount = this.FormatSignedAmount(this.Facts.ProjectedRemainingContributions),
+        Tone = "positive",
+      },
+      new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-graph-up",
+        Title = Loc["Current asset appreciation"],
+        Detail = Loc["current value minus applied value"],
+        Amount = this.FormatSignedAmount(this.CurrentAssetAppreciation),
+        Tone = this.GetAmountTone(this.CurrentAssetAppreciation),
+      },
+      new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-activity",
+        Title = Loc["Projected remaining asset appreciation"],
+        Detail = Loc["same year-to-date rhythm"],
+        Amount = this.FormatSignedAmount(this.Facts.ProjectedRemainingAssetAppreciation),
+        Tone = this.GetAmountTone(this.Facts.ProjectedRemainingAssetAppreciation),
+      },
+      new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-calendar-plus",
+        Title = Loc["Planned one-off flows"],
+        Detail = Loc["already included in the plan"],
+        Amount = this.FormatSignedAmount(this.Facts.ProjectedOneOffFlows),
+        Tone = this.GetAmountTone(this.Facts.ProjectedOneOffFlows),
+      },
+    ];
+  }
+}

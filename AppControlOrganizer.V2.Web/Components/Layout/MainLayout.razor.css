@@ -1,0 +1,179 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="MainLayout.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+/* ── Navbar avatar circle ─────────────────────────────────────────── */
+.navbar-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    user-select: none;
+}
+
+    .navbar-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* Slightly larger avatar used in the dropdown header */
+.navbar-avatar-header {
+    width: 38px;
+    height: 38px;
+    font-size: 0.85rem;
+}
+
+.dropdown-header {
+    white-space: normal;
+}
+
+/* Mobile navbar avatar — slightly larger, prominent border */
+.navbar-avatar-mobile {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8rem;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
+
+/* ── Mobile header ────────────────────────────────────────────────── */
+.mobile-header {
+    /* Grows to accommodate iOS notch/Dynamic Island in PWA standalone mode.
+    env(safe-area-inset-top) = 0 in browser, ~44-54px in iOS PWA — no side effects. */
+    height: calc(64px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    background: var(--lp-bg-dark);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mobile-header-logo {
+    display: flex;
+    align-items: center;
+    line-height: 0;
+}
+
+/* Greeting block — name + time-based salutation */
+.mobile-header-greet {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.2;
+}
+
+.mobile-header-greeting {
+    font-size: 0.62rem;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+}
+
+.mobile-header-name {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.88);
+    font-weight: 600;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Bottom nav + mobile-main-content padding live in app.css (global) to avoid Blazor CSS-isolation
+  scoping issues — NavLink is a child component whose rendered <a> does not
+  receive the [b-xxxx] attribute injected by the scoped stylesheet. */
+
+/* ── Mobile "More" offcanvas ──────────────────────────────────────── */
+.mobile-more-offcanvas {
+    height: auto;
+    max-height: 70vh;
+    border-radius: 20px 20px 0 0;
+    background: #fff;
+}
+
+    .mobile-more-offcanvas .offcanvas-header {
+        padding: 18px 20px 12px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    }
+
+    .mobile-more-offcanvas .offcanvas-title {
+        font-size: 1rem;
+        color: #111827;
+    }
+
+    .mobile-more-offcanvas .offcanvas-body {
+        padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+        overflow-y: auto;
+    }
+
+/* ── More items grid (3 columns) ──────────────────────────────────── */
+.mobile-more-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.mobile-more-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 8px 12px;
+    border-radius: 14px;
+    background: #f3f4f6;
+    color: #1f2937;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+}
+
+    .mobile-more-item:hover,
+    .mobile-more-item:focus-visible {
+        background: #e5e7eb;
+        color: #0d6efd;
+    }
+
+    .mobile-more-item.active {
+        background: rgba(59, 130, 246, 0.1);
+        color: #2563eb;
+    }
+
+.mobile-more-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.mobile-more-item.active .mobile-more-icon {
+    background: linear-gradient(135deg, #1e40af, #6d28d9);
+}
+
+/* ── Desktop navbar: override Bootstrap bg-dark with the design token gradient ── */
+nav.navbar {
+    background: linear-gradient(135deg, var(--lp-bg-dark) 0%, var(--lp-bg-dark-2) 100%) !important;
+}

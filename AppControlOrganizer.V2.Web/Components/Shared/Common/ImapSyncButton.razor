@@ -1,0 +1,26 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="ImapSyncButton.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@if (hasImapMappings)
+{
+  <button type="button"
+          class="lp-btn-ghost"
+          disabled="@running"
+          @onclick="OnClickAsync"
+          title='@Loc["Sync"]'>
+    @if (running)
+    {
+      <span class="spinner-border spinner-border-sm" role="status"></span>
+    }
+    else
+    {
+      <i class="bi bi-arrow-repeat"></i>
+    }
+    <span class="@LabelCssClass">@Loc["Sync"]</span>
+  </button>
+}

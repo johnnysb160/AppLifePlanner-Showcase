@@ -1,0 +1,158 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="TransactionUpsertModal.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+/* ── Modal header ────────────────────────────────────────────────────── */
+.lp-modal-header {
+  background: linear-gradient(135deg, var(--lp-bg-dark) 0%, var(--lp-bg-dark-2) 100%);
+  border-bottom: none;
+  padding: 1.1rem 1.25rem;
+}
+
+/* ── Modal footer ────────────────────────────────────────────────────── */
+.lp-modal-footer {
+  border-top: 1px solid var(--lp-border);
+  padding: 0.85rem 1.25rem;
+  gap: 0.5rem;
+}
+
+/* ── Form label inside modal ─────────────────────────────────────────── */
+.lp-modal-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--lp-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+
+.lp-modal-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+  .lp-modal-label-row .lp-modal-label {
+    margin-bottom: 0;
+  }
+
+.lp-modal-context-link,
+.lp-modal-inline-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: none;
+  background: transparent;
+  color: var(--lp-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+  .lp-modal-context-link:hover,
+  .lp-modal-inline-action:hover {
+    color: var(--lp-accent-hover);
+  }
+
+.lp-modal-source-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-surface-muted);
+  color: var(--lp-text-secondary);
+  font-size: 0.8rem;
+}
+
+  .lp-modal-source-row span,
+  .lp-modal-source-row strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .lp-modal-source-row strong {
+    color: var(--lp-text-primary);
+  }
+
+  .lp-modal-source-row .lp-modal-inline-action {
+    margin-left: auto;
+  }
+
+/* ── Inputs — direct elements and Blazor-rendered wrappers ───────────── */
+.lp-modal-input,
+::deep .lp-modal-input {
+  border-radius: var(--lp-radius-sm);
+  border: 1px solid var(--lp-border);
+  font-size: 0.9rem;
+  color: var(--lp-text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+  .lp-modal-input:focus,
+  ::deep .lp-modal-input:focus {
+    border-color: var(--lp-accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    outline: none;
+  }
+
+/* ── Footer buttons ──────────────────────────────────────────────────── */
+.lp-modal-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-surface);
+  color: var(--lp-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+  .lp-modal-btn-cancel:hover:not(:disabled) {
+    background: var(--lp-surface-muted);
+    color: var(--lp-text-primary);
+  }
+
+  .lp-modal-btn-cancel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+.lp-modal-btn-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.4rem;
+  border: none;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+  .lp-modal-btn-save:hover:not(:disabled) {
+    background: var(--lp-accent-hover);
+  }
+
+  .lp-modal-btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }

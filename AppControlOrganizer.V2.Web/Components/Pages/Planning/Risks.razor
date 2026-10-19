@@ -1,0 +1,302 @@
+@*
+// <copyright file="Risks.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+*@
+
+@page "/planning/risks"
+@rendermode InteractiveServer
+@using AppControlOrganizer.V2.Shared.Entities
+@using AppControlOrganizer.V2.Shared.Enums
+@using AppControlOrganizer.V2.Web.Services.Planning
+
+<PageTitle>@Loc["Risks"] - Life Planner</PageTitle>
+
+<div class="lp-page-content">
+<div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2 mb-3">
+  <div>
+    <div class="lp-page-title"><i class="bi bi-shield-exclamation me-2"></i>@Loc["Pre-mortem / Risks"]</div>
+  </div>
+  <div class="lp-action-bar">
+    <AuthorizeView>
+      <Authorized>
+        <button class="lp-btn-primary" @onclick="AddRisk">
+          <i class="bi bi-plus-lg me-1"></i>@Loc["New Risk"]
+        </button>
+      </Authorized>
+      <NotAuthorized>
+        <button class="lp-btn-ghost" disabled title='@Loc["Log in to create"]'>
+          <i class="bi bi-lock me-1"></i>@Loc["Log in to create"]
+        </button>
+      </NotAuthorized>
+    </AuthorizeView>
+  </div>
+</div>
+
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+  <div class="alert alert-warning">@statusMessage</div>
+}
+
+@if (isLoading)
+{
+  <div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>
+}
+else if (!risks.Any())
+{
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>@Loc["No risks mapped. Click \"New Risk\" to start the pre-mortem."]
+  </div>
+}
+else
+{
+  @* ── Desktop table (sm+) ── *@
+  <div class="table-responsive d-none d-sm-block">
+    <table class="table table-sm table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>@Loc["Risk"]</th>
+          <th style="width:90px" class="text-center">@Loc["Prob."]</th>
+          <th style="width:90px" class="text-center">@Loc["Impact"]</th>
+          <th style="width:80px" class="text-center">@Loc["Status"]</th>
+          <th style="width:120px">@Loc["Pillar"]</th>
+          <th style="width:80px"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (RiskEntity risk in risks)
+        {
+          <tr>
+            <td>
+              <div class="fw-semibold">@risk.Title</div>
+              @if (!string.IsNullOrEmpty(risk.Description))
+              {
+                <div class="text-muted small">@risk.Description</div>
+              }
+              @if (!string.IsNullOrEmpty(risk.EarlyWarning))
+              {
+                <div class="small"><span class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i></span>@risk.EarlyWarning</div>
+              }
+            </td>
+            <td class="text-center">
+              <span class='badge @ProbabilityBadge(risk.Probability)'>@ProbabilityLabel(risk.Probability)</span>
+            </td>
+            <td class="text-center">
+              <span class='badge @ImpactBadge(risk.Impact)'>@ImpactLabel(risk.Impact)</span>
+            </td>
+            <td class="text-center">
+              <span class='badge @RagBadge(risk.Status)'>@RagLabel(risk.Status)</span>
+            </td>
+            <td class="small text-muted">@(risk.Pillar?.Name ?? "-")</td>
+            <td class="text-end">
+              <AuthorizeView Context="riskRowAuth">
+                <Authorized>
+                  <button class="lp-tx-action-btn" @onclick='() => EditRisk(risk)' title='@Loc["Edit"]'>
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick='() => ConfirmDeleteRisk(risk)' title='@Loc["Delete"]'>
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </Authorized>
+                <NotAuthorized>
+                  <button class="lp-tx-action-btn" disabled><i class="bi bi-pencil"></i></button>
+                  <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled><i class="bi bi-trash"></i></button>
+                </NotAuthorized>
+              </AuthorizeView>
+            </td>
+          </tr>
+          @if (!string.IsNullOrEmpty(risk.Contingency) || !string.IsNullOrEmpty(risk.PlanB))
+          {
+            <tr class="table-light">
+              <td colspan="6" class="ps-3 py-1 small">
+                @if (!string.IsNullOrEmpty(risk.Contingency))
+                {
+                  <span class="me-3"><i class="bi bi-shield-check text-success me-1"></i><strong>@Loc["Contingency:"]</strong> @risk.Contingency</span>
+                }
+                @if (!string.IsNullOrEmpty(risk.PlanB))
+                {
+                  <span><i class="bi bi-arrow-repeat text-primary me-1"></i><strong>@Loc["Plan B:"]</strong> @risk.PlanB</span>
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @* ── Mobile card view (< sm) ── *@
+  <div class="d-block d-sm-none">
+    @foreach (RiskEntity risk in risks)
+    {
+      <div class="risk-mob-card">
+        <div class="d-flex align-items-start justify-content-between gap-2 mb-1">
+          <div class="fw-semibold" style="font-size:.9rem">@risk.Title</div>
+          <AuthorizeView Context="riskMobAuth">
+            <Authorized>
+              <div class="d-flex gap-1 flex-shrink-0">
+                <button class="lp-tx-action-btn" @onclick='() => EditRisk(risk)' title='@Loc["Edit"]'>
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick='() => ConfirmDeleteRisk(risk)' title='@Loc["Delete"]'>
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </Authorized>
+            <NotAuthorized>
+              <div class="d-flex gap-1 flex-shrink-0">
+                <button class="lp-tx-action-btn" disabled><i class="bi bi-pencil"></i></button>
+                <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled><i class="bi bi-trash"></i></button>
+              </div>
+            </NotAuthorized>
+          </AuthorizeView>
+        </div>
+
+        @if (!string.IsNullOrEmpty(risk.Description))
+        {
+          <div class="text-muted small mb-2">@risk.Description</div>
+        }
+
+        <div class="d-flex flex-wrap gap-1 mb-2">
+          <span class='badge @ProbabilityBadge(risk.Probability)'>@ProbabilityLabel(risk.Probability)</span>
+          <span class='badge @ImpactBadge(risk.Impact)'>@ImpactLabel(risk.Impact)</span>
+          <span class='badge @RagBadge(risk.Status)'>@RagLabel(risk.Status)</span>
+          @if (risk.Pillar != null)
+          {
+            <span class="badge bg-light text-dark border">@risk.Pillar.Name</span>
+          }
+        </div>
+
+        @if (!string.IsNullOrEmpty(risk.EarlyWarning))
+        {
+          <div class="small mb-1">
+            <i class="bi bi-exclamation-triangle text-warning me-1"></i>@risk.EarlyWarning
+          </div>
+        }
+        @if (!string.IsNullOrEmpty(risk.Contingency))
+        {
+          <div class="small mb-1">
+            <i class="bi bi-shield-check text-success me-1"></i><strong>@Loc["Contingency:"]</strong> @risk.Contingency
+          </div>
+        }
+        @if (!string.IsNullOrEmpty(risk.PlanB))
+        {
+          <div class="small">
+            <i class="bi bi-arrow-repeat text-primary me-1"></i><strong>@Loc["Plan B:"]</strong> @risk.PlanB
+          </div>
+        }
+      </div>
+      <hr class="my-2" />
+    }
+  </div>
+}
+
+@* ── Risk Modal ───────────────────────────────────────────────────────────── *@
+@if (showRiskModal)
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down">
+      <div class="modal-content">
+        <div class="modal-header lp-modal-header">
+          <h5 class="modal-title text-white">@(editingRisk.Id == 0 ? Loc["New Risk"] : Loc["Edit Risk"])</h5>
+          <button type="button" class="btn-close btn-close-white" @onclick="CloseRiskModal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Title *"]</label>
+            <input class="form-control lp-modal-input" @bind="editingRisk.Title" placeholder='@Loc["What could go wrong?"]' />
+          </div>
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Description"]</label>
+            <textarea class="form-control lp-modal-input" rows="2" @bind="editingRisk.Description"></textarea>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Probability"]</label>
+              <select class="form-select lp-modal-input" @bind="editingRisk.Probability">
+                <option value="@RiskProbability.Low">@Loc["Low"]</option>
+                <option value="@RiskProbability.Medium">@Loc["Medium"]</option>
+                <option value="@RiskProbability.High">@Loc["High"]</option>
+              </select>
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Impact"]</label>
+              <select class="form-select lp-modal-input" @bind="editingRisk.Impact">
+                <option value="@RiskImpact.Low">@Loc["Low"]</option>
+                <option value="@RiskImpact.Medium">@Loc["Medium"]</option>
+                <option value="@RiskImpact.High">@Loc["High"]</option>
+              </select>
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Status"]</label>
+              <select class="form-select lp-modal-input" @bind="editingRisk.Status">
+                <option value="@RagStatus.Green">@Loc["Green"]</option>
+                <option value="@RagStatus.Amber">@Loc["Amber"]</option>
+                <option value="@RagStatus.Red">@Loc["Red"]</option>
+              </select>
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Pillar"]</label>
+              <select class="form-select lp-modal-input" @bind="editingRisk.PillarId">
+                <option value="">@Loc["-- none --"]</option>
+                @foreach (PillarEntity pillar in pillars)
+                {
+                  <option value="@pillar.Id">@pillar.Name</option>
+                }
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Early warning signal"]</label>
+            <input class="form-control lp-modal-input" @bind="editingRisk.EarlyWarning" placeholder='@Loc["How to identify that the risk is materializing?"]' />
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Contingency"]</label>
+              <textarea class="form-control lp-modal-input" rows="2" @bind="editingRisk.Contingency" placeholder='@Loc["Immediate action to mitigate"]'></textarea>
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Plan B"]</label>
+              <textarea class="form-control lp-modal-input" rows="2" @bind="editingRisk.PlanB" placeholder='@Loc["Alternative in case the worst happens"]'></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer lp-modal-footer">
+          <button class="lp-modal-btn-cancel" @onclick="CloseRiskModal">@Loc["Cancel"]</button>
+          <AuthorizeView>
+            <Authorized>
+              <button class="lp-modal-btn-save" @onclick="SaveRisk" disabled="@isSaving">
+                @(isSaving ? Loc["Saving..."] : Loc["Save"])
+              </button>
+            </Authorized>
+            <NotAuthorized>
+              <button class="lp-modal-btn-cancel" disabled>
+                <i class="bi bi-lock me-1"></i>@Loc["Log in to save"]
+              </button>
+            </NotAuthorized>
+          </AuthorizeView>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@* ── Delete Confirm Modal ─────────────────────────────────────────────────── *@
+@if (!string.IsNullOrEmpty(deleteMessage))
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4">
+          <i class="bi bi-exclamation-triangle text-danger" style="font-size:2rem"></i>
+          <p class="mt-2 mb-0">@deleteMessage</p>
+        </div>
+        <div class="modal-footer justify-content-center border-0 pt-0">
+          <button class="lp-modal-btn-cancel" @onclick='() => deleteMessage = ""'>@Loc["Cancel"]</button>
+          <button class="btn btn-danger btn-sm" @onclick="ExecuteDelete" disabled="@isSaving">@Loc["Delete"]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+</div>

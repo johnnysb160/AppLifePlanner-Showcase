@@ -1,0 +1,304 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="Routine.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/routine"
+@rendermode InteractiveServer
+@using System.Security.Claims
+@using AppControlOrganizer.V2.Web.Data
+@using AppControlOrganizer.V2.Web.Services.Planning
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IPlanningExperienceService PlanningExperience
+
+<PageTitle>@Loc["Routine"] - Life Planner</PageTitle>
+
+<div class="routine-page">
+  <header class="lp-page-header mb-4">
+    <div>
+      <h1 class="lp-page-title mb-1"><i class="bi bi-calendar-week me-2"></i>@Loc["My weekly routine"]</h1>
+      <p class="lp-page-subtitle mb-0">@Loc["See what fits now, keep the week visible, and adjust only when your life changes."]</p>
+    </div>
+    <div class="lp-action-bar routine-actions">
+      <WriteGuard>
+        <button class="lp-btn-primary" @onclick="NewBlockAsync"><i class="bi bi-plus-lg me-1"></i>@Loc["New block"]</button>
+      </WriteGuard>
+    </div>
+  </header>
+
+  
+
+  @if (!string.IsNullOrWhiteSpace(message))
+  {
+    <div class="alert @(hasError ? "alert-danger" : "alert-success")">@message</div>
+  }
+
+  @if (isLoading)
+  {
+    <div class="lp-card routine-loading">
+      <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+      <span>@Loc["Loading routine..."]</span>
+    </div>
+  }
+  else
+  {
+    @if (blocks.Count == 0)
+    {
+      <section class="lp-card routine-empty">
+        <i class="bi bi-calendar-week"></i>
+        <h2>@Loc["Your week is open"]</h2>
+        <p>@Loc["Create a block when you want to add a new reference to your routine."]</p>
+      </section>
+    }
+    else
+    {
+      <div class="routine-day-selector d-lg-none" role="tablist" aria-label="@Loc["Day"]">
+        @foreach (DayOfWeek day in Days)
+        {
+          <button class="routine-day-tab @(selectedDay == day ? "active" : null)" role="tab" aria-selected="@(selectedDay == day)" @onclick="() => selectedDay = day">@GetDayShort(day)</button>
+        }
+      </div>
+
+      <div class="routine-week-board d-none d-lg-grid">
+        @foreach (DayOfWeek day in Days)
+        {
+          <header class="routine-day-header @(day == DateTime.Now.DayOfWeek ? "today" : null)">
+            <span>@GetDayShort(day)</span>
+            <strong>@GetDayName(day)</strong>
+          </header>
+        }
+        @foreach (DayOfWeek day in Days)
+        {
+          <section class="routine-day-column @(day == DateTime.Now.DayOfWeek ? "today" : null)">
+            @foreach (RoutineBlockEntity block in blocks.Where(item => item.DayOfWeek == day).OrderBy(item => item.StartTime))
+            {
+              <button class="routine-block" style="--block-color:@block.ColorHex" @onclick="() => EditBlock(block)">
+                <time>@block.StartTime.ToString("HH:mm")–@block.EndTime.ToString("HH:mm")</time>
+                <i class="@block.IconCss"></i>
+                <span>@block.Title</span>
+                <small>@block.Category</small>
+              </button>
+            }
+          </section>
+        }
+      </div>
+
+      <section class="lp-card routine-mobile-board d-lg-none">
+        <header>
+          <div>
+            <span>@GetDayShort(selectedDay)</span>
+            <strong>@GetDayName(selectedDay)</strong>
+          </div>
+          @if (selectedDay == DateTime.Now.DayOfWeek)
+          {
+            <span class="routine-today-badge">@Loc["Today"]</span>
+          }
+        </header>
+        <div class="routine-mobile-blocks">
+          @foreach (RoutineBlockEntity block in blocks.Where(item => item.DayOfWeek == selectedDay).OrderBy(item => item.StartTime))
+          {
+            <button class="routine-block" style="--block-color:@block.ColorHex" @onclick="() => EditBlock(block)">
+              <time>@block.StartTime.ToString("HH:mm")–@block.EndTime.ToString("HH:mm")</time>
+              <i class="@block.IconCss"></i>
+              <span>@block.Title</span>
+              <small>@block.Category</small>
+            </button>
+          }
+          @if (!blocks.Any(item => item.DayOfWeek == selectedDay))
+          {
+            <p class="routine-day-empty">@Loc["Nothing planned for this moment."]</p>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>
+
+@if (showEditor)
+{
+  <div class="modal fade show d-block routine-modal-backdrop" tabindex="-1" role="dialog" @onclick="CloseEditor">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" role="document" @onclick:stopPropagation="true">
+      <div class="modal-content routine-modal">
+      <div class="modal-header">
+        <div><span class="routine-modal-label">@Loc["Routine block"]</span><h2 class="modal-title">@(editing.Id == 0 ? Loc["New block"] : Loc["Edit block"])</h2></div>
+        <button class="btn-close" type="button" aria-label="Close" @onclick="CloseEditor"></button>
+      </div>
+      <div class="modal-body routine-form">
+        <label>@Loc["Title"]<input class="form-control" maxlength="120" disabled="@isReadOnly" @bind="editing.Title" @bind:event="oninput" /></label>
+        <label>@Loc["Day"]
+          <select class="form-select" disabled="@isReadOnly" @bind="editing.DayOfWeek">
+            @foreach (DayOfWeek day in Days) { <option value="@day">@GetDayName(day)</option> }
+          </select>
+        </label>
+        <div class="routine-form-row">
+          <label>@Loc["Start"]<input class="form-control" type="time" disabled="@isReadOnly" @bind="editing.StartTime" @bind:event="oninput" /></label>
+          <label>@Loc["End"]<input class="form-control" type="time" disabled="@isReadOnly" @bind="editing.EndTime" @bind:event="oninput" /></label>
+        </div>
+        <div class="routine-form-row">
+          <label>@Loc["Category"]<input class="form-control" maxlength="60" disabled="@isReadOnly" @bind="editing.Category" @bind:event="oninput" /></label>
+          <label>@Loc["Color"]<input class="form-control form-control-color" type="color" disabled="@isReadOnly" @bind="editing.ColorHex" /></label>
+        </div>
+      </div>
+      <div class="modal-footer routine-modal-actions">
+        <WriteGuard>
+          @if (editing.Id != 0)
+          {
+            <button class="btn btn-outline-danger me-auto" @onclick="DeleteBlockAsync">@Loc["Delete"]</button>
+          }
+        </WriteGuard>
+        <button class="lp-btn-ghost" @onclick="CloseEditor">@(isReadOnly ? Loc["Close"] : Loc["Cancel"])</button>
+        <WriteGuard>
+          <button class="lp-btn-primary" disabled="@isSaving" @onclick="SaveBlockAsync">@Loc["Save"]</button>
+        </WriteGuard>
+      </div>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  /// <summary>Gets or sets the routine block requested by contextual navigation.</summary>
+  [Parameter]
+  [SupplyParameterFromQuery(Name = "blockId")]
+  public int? RequestedBlockId { get; set; }
+
+  private static readonly DayOfWeek[] Days =
+  {
+    DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
+    DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday,
+  };
+  private string userId = string.Empty;
+  private bool isReadOnly = true;
+  private RoutineTemplateEntity? template;
+  private List<RoutineBlockEntity> blocks = new();
+  private RoutineBlockEntity editing = new();
+  private bool isLoading = true;
+  private bool isSaving;
+  private bool showEditor;
+  private bool hasError;
+  private DayOfWeek selectedDay = DateTime.Now.DayOfWeek;
+  private string message = string.Empty;
+
+  protected override async Task OnInitializedAsync()
+  {
+    AuthenticationState state = await AuthStateProvider.GetAuthenticationStateAsync();
+    userId = state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? LifePlannerContext.DemoUserId;
+    isReadOnly = userId == LifePlannerContext.DemoUserId;
+    await ReloadAsync();
+    OpenRequestedBlockIfAvailable();
+  }
+
+  private async Task ReloadAsync()
+  {
+    template = await PlanningExperience.GetActiveRoutineAsync(userId);
+    blocks = template?.Blocks.Where(item => !item.Deleted).OrderBy(item => item.SortOrder).ToList()
+      ?? new List<RoutineBlockEntity>();
+    isLoading = false;
+  }
+
+  private async Task NewBlockAsync()
+  {
+    if (isReadOnly)
+    {
+      return;
+    }
+
+    if (template == null)
+    {
+      template = await PlanningExperience.ReplaceRoutineAsync(userId, Loc["My routine"], Array.Empty<RoutineBlockEntity>());
+    }
+
+    int startHour = Math.Min(DateTime.Now.Hour, 22);
+    editing = new RoutineBlockEntity
+    {
+      RoutineTemplateId = template.Id,
+      DayOfWeek = DateTime.Now.DayOfWeek,
+      StartTime = new TimeOnly(startHour, 0),
+      EndTime = new TimeOnly(startHour + 1, 0),
+      ColorHex = "#3b82f6",
+      IconCss = "bi bi-circle",
+    };
+    showEditor = true;
+  }
+
+  private void EditBlock(RoutineBlockEntity block)
+  {
+    editing = new RoutineBlockEntity
+    {
+      Id = block.Id,
+      RoutineTemplateId = block.RoutineTemplateId,
+      DayOfWeek = block.DayOfWeek,
+      StartTime = block.StartTime,
+      EndTime = block.EndTime,
+      Title = block.Title,
+      Category = block.Category,
+      IconCss = block.IconCss,
+      ColorHex = block.ColorHex,
+      SortOrder = block.SortOrder,
+    };
+    showEditor = true;
+  }
+
+  private void OpenRequestedBlockIfAvailable()
+  {
+    if (!RequestedBlockId.HasValue)
+    {
+      return;
+    }
+
+    RoutineBlockEntity? requested = blocks.FirstOrDefault(block => block.Id == RequestedBlockId.Value);
+    if (requested == null)
+    {
+      return;
+    }
+
+    selectedDay = requested.DayOfWeek;
+    EditBlock(requested);
+  }
+
+  private async Task SaveBlockAsync()
+  {
+    if (isReadOnly)
+    {
+      return;
+    }
+
+    isSaving = true;
+    message = string.Empty;
+    try
+    {
+      await PlanningExperience.SaveRoutineBlockAsync(editing, userId);
+      showEditor = false;
+      await ReloadAsync();
+    }
+    catch (Exception exception)
+    {
+      hasError = true;
+      message = Loc[exception.Message];
+    }
+    finally
+    {
+      isSaving = false;
+    }
+  }
+
+  private async Task DeleteBlockAsync()
+  {
+    if (isReadOnly)
+    {
+      return;
+    }
+
+    await PlanningExperience.DeleteRoutineBlockAsync(editing.Id, userId);
+    showEditor = false;
+    await ReloadAsync();
+  }
+
+  private void CloseEditor() => showEditor = false;
+
+  private string GetDayShort(DayOfWeek day) => Loc[day.ToString()[..3]];
+  private string GetDayName(DayOfWeek day) => Loc[day.ToString()];
+}

@@ -1,0 +1,944 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="Plan.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/plan"
+@rendermode InteractiveServer
+@using AppControlOrganizer.V2.Shared.Entities
+@using AppControlOrganizer.V2.Shared.Enums
+@using AppControlOrganizer.V2.Web.Data
+@using AppControlOrganizer.V2.Web.Services.Financial
+@using AppControlOrganizer.V2.Web.Services.Planning
+@using Microsoft.EntityFrameworkCore
+@using System.Globalization
+@using System.Security.Claims
+@implements IDisposable
+@inject AppControlOrganizer.V2.Web.Services.UI.ValuesVisibilityService ValuesVis
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IDbContextFactory<LifePlannerContext> DbContextFactory
+@inject IFinancialFactsService FinancialFactsService
+@inject IPlanningExperienceService PlanningExperience
+
+<PageTitle>@Loc["Plan"] - Life Planner</PageTitle>
+
+<div class="plan-page">
+  <header class="lp-page-header mb-4">
+    <div>
+      <h1 class="lp-page-title mb-1"><i class="bi bi-compass me-2"></i>@Loc["My plan"] @DateTime.Now.Year</h1>
+      <p class="lp-page-subtitle mb-0">@Loc["Your goals and financial reality in one place. The system calculates what it already knows; you decide only what only you can know."]</p>
+    </div>
+    <nav class="lp-action-bar plan-navigation" aria-label="@Loc["Plan"]">
+      <a class="lp-btn-ghost" href="planning/okrs"><i class="bi bi-bullseye"></i>OKRs</a>
+      <a class="lp-btn-ghost" href="planning/quarters"><i class="bi bi-calendar3"></i>@Loc["Quarters"]</a>
+      <a class="lp-btn-ghost" href="planning/risks"><i class="bi bi-shield-exclamation"></i>@Loc["Risks"]</a>
+      <a class="lp-btn-ghost" href="planning/reviews"><i class="bi bi-clock-history"></i>@Loc["Advanced reviews"]</a>
+    </nav>
+  </header>
+
+  
+
+  @if (!string.IsNullOrWhiteSpace(message))
+  {
+    <div class="alert @(hasError ? "alert-danger" : "alert-success")">@message</div>
+  }
+
+  @if (isLoading || annualPlan == null || facts == null)
+  {
+    <div class="lp-card plan-loading">
+      <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+      <span>@Loc["Assembling your plan from existing data..."]</span>
+    </div>
+  }
+  else
+  {
+    <section class="lp-card plan-overview">
+      <div class="plan-theme">
+        <label class="plan-section-label" for="plan-theme">@Loc["Theme for the year"]</label>
+        <input id="plan-theme" class="form-control plan-theme-input" maxlength="120" @bind="annualPlan.Theme" @bind:event="oninput" />
+      </div>
+      <div class="plan-progress">
+        <div><span>@Loc["Target progress"]</span><strong>@ProgressPercent.ToString("0")%</strong></div>
+        <div class="progress" role="progressbar" aria-valuenow="@ProgressPercent.ToString("0")" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar" style="width:@ProgressPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+        </div>
+        <small>@Money(facts.NetWorth) @Loc["of"] @Money(annualPlan.TargetNetWorth)</small>
+      </div>
+    </section>
+
+    <section class="lp-card plan-card plan-protection-card" aria-labelledby="protection-map-title">
+      <header class="plan-card-header">
+        <div>
+          <span class="plan-section-label">@Loc["Wealth protection"]</span>
+          <h2 id="protection-map-title">@Loc["Protection map"]</h2>
+        </div>
+        <span class="plan-source"><i class="bi bi-database-check"></i>@Loc["Calculated from your current plan data"]</span>
+      </header>
+      <div class="plan-protection-layout">
+        <div class="plan-protection-score">
+          <span>@Loc["Protection diagnosis"]</span>
+          <div><strong>@protectionMap.Score.ToString("0", CultureInfo.InvariantCulture)</strong><small>/100</small></div>
+          <p>@Loc[protectionMap.LabelKey]</p>
+          <small>@Loc[protectionMap.DetailKey]</small>
+          <div class="plan-protection-score-breakdown">
+            <div><span>@Loc["Best signal"]</span><strong>@Loc[protectionMap.BestDimension.LabelKey]</strong><small>@FormatProtectionScore(protectionMap.BestDimension.Score)</small></div>
+            <div><span>@Loc["Needs more attention"]</span><strong>@Loc[protectionMap.AttentionDimension.LabelKey]</strong><small>@FormatProtectionScore(protectionMap.AttentionDimension.Score)</small></div>
+            <div><span>@Loc["Healthy axes"]</span><strong>@string.Format(CultureInfo.CurrentCulture, Loc["{0} of {1}"], protectionMap.HealthyDimensionCount, ProtectionMapModel.DimensionCount)</strong><small>@Loc["at least 70 points"]</small></div>
+          </div>
+        </div>
+        <div class="plan-protection-radar">
+          <svg viewBox="-150 -132 300 264" role="img">
+            <title>@Loc["Protection map"]</title>
+            @foreach (decimal ringScale in ProtectionRadarRings)
+            {
+              <polygon class="protection-radar-grid" points="@BuildRadarRingPoints(ringScale)"></polygon>
+            }
+            @for (int index = 0; index < protectionMap.Dimensions.Count; index++)
+            {
+              (double axisX, double axisY) = GetRadarPoint(index, 1d, ProtectionRadarRadius);
+              (double labelX, double labelY) = GetRadarPoint(index, 1.23d, ProtectionRadarRadius);
+              <line class="protection-radar-axis" x1="0" y1="0" x2="@FormatSvgNumber(axisX)" y2="@FormatSvgNumber(axisY)"></line>
+              @BuildRadarLabelMarkup(index, labelX, labelY)
+            }
+            <polygon class="protection-radar-fill" points="@BuildProtectionPolygonPoints()"></polygon>
+            <polyline class="protection-radar-line" points="@BuildProtectionPolygonPoints()"></polyline>
+            @for (int index = 0; index < protectionMap.Dimensions.Count; index++)
+            {
+              ProtectionDimension dimension = protectionMap.Dimensions[index];
+              (double pointX, double pointY) = GetRadarPoint(index, (double)dimension.Score / 100d, ProtectionRadarRadius);
+              <circle class="protection-radar-point" cx="@FormatSvgNumber(pointX)" cy="@FormatSvgNumber(pointY)" r="3.6"></circle>
+            }
+          </svg>
+        </div>
+        <div class="plan-protection-dimensions">
+          @foreach (ProtectionDimension dimension in protectionMap.Dimensions)
+          {
+            <div class="plan-protection-dimension" tabindex="0" aria-label="@BuildDimensionTooltip(dimension)">
+              <div><span>@Loc[dimension.LabelKey]</span><strong>@dimension.Score.ToString("0", CultureInfo.InvariantCulture)</strong></div>
+              <div class="plan-protection-bar"><span style="width:@dimension.Score.ToString("0.##", CultureInfo.InvariantCulture)%"></span></div>
+              <div class="plan-protection-dimension-tip" role="tooltip">@BuildDimensionTooltip(dimension)</div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <div class="plan-main-grid">
+      <section class="lp-card plan-card plan-finance-card" id="finance">
+        <header class="plan-card-header">
+          <div><span class="plan-section-label">@Loc["Financial compass"]</span><h2>@Loc["Base facts and decisions"]</h2></div>
+          <span class="plan-source"><i class="bi bi-database-check"></i>@Loc["Calculated from accounts, transactions and allocations"]</span>
+        </header>
+        <div class="plan-facts-grid">
+          <div class="plan-fact blue"><i class="bi bi-wallet2"></i><div><span>@Loc["Net Worth"]</span><strong>@Money(facts.NetWorth)</strong><small>@Loc["current positions + ledger cash"]</small></div></div>
+          <div class="plan-fact green"><i class="bi bi-arrow-down-left"></i><div><span>@Loc["Monthly income"]</span><strong>@Money(facts.MonthlyOperatingIncome)</strong><small>@Loc["operating transactions"]</small></div></div>
+          <div class="plan-fact red"><i class="bi bi-arrow-up-right"></i><div><span>@Loc["Monthly expenses"]</span><strong>@Money(facts.MonthlyOperatingExpense)</strong><small>@Loc["transfers excluded"]</small></div></div>
+          <div class="plan-fact plan-fact-popover cyan" tabindex="0" aria-label="@Loc["Reserve details"]"><i class="bi bi-shield-check"></i><div><span>@Loc["Emergency reserve"]</span><strong>@Money(facts.EmergencyReserve)</strong><small>@Loc["target"] @Money(facts.EmergencyReserveTarget)</small></div><ReserveDetailsPopover Facts="@facts" /></div>
+          <div class="plan-fact plan-fact-popover violet" tabindex="0" aria-label="@Loc["Projection details"]"><i class="bi bi-graph-up-arrow"></i><div><span>@Loc["Year-end projection"]</span><strong>@Money(facts.PlannedYearEndNetWorth)</strong><small>@Loc["with current plan"]</small></div><ProjectionDetailsPopover Facts="@facts" /></div>
+          <div class="plan-fact amber"><i class="bi bi-piggy-bank"></i><div><span>@Loc["Required monthly contribution"]</span><strong>@Money(facts.RequiredMonthlyContribution)</strong><small>@Loc["to reach the target"]</small></div></div>
+        </div>
+        @if (facts.Signals.Count > 0)
+        {
+          <div class="plan-signals">
+            @foreach (FinancialSignal signal in facts.Signals)
+            {
+              <div class="@(signal.RequiresAttention ? "attention" : null)"><i class="bi @(signal.RequiresAttention ? "bi-exclamation-circle" : "bi-check-circle")"></i><span><strong>@Loc[signal.TitleKey]</strong>@Loc[signal.DetailKey]</span></div>
+            }
+          </div>
+        }
+        <details class="plan-assumptions">
+          <summary>@Loc["Adjust the few assumptions the system cannot decide"]</summary>
+          <div class="plan-form-grid">
+            <label>@Loc["Target net worth"]<input class="form-control" type="number" step="100" @bind="annualPlan.TargetNetWorth" @bind:event="oninput" /></label>
+            <label>@Loc["Monthly income assumption"]<input class="form-control" type="number" step="100" @bind="annualPlan.PlannedMonthlyIncome" @bind:event="oninput" /></label>
+            <label>@Loc["Monthly spending ceiling"]<input class="form-control" type="number" step="100" @bind="annualPlan.MonthlySpendingCeiling" @bind:event="oninput" /></label>
+            <label>@Loc["Monthly contribution override"]<input class="form-control" type="number" step="100" @bind="annualPlan.PlannedMonthlyContribution" @bind:event="oninput" /></label>
+            <label>@Loc["Annual extraordinary expenses"]<input class="form-control" type="number" step="100" @bind="annualPlan.PlannedAnnualExpenses" @bind:event="oninput" /></label>
+            <label>@Loc["Emergency reserve months"]<input class="form-control" type="number" min="1" max="24" @bind="annualPlan.EmergencyReserveMonths" @bind:event="oninput" /></label>
+          </div>
+          <WriteGuard>
+            <button class="lp-btn-primary" disabled="@isSaving" @onclick="SavePlanAsync"><i class="bi bi-arrow-repeat"></i>@Loc["Save decisions and recalculate"]</button>
+          </WriteGuard>
+        </details>
+      </section>
+
+      <div class="plan-side-column">
+      <section class="lp-card plan-card" id="week">
+        <header class="plan-card-header"><div><span class="plan-section-label">@Loc["This week"]</span><h2>@Loc["Three focuses, at most"]</h2></div><i class="bi bi-compass plan-card-icon"></i></header>
+        <p>@Loc["These are shown on Today. Keep only what should guide your choices."]</p>
+        @if (focuses.Count == 0 && focusSuggestions.Count > 0)
+        {
+          <div class="plan-focus-suggestions">
+            <div>
+              <span><i class="bi bi-stars"></i>@Loc["Suggested from your current plan"]</span>
+              <WriteGuard>
+                <button type="button" @onclick="UseFocusSuggestions">@Loc["Use suggestions"]</button>
+              </WriteGuard>
+            </div>
+            @foreach (WeeklyFocusEntity suggestion in focusSuggestions)
+            {
+              <small>@Loc[suggestion.Text]</small>
+            }
+          </div>
+        }
+        <div class="plan-focus-inputs">
+          @for (int index = 0; index < focusTexts.Count; index++)
+          {
+            int position = index;
+            <label><span>@(position + 1)</span><input maxlength="160" placeholder="@Loc["What matters this week?"]" @bind="focusTexts[position]" @bind:event="oninput" /></label>
+          }
+        </div>
+        <WriteGuard>
+          <button class="lp-btn-ghost" disabled="@isSaving" @onclick="SaveFocusesAsync"><i class="bi bi-check2"></i>@Loc["Save weekly focus"]</button>
+        </WriteGuard>
+      </section>
+
+      <section class="lp-card plan-card review-card">
+        <header class="plan-card-header"><div><span class="plan-section-label">@Loc["Light review"]</span><h2>@Loc["Close the loop"]</h2></div><span class="review-due">@ReviewDueLabel</span></header>
+        <div class="lp-view-toggle review-type-toggle">
+          <button class="lp-view-btn @(review.ReviewType == ReviewType.Weekly ? "lp-view-btn-active" : null)" @onclick="() => review.ReviewType = ReviewType.Weekly">@Loc["Weekly"]</button>
+          <button class="lp-view-btn @(review.ReviewType == ReviewType.Monthly ? "lp-view-btn-active" : null)" @onclick="() => review.ReviewType = ReviewType.Monthly">@Loc["Monthly"]</button>
+        </div>
+        <label>@Loc["What moved forward?"]<textarea class="form-control" rows="2" maxlength="1000" @bind="review.ProgressNotes" @bind:event="oninput"></textarea></label>
+        <label>@Loc["What got in the way?"]<textarea class="form-control" rows="2" maxlength="1000" @bind="review.BlockerNotes" @bind:event="oninput"></textarea></label>
+        <label>@Loc["What will I decide or adjust?"]<textarea class="form-control" rows="2" maxlength="1000" @bind="review.DecisionNotes" @bind:event="oninput"></textarea></label>
+        <WriteGuard>
+          <button class="lp-btn-primary" disabled="@isSaving" @onclick="CompleteReviewAsync"><i class="bi bi-check2-circle"></i>@Loc["Complete review"]</button>
+        </WriteGuard>
+        @if (recentReviews.Count > 0)
+        {
+          <small class="last-review">@Loc["Last review"]: @recentReviews[0].ReviewDate.ToString("d", Loc.Culture)</small>
+        }
+      </section>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private const double ProtectionRadarRadius = 92d;
+  private static readonly IReadOnlyList<decimal> ProtectionRadarRings = new List<decimal> { .25m, .5m, .75m, 1m };
+  private static readonly IReadOnlyList<string> SuccessionTerms = new List<string>
+  {
+    "SUCESS",
+    "HERAN",
+    "LEGADO",
+    "FAMIL",
+    "DEPENDENT",
+    "CONTINUID",
+    "INVENT",
+    "HOLDING",
+    "TESTAMENT",
+    "PATRIMON",
+    "PROTE",
+  };
+  private static readonly IReadOnlyList<string> GovernanceTerms = new List<string>
+  {
+    "GOVERN",
+    "DECIS",
+    "ACORDO",
+    "POLITICA",
+    "POLÍTICA",
+    "REVIEW",
+    "REVISA",
+    "REUNI",
+    "FAMIL",
+    "CONSELHO",
+    "DOCUMENT",
+    "ORGANIZA",
+  };
+
+  private string userId = string.Empty;
+  private bool isReadOnly = true;
+  private AnnualPlanEntity? annualPlan;
+  private FinancialFacts? facts;
+  private ProtectionMapModel protectionMap = ProtectionMapModel.Empty();
+  private List<WeeklyFocusEntity> focuses = new();
+  private List<WeeklyFocusEntity> focusSuggestions = new();
+  private List<string> focusTexts = new() { string.Empty, string.Empty, string.Empty };
+  private List<PlanningReviewEntity> recentReviews = new();
+  private PlanningReviewEntity review = NewReview();
+  private bool isLoading = true;
+  private bool isSaving;
+  private bool hasError;
+  private string message = string.Empty;
+  private decimal ProgressPercent => annualPlan?.TargetNetWorth > 0m
+    ? Math.Clamp((facts?.NetWorth ?? 0m) / annualPlan.TargetNetWorth * 100m, 0m, 100m)
+    : 0m;
+  private string ReviewDueLabel => IsReviewDue ? Loc["Due now"] : Loc["Up to date"];
+  private bool IsReviewDue => recentReviews.Count == 0
+    || (DateOnly.FromDateTime(DateTime.Now).DayNumber - recentReviews[0].ReviewDate.DayNumber) >= 7;
+
+  /// <summary>Formats a monetary amount, honouring the header show/hide values toggle.</summary>
+  private string Money(decimal value)
+  {
+    return ValuesVis.Mask(Helper.FormatBrl(value));
+  }
+
+  /// <inheritdoc />
+  public void Dispose()
+  {
+    ValuesVis.OnChange -= OnValuesVisibilityChanged;
+  }
+
+  private void OnValuesVisibilityChanged() => InvokeAsync(StateHasChanged);
+
+  protected override async Task OnInitializedAsync()
+  {
+    ValuesVis.OnChange += OnValuesVisibilityChanged;
+    AuthenticationState state = await AuthStateProvider.GetAuthenticationStateAsync();
+    userId = state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? LifePlannerContext.DemoUserId;
+    isReadOnly = userId == LifePlannerContext.DemoUserId;
+    await LoadAsync();
+  }
+
+  private async Task LoadAsync()
+  {
+    DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+    Task<FinancialFacts> seedFactsTask = FinancialFactsService.GetAsync(userId, today);
+    Task<AnnualPlanEntity?> planTask = PlanningExperience.GetAnnualPlanAsync(userId, today.Year);
+    Task<List<WeeklyFocusEntity>> focusesTask = PlanningExperience.GetWeeklyFocusesAsync(userId, today);
+    Task<List<WeeklyFocusEntity>> suggestionsTask = PlanningExperience.GetWeeklyFocusSuggestionsAsync(userId, today);
+    Task<List<PlanningReviewEntity>> reviewsTask = PlanningExperience.GetRecentReviewsAsync(userId);
+    await Task.WhenAll(seedFactsTask, planTask, focusesTask, suggestionsTask, reviewsTask);
+    FinancialFacts seedFacts = await seedFactsTask;
+    // The demonstration tenant is read-only: never materialize a plan for an anonymous visitor.
+    annualPlan = await planTask
+      ?? (isReadOnly
+        ? BuildPlaceholderPlan(today.Year)
+        : await PlanningExperience.GetOrCreateAnnualPlanAsync(userId, today.Year, seedFacts));
+    facts = await FinancialFactsService.GetWithAnnualPlanAsync(userId, today);
+    focuses = await focusesTask;
+    focusSuggestions = MergeFocusSuggestions(await suggestionsTask, facts.Signals);
+    recentReviews = await reviewsTask;
+    focusTexts = Enumerable.Range(0, 3)
+      .Select(index => focuses.ElementAtOrDefault(index)?.Text ?? string.Empty)
+      .ToList();
+    protectionMap = await BuildProtectionMapAsync();
+    isLoading = false;
+  }
+
+  private async Task SavePlanAsync()
+  {
+    if (annualPlan == null || isReadOnly)
+    {
+      return;
+    }
+
+    await RunSavingAsync(async () =>
+    {
+      annualPlan = await PlanningExperience.SaveAnnualPlanAsync(annualPlan, userId);
+      facts = await FinancialFactsService.GetWithAnnualPlanAsync(userId, DateOnly.FromDateTime(DateTime.Now));
+      await PlanningExperience.RefreshFinancialKeyResultsAsync(userId, facts);
+      protectionMap = await BuildProtectionMapAsync();
+      message = Loc["Plan saved and financial metrics recalculated."];
+    });
+  }
+
+  private async Task SaveFocusesAsync()
+  {
+    if (isReadOnly)
+    {
+      return;
+    }
+
+    await RunSavingAsync(async () =>
+    {
+      focuses = await PlanningExperience.ReplaceWeeklyFocusesAsync(
+        userId,
+        DateOnly.FromDateTime(DateTime.Now),
+        focusTexts.Select((text, index) => CreateFocusEntity(text, index)).ToList());
+      message = Loc["Weekly focus saved."];
+    });
+  }
+
+  /// <summary>Builds the unsaved plan shown to anonymous visitors when the showcase has no plan yet.</summary>
+  /// <param name="year">Year represented by the placeholder.</param>
+  /// <returns>A transient plan that is never persisted.</returns>
+  private AnnualPlanEntity BuildPlaceholderPlan(int year)
+  {
+    return new AnnualPlanEntity
+    {
+      OwnerUserId = userId,
+      Year = year,
+      Theme = year.ToString(System.Globalization.CultureInfo.InvariantCulture),
+      EmergencyReserveMonths = 6,
+      UpdatedAtUtc = DateTime.UtcNow,
+    };
+  }
+
+  private void UseFocusSuggestions()
+  {
+    if (isReadOnly)
+    {
+      return;
+    }
+
+    focusTexts = Enumerable.Range(0, 3)
+      .Select(index => index < focusSuggestions.Count ? Loc[focusSuggestions[index].Text] : string.Empty)
+      .ToList();
+  }
+
+  private WeeklyFocusEntity CreateFocusEntity(string text, int index)
+  {
+    WeeklyFocusEntity? source = focusSuggestions.FirstOrDefault(
+      suggestion => string.Equals(Loc[suggestion.Text], text.Trim(), StringComparison.OrdinalIgnoreCase));
+    return new WeeklyFocusEntity
+    {
+      Text = text,
+      SortOrder = index + 1,
+      ObjectiveId = source?.ObjectiveId,
+      KeyResultId = source?.KeyResultId,
+      QuarterTaskId = source?.QuarterTaskId,
+      RoutineBlockId = source?.RoutineBlockId,
+    };
+  }
+
+  private static List<WeeklyFocusEntity> MergeFocusSuggestions(
+    List<WeeklyFocusEntity> planSuggestions,
+    IReadOnlyCollection<FinancialSignal> signals)
+  {
+    List<WeeklyFocusEntity> merged = planSuggestions.Take(3).ToList();
+    foreach (FinancialSignal signal in signals.Where(item => item.RequiresAttention))
+    {
+      if (merged.Count == 3)
+      {
+        break;
+      }
+
+      if (merged.Any(item => string.Equals(item.Text, signal.TitleKey, StringComparison.OrdinalIgnoreCase)))
+      {
+        continue;
+      }
+
+      merged.Add(new WeeklyFocusEntity { Text = signal.TitleKey, SortOrder = merged.Count + 1 });
+    }
+
+    return merged;
+  }
+
+  private async Task CompleteReviewAsync()
+  {
+    if (annualPlan == null || isReadOnly)
+    {
+      return;
+    }
+
+    await RunSavingAsync(async () =>
+    {
+      review.ReviewDate = DateOnly.FromDateTime(DateTime.Now);
+      await PlanningExperience.CompleteReviewAsync(review, userId, annualPlan, Array.Empty<WeeklyFocusEntity>());
+      review = NewReview();
+      recentReviews = await PlanningExperience.GetRecentReviewsAsync(userId);
+      protectionMap = await BuildProtectionMapAsync();
+      message = Loc["Review completed with a snapshot of today's financial reality."];
+    });
+  }
+
+  private async Task RunSavingAsync(Func<Task> action)
+  {
+    isSaving = true;
+    hasError = false;
+    message = string.Empty;
+    try
+    {
+      await action();
+    }
+    catch (Exception exception)
+    {
+      hasError = true;
+      message = Loc[exception.Message];
+    }
+    finally
+    {
+      isSaving = false;
+    }
+  }
+
+  private async Task<ProtectionMapModel> BuildProtectionMapAsync()
+  {
+    if (facts == null || annualPlan == null)
+    {
+      return ProtectionMapModel.Empty();
+    }
+
+    try
+    {
+      await using LifePlannerContext context = await DbContextFactory.CreateDbContextAsync();
+      List<ProtectionAllocationFact> allocationFacts = await context.Allocations
+        .AsNoTracking()
+        .Where(allocation => !allocation.Deleted
+          && allocation.Active
+          && EF.Property<string>(allocation, "OwnerUserId") == userId)
+        .Select(allocation => new ProtectionAllocationFact(
+          allocation.AllocationType,
+          allocation.Currency,
+          allocation.PlanningPurpose))
+        .ToListAsync();
+      List<ProtectionTextFact> riskFacts = await context.Risks
+        .AsNoTracking()
+        .Where(risk => !risk.Deleted && risk.Active && risk.OwnerUserId == userId)
+        .Select(risk => new ProtectionTextFact(
+          risk.Title,
+          risk.Description,
+          risk.EarlyWarning,
+          risk.Contingency,
+          risk.PlanB,
+          risk.Status))
+        .ToListAsync();
+      List<ProtectionTextFact> keyResultFacts = await context.KeyResults
+        .AsNoTracking()
+        .Where(result => !result.Deleted && result.Active && result.OwnerUserId == userId)
+        .Select(result => new ProtectionTextFact(
+          result.Title,
+          result.MetricUnit,
+          result.WeeklyNote,
+          null,
+          null,
+          result.Status))
+        .ToListAsync();
+
+      return BuildProtectionMap(
+        allocationFacts,
+        riskFacts,
+        keyResultFacts);
+    }
+    catch
+    {
+      return BuildProtectionMap(
+        new List<ProtectionAllocationFact>(),
+        new List<ProtectionTextFact>(),
+        new List<ProtectionTextFact>());
+    }
+  }
+
+  private ProtectionMapModel BuildProtectionMap(
+    IReadOnlyList<ProtectionAllocationFact> allocationFacts,
+    IReadOnlyList<ProtectionTextFact> riskFacts,
+    IReadOnlyList<ProtectionTextFact> keyResultFacts)
+  {
+    if (facts == null || annualPlan == null)
+    {
+      return ProtectionMapModel.Empty();
+    }
+
+    List<ProtectionDimension> dimensions = new List<ProtectionDimension>
+    {
+      new ProtectionDimension(
+        "Global diversification",
+        "Global",
+        "Reads currencies and global allocation types already mapped.",
+        CalculateGlobalDiversificationScore(allocationFacts)),
+      new ProtectionDimension(
+        "Wealth concentration",
+        "Concentration",
+        "Estimates whether wealth is spread across current account positions.",
+        CalculateConcentrationScore(facts)),
+      new ProtectionDimension(
+        "Liquidity",
+        "Liquidity",
+        "Uses reserve, operating cash, idle cash and reserve target.",
+        CalculateLiquidityScore(facts)),
+      new ProtectionDimension(
+        "Succession protection",
+        "Succession",
+        "Looks for continuity, legacy, family and succession signals in risks, KRs and reviews.",
+        CalculateSuccessionScore(riskFacts, keyResultFacts)),
+      new ProtectionDimension(
+        "Asset organization",
+        "Organization",
+        "Uses allocation purpose, pricing coverage, annual plan and mapped structures.",
+        CalculateOrganizationScore(allocationFacts, riskFacts, keyResultFacts)),
+      new ProtectionDimension(
+        "Family governance",
+        "Governance",
+        "Reads reviews, decisions, risks and KRs for governance signals.",
+        CalculateGovernanceScore(riskFacts, keyResultFacts)),
+    };
+    decimal score = Math.Round(dimensions.Average(dimension => dimension.Score), 0);
+    string labelKey = score >= 80m
+      ? "Protected and well directed"
+      : score >= 60m
+        ? "Wealth is well underway"
+        : "Protection points need attention";
+    string detailKey = score >= 80m
+      ? "Your current data shows strong organization, liquidity and planning signals."
+      : score >= 60m
+        ? "Your current data shows structure, with room to improve protection and governance."
+        : "Your current data shows gaps in organization, liquidity or mapped continuity signals.";
+
+    return new ProtectionMapModel(score, labelKey, detailKey, dimensions);
+  }
+
+  private decimal CalculateGlobalDiversificationScore(IReadOnlyList<ProtectionAllocationFact> allocationFacts)
+  {
+    if (allocationFacts.Count == 0)
+    {
+      return 0m;
+    }
+
+    int globalAllocations = allocationFacts.Count(allocation =>
+      allocation.Currency != Currency.BRL || IsGlobalAllocation(allocation.AllocationType));
+    int distinctCurrencies = allocationFacts.Select(allocation => allocation.Currency).Distinct().Count();
+    decimal globalRatio = (decimal)globalAllocations / allocationFacts.Count;
+    decimal score = 25m + (globalRatio * 60m) + (Math.Min(distinctCurrencies, 4) * 5m);
+
+    return ClampScore(score);
+  }
+
+  private decimal CalculateConcentrationScore(FinancialFacts sourceFacts)
+  {
+    List<decimal> positions = sourceFacts.AccountPositions
+      .Select(position => position.TotalPosition)
+      .Where(total => total > 0m)
+      .ToList();
+    if (sourceFacts.NetWorth <= 0m || positions.Count == 0)
+    {
+      return 0m;
+    }
+
+    decimal largestPercentage = positions.Max() / sourceFacts.NetWorth * 100m;
+    decimal spreadBonus = Math.Min(positions.Count, 5) * 4m;
+    decimal score = 100m - (Math.Max(largestPercentage - 25m, 0m) * 1.35m) + spreadBonus;
+
+    return ClampScore(score);
+  }
+
+  private decimal CalculateLiquidityScore(FinancialFacts sourceFacts)
+  {
+    decimal reserveScore = sourceFacts.EmergencyReserveTarget > 0m
+      ? Math.Min(sourceFacts.EmergencyReserve / sourceFacts.EmergencyReserveTarget, 1m) * 58m
+      : sourceFacts.EmergencyReserve > 0m
+        ? 44m
+        : 0m;
+    decimal liquidValue = Math.Max(sourceFacts.OperatingCash, 0m)
+      + Math.Max(sourceFacts.EmergencyReserve, 0m)
+      + Math.Max(sourceFacts.IdleCash, 0m);
+    decimal liquidRatio = sourceFacts.NetWorth > 0m
+      ? liquidValue / sourceFacts.NetWorth
+      : 0m;
+    decimal cashScore = Math.Min(liquidRatio / .18m, 1m) * 32m;
+    decimal idlePenalty = sourceFacts.IdleCashPercentage > 25m ? 10m : 0m;
+
+    return ClampScore(reserveScore + cashScore + 10m - idlePenalty);
+  }
+
+  private decimal CalculateSuccessionScore(
+    IReadOnlyList<ProtectionTextFact> riskFacts,
+    IReadOnlyList<ProtectionTextFact> keyResultFacts)
+  {
+    int riskMatches = riskFacts.Count(fact => fact.ContainsAny(SuccessionTerms));
+    int keyResultMatches = keyResultFacts.Count(fact => fact.ContainsAny(SuccessionTerms));
+    int reviewMatches = recentReviews.Count(review => ContainsAny(
+      $"{review.ProgressNotes} {review.BlockerNotes} {review.DecisionNotes}",
+      SuccessionTerms));
+    decimal score = 15m;
+    score += ContainsAny(annualPlan?.Theme ?? string.Empty, SuccessionTerms) ? 15m : 0m;
+    score += Math.Min(riskMatches, 2) * 22m;
+    score += Math.Min(keyResultMatches, 2) * 16m;
+    score += Math.Min(reviewMatches, 2) * 10m;
+    score += riskFacts.Any(fact => fact.HasMitigationText && fact.ContainsAny(SuccessionTerms)) ? 14m : 0m;
+
+    return ClampScore(score);
+  }
+
+  private decimal CalculateOrganizationScore(
+    IReadOnlyList<ProtectionAllocationFact> allocationFacts,
+    IReadOnlyList<ProtectionTextFact> riskFacts,
+    IReadOnlyList<ProtectionTextFact> keyResultFacts)
+  {
+    decimal classifiedRatio = allocationFacts.Count == 0
+      ? 0m
+      : (decimal)allocationFacts.Count(allocation => allocation.Purpose != FinancialPurpose.Unclassified) / allocationFacts.Count;
+    decimal score = 0m;
+    score += annualPlan != null ? 16m : 0m;
+    score += facts?.UnpricedPositionCount == 0 ? 18m : Math.Max(18m - ((facts?.UnpricedPositionCount ?? 0) * 5m), 0m);
+    score += Math.Min(allocationFacts.Count, 12) / 12m * 14m;
+    score += Math.Min(facts?.AccountPositions.Count ?? 0, 5) / 5m * 10m;
+    score += classifiedRatio * 30m;
+    score += riskFacts.Count > 0 ? 6m : 0m;
+    score += keyResultFacts.Count > 0 ? 6m : 0m;
+
+    return ClampScore(score);
+  }
+
+  private decimal CalculateGovernanceScore(
+    IReadOnlyList<ProtectionTextFact> riskFacts,
+    IReadOnlyList<ProtectionTextFact> keyResultFacts)
+  {
+    DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+    bool hasRecentReview = recentReviews.Any(review => today.DayNumber - review.ReviewDate.DayNumber <= 45);
+    int reviewMatches = recentReviews.Count(review => ContainsAny(
+      $"{review.ProgressNotes} {review.BlockerNotes} {review.DecisionNotes}",
+      GovernanceTerms));
+    decimal mitigatedRiskRatio = riskFacts.Count == 0
+      ? 0m
+      : (decimal)riskFacts.Count(fact => fact.HasMitigationText) / riskFacts.Count;
+    decimal healthyKeyResultRatio = keyResultFacts.Count == 0
+      ? 0m
+      : (decimal)keyResultFacts.Count(fact => fact.Status != RagStatus.Red) / keyResultFacts.Count;
+    decimal score = 12m;
+    score += hasRecentReview ? 22m : 0m;
+    score += Math.Min(recentReviews.Count, 4) * 5m;
+    score += Math.Min(reviewMatches, 2) * 9m;
+    score += mitigatedRiskRatio * 18m;
+    score += healthyKeyResultRatio * 18m;
+    score += ContainsAny(annualPlan?.Theme ?? string.Empty, GovernanceTerms) ? 10m : 0m;
+
+    return ClampScore(score);
+  }
+
+  private string BuildProtectionPolygonPoints()
+  {
+    return string.Join(
+      " ",
+      protectionMap.Dimensions.Select((dimension, index) =>
+      {
+        (double x, double y) = GetRadarPoint(index, (double)dimension.Score / 100d, ProtectionRadarRadius);
+        return $"{FormatSvgNumber(x)},{FormatSvgNumber(y)}";
+      }));
+  }
+
+  private string BuildRadarRingPoints(decimal scale)
+  {
+    return string.Join(
+      " ",
+      Enumerable.Range(0, ProtectionMapModel.DimensionCount).Select(index =>
+      {
+        (double x, double y) = GetRadarPoint(index, (double)scale, ProtectionRadarRadius);
+        return $"{FormatSvgNumber(x)},{FormatSvgNumber(y)}";
+      }));
+  }
+
+  private MarkupString BuildRadarLabelMarkup(int index, double x, double y)
+  {
+    ProtectionDimension dimension = protectionMap.Dimensions[index];
+    string label = Loc[dimension.ShortLabelKey];
+    string encodedLabel = System.Net.WebUtility.HtmlEncode(label);
+    string encodedTooltip = System.Net.WebUtility.HtmlEncode(BuildDimensionTooltip(dimension));
+    return new MarkupString(
+      $"<g class=\"protection-radar-label-group\" tabindex=\"0\" aria-label=\"{encodedTooltip}\"><title>{encodedTooltip}</title><text class=\"protection-radar-label\" x=\"{FormatSvgNumber(x)}\" y=\"{FormatSvgNumber(y)}\">{encodedLabel}</text></g>");
+  }
+
+  private string BuildDimensionTooltip(ProtectionDimension dimension)
+  {
+    return string.Format(
+      CultureInfo.CurrentCulture,
+      Loc["{0}: {1}/100. {2} {3}"],
+      Loc[dimension.LabelKey],
+      dimension.Score.ToString("0", CultureInfo.InvariantCulture),
+      Loc[dimension.DetailKey],
+      Loc[GetProtectionStatusKey(dimension.Score)]);
+  }
+
+  private static string GetProtectionStatusKey(decimal score)
+  {
+    if (score >= 80m)
+    {
+      return "Looks strong with current data.";
+    }
+
+    if (score >= 60m)
+    {
+      return "Looks reasonable, but has room to improve.";
+    }
+
+    if (score >= 40m)
+    {
+      return "Needs attention in current plan data.";
+    }
+
+    return "Weak signal; little evidence is mapped today.";
+  }
+
+  private static string FormatProtectionScore(decimal score)
+  {
+    return string.Format(
+      CultureInfo.InvariantCulture,
+      "{0:0}/100",
+      score);
+  }
+
+  private static (double X, double Y) GetRadarPoint(int index, double scale, double radius)
+  {
+    double angle = (-90d + (360d / ProtectionMapModel.DimensionCount * index)) * Math.PI / 180d;
+    return (Math.Cos(angle) * radius * scale, Math.Sin(angle) * radius * scale);
+  }
+
+  private static string FormatSvgNumber(double value)
+  {
+    return value.ToString("0.###", CultureInfo.InvariantCulture);
+  }
+
+  private static decimal ClampScore(decimal score)
+  {
+    return Math.Clamp(Math.Round(score, 0), 0m, 100m);
+  }
+
+  private static bool IsGlobalAllocation(AllocationType type)
+  {
+    return type is AllocationType.ForeignStocks
+      or AllocationType.ForeignInvestmentFunds
+      or AllocationType.ETF
+      or AllocationType.BDR
+      or AllocationType.Crypto
+      or AllocationType.Token
+      or AllocationType.UsdBrl
+      or AllocationType.BTC
+      or AllocationType.ETH
+      or AllocationType.ADA
+      or AllocationType.SOL
+      or AllocationType.AXS
+      or AllocationType.CHZ
+      or AllocationType.ADC
+      or AllocationType.DOC
+      or AllocationType.GNL
+      or AllocationType.GOOD
+      or AllocationType.IBM
+      or AllocationType.KO
+      or AllocationType.MCD
+      or AllocationType.MMM
+      or AllocationType.NKE
+      or AllocationType.O
+      or AllocationType.SOLV
+      or AllocationType.BND
+      or AllocationType.EMB
+      or AllocationType.JEPI
+      or AllocationType.JEPQ
+      or AllocationType.QQQ
+      or AllocationType.SGOV
+      or AllocationType.SPY
+      or AllocationType.VEA
+      or AllocationType.VNQ
+      or AllocationType.VNQI
+      or AllocationType.VT;
+  }
+
+  private static bool ContainsAny(string text, IReadOnlyList<string> terms)
+  {
+    if (string.IsNullOrWhiteSpace(text))
+    {
+      return false;
+    }
+
+    string normalizedText = text.ToUpperInvariant();
+    return terms.Any(term => normalizedText.Contains(term, StringComparison.Ordinal));
+  }
+
+  private static PlanningReviewEntity NewReview() => new()
+  {
+    ReviewType = ReviewType.Weekly,
+    ReviewDate = DateOnly.FromDateTime(DateTime.Now),
+  };
+
+  private sealed record ProtectionAllocationFact(
+    AllocationType AllocationType,
+    Currency Currency,
+    FinancialPurpose Purpose);
+
+  private sealed record ProtectionDimension(
+    string LabelKey,
+    string ShortLabelKey,
+    string DetailKey,
+    decimal Score);
+
+  private sealed class ProtectionMapModel
+  {
+    public const int DimensionCount = 6;
+
+    public ProtectionMapModel(
+      decimal score,
+      string labelKey,
+      string detailKey,
+      IReadOnlyList<ProtectionDimension> dimensions)
+    {
+      this.Score = score;
+      this.LabelKey = labelKey;
+      this.DetailKey = detailKey;
+      this.Dimensions = dimensions;
+    }
+
+    public decimal Score { get; }
+
+    public string LabelKey { get; }
+
+    public string DetailKey { get; }
+
+    public IReadOnlyList<ProtectionDimension> Dimensions { get; }
+
+    public ProtectionDimension BestDimension
+    {
+      get
+      {
+        return this.Dimensions
+          .OrderByDescending(dimension => dimension.Score)
+          .ThenBy(dimension => dimension.LabelKey)
+          .First();
+      }
+    }
+
+    public ProtectionDimension AttentionDimension
+    {
+      get
+      {
+        return this.Dimensions
+          .OrderBy(dimension => dimension.Score)
+          .ThenBy(dimension => dimension.LabelKey)
+          .First();
+      }
+    }
+
+    public int HealthyDimensionCount
+    {
+      get
+      {
+        return this.Dimensions.Count(dimension => dimension.Score >= 70m);
+      }
+    }
+
+    public static ProtectionMapModel Empty()
+    {
+      return new ProtectionMapModel(
+        0m,
+        "Protection points need attention",
+        "Your current data shows gaps in organization, liquidity or mapped continuity signals.",
+        new List<ProtectionDimension>
+        {
+          new ProtectionDimension("Global diversification", "Global", "Reads currencies and global allocation types already mapped.", 0m),
+          new ProtectionDimension("Wealth concentration", "Concentration", "Estimates whether wealth is spread across current account positions.", 0m),
+          new ProtectionDimension("Liquidity", "Liquidity", "Uses reserve, operating cash, idle cash and reserve target.", 0m),
+          new ProtectionDimension("Succession protection", "Succession", "Looks for continuity, legacy, family and succession signals in risks, KRs and reviews.", 0m),
+          new ProtectionDimension("Asset organization", "Organization", "Uses allocation purpose, pricing coverage, annual plan and mapped structures.", 0m),
+          new ProtectionDimension("Family governance", "Governance", "Reads reviews, decisions, risks and KRs for governance signals.", 0m),
+        });
+    }
+  }
+
+  private sealed record ProtectionTextFact(
+    string? Primary,
+    string? Secondary,
+    string? Tertiary,
+    string? Mitigation,
+    string? Fallback,
+    RagStatus Status)
+  {
+    public bool HasMitigationText
+    {
+      get
+      {
+        return !string.IsNullOrWhiteSpace(this.Mitigation)
+          || !string.IsNullOrWhiteSpace(this.Fallback);
+      }
+    }
+
+    public bool ContainsAny(IReadOnlyList<string> terms)
+    {
+      return Plan.ContainsAny(
+        $"{this.Primary} {this.Secondary} {this.Tertiary} {this.Mitigation} {this.Fallback}",
+        terms);
+    }
+  }
+}

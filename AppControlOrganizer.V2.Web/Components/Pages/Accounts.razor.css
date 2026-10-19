@@ -1,0 +1,309 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="Accounts.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+/* ── Account card ────────────────────────────────────────────────────── */
+.lp-account-card {
+  background: var(--lp-surface);
+  border-radius: var(--lp-radius);
+  box-shadow: var(--lp-shadow);
+  border: 1px solid var(--lp-border);
+  overflow: visible;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+  .lp-account-card:hover {
+    box-shadow: var(--lp-shadow-md);
+    transform: translateY(-2px);
+  }
+
+.lp-account-card-inactive {
+  opacity: 0.72;
+  border-color: #cbd5e1;
+}
+
+/* ── Account card header (uses bank banner from Helper) ──────────────── */
+.lp-account-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.9rem;
+  gap: 0.5rem;
+  min-height: 58px;
+  border-radius: calc(var(--lp-radius) - 1px) calc(var(--lp-radius) - 1px) 0 0;
+}
+
+.lp-account-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lp-account-inactive-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  vertical-align: middle;
+}
+
+.lp-account-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--lp-radius-sm);
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+  .lp-account-menu-btn:hover {
+    background: rgba(255,255,255,0.28);
+  }
+
+.lp-account-menu-btn-light {
+  border-color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.22);
+}
+
+/* ── Account card body ───────────────────────────────────────────────── */
+.lp-account-body {
+  padding: 0.9rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.lp-account-details {
+  font-size: 0.75rem;
+  color: var(--lp-text-muted);
+}
+
+/* ── Stats row ───────────────────────────────────────────────────────── */
+.lp-account-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.lp-stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lp-text-muted);
+  margin-bottom: 0.1rem;
+}
+
+.lp-stat-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--lp-text-primary);
+}
+
+/* ── Balance section ─────────────────────────────────────────────────── */
+.lp-account-balance {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--lp-border);
+  margin-top: auto;
+}
+
+.lp-value-positive {
+  color: var(--lp-success);
+}
+
+.lp-value-negative {
+  color: var(--lp-danger);
+}
+
+.lp-value-accent {
+  color: var(--lp-accent);
+}
+
+/* ── Account card footer ─────────────────────────────────────────────── */
+.lp-account-footer {
+  padding: 0.5rem 0.9rem;
+  border-top: 1px solid var(--lp-border);
+  background: var(--lp-surface-muted);
+  font-size: 0.72rem;
+  color: var(--lp-text-muted);
+}
+
+/* ── Small badges ────────────────────────────────────────────────────── */
+.lp-acct-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lp-acct-badge-type {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1d4ed8;
+}
+
+.lp-acct-badge-secondary {
+  background: var(--lp-surface-muted);
+  border: 1px solid var(--lp-border);
+  color: var(--lp-text-secondary);
+}
+
+.lp-acct-badge-currency {
+  background: rgba(6, 182, 212, 0.1);
+  color: #0891b2;
+}
+
+.lp-acct-badge-muted {
+  background: var(--lp-surface-muted);
+  color: var(--lp-text-muted);
+  border: 1px solid var(--lp-border);
+}
+
+/* ── Allocations popup ───────────────────────────────────────────────── */
+.lp-alloc-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  min-width: 320px;
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius);
+  box-shadow: var(--lp-shadow-md);
+  padding: 0.85rem;
+}
+
+.lp-alloc-popup-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lp-text-muted);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--lp-border);
+}
+
+.lp-alloc-popup-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.lp-alloc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--lp-border);
+  gap: 0.5rem;
+}
+
+  .lp-alloc-row:last-child {
+    border-bottom: none;
+  }
+
+.lp-alloc-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--lp-text-primary);
+}
+
+.lp-alloc-type {
+  font-size: 0.7rem;
+  color: var(--lp-text-muted);
+}
+
+.lp-alloc-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--lp-text-primary);
+}
+
+.lp-alloc-currency {
+  font-size: 0.7rem;
+  color: var(--lp-text-muted);
+}
+
+.lp-alloc-more {
+  font-size: 0.72rem;
+  color: var(--lp-text-muted);
+  padding-top: 0.35rem;
+}
+
+/* ── Credit card component ───────────────────────────────────────────── */
+.lp-credit-card {
+  background: var(--lp-surface);
+  border-radius: var(--lp-radius);
+  box-shadow: var(--lp-shadow);
+  border: 1px solid var(--lp-border);
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+  .lp-credit-card:hover {
+    box-shadow: var(--lp-shadow-md);
+    transform: translateY(-2px);
+  }
+
+.lp-credit-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.9rem;
+  min-height: 46px;
+  border-radius: calc(var(--lp-radius) - 1px) calc(var(--lp-radius) - 1px) 0 0;
+}
+
+.lp-credit-card-flag {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.lp-credit-card-body {
+  padding: 0.75rem 0.9rem;
+  flex: 1;
+}
+
+.lp-credit-card-holder {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--lp-text-primary);
+  margin-bottom: 0.15rem;
+}
+
+.lp-credit-card-account {
+  font-size: 0.75rem;
+  color: var(--lp-text-muted);
+  margin-bottom: 0.15rem;
+}

@@ -1,0 +1,47 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="MarketQuotesChart.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+.lp-quote-card {
+  border: 1px solid var(--lp-border);
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.lp-quote-card-focused {
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow: 0 12px 28px rgba(59, 130, 246, 0.14) !important;
+}
+
+.lp-quote-title-link {
+  color: var(--lp-text-primary);
+  text-decoration: none;
+}
+
+  .lp-quote-title-link:hover {
+    color: var(--lp-accent);
+  }
+
+.lp-quote-card-header {
+  flex-wrap: wrap;
+}
+
+.lp-quote-range-group {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 100%;
+}
+
+@media (max-width: 576px) {
+  .lp-quote-card-header {
+    align-items: flex-start !important;
+    flex-direction: column;
+  }
+
+  .btn-group-sm > .btn {
+    padding-inline: 0.45rem;
+  }
+}

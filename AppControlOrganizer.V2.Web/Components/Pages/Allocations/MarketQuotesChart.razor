@@ -1,0 +1,89 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="MarketQuotesChart.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100 lp-quote-card @(IsFocused("UsdBrl") ? "lp-quote-card-focused" : "")">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center gap-2 border-bottom-0 pt-3 lp-quote-card-header">
+        <h5 class="mb-0 fw-bold">
+          <a class="lp-quote-title-link"
+             href="allocations?panel=quotes&quote=UsdBrl">
+            <i class="bi bi-currency-dollar text-success me-2"></i>@Loc["Dollar (USD/BRL)"]
+          </a>
+        </h5>
+                <div class="btn-group btn-group-sm lp-quote-range-group">
+                    @foreach (QuoteRangeOption option in RangeOptions)
+                    {
+                        <button class="btn @(usdRange == option.Days ? "btn-dark" : "btn-outline-dark")"
+                                @onclick="() => LoadUsdData(option.Days)">
+                            @Loc[option.Label]
+                        </button>
+                    }
+                </div>
+            </div>
+            <div class="card-body" style="height: 300px;">
+                @if (isLoadingUsd)
+                {
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <div class="spinner-border text-success" role="status"></div>
+                    </div>
+                }
+                else if (!usdQuotes.Any())
+                {
+                    <div class="d-flex justify-content-center align-items-center h-100 text-muted">
+                        @Loc["No data in period"]
+                    </div>
+                }
+                else
+                {
+                    <canvas id="usdChart"></canvas>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100 lp-quote-card @(IsFocused("BTC") ? "lp-quote-card-focused" : "")">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center gap-2 border-bottom-0 pt-3 lp-quote-card-header">
+                <h5 class="mb-0 fw-bold">
+                    <a class="lp-quote-title-link"
+                       href="allocations?panel=quotes&quote=BTC">
+                        <i class="bi bi-currency-bitcoin text-warning me-2"></i>@Loc["Bitcoin (BTC/USD)"]
+                    </a>
+                </h5>
+                <div class="btn-group btn-group-sm lp-quote-range-group">
+                    @foreach (QuoteRangeOption option in RangeOptions)
+                    {
+                        <button class="btn @(btcRange == option.Days ? "btn-dark" : "btn-outline-dark")"
+                                @onclick="() => LoadBtcData(option.Days)">
+                            @Loc[option.Label]
+                        </button>
+                    }
+                </div>
+            </div>
+            <div class="card-body" style="height: 300px;">
+                @if (isLoadingBtc)
+                {
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <div class="spinner-border text-warning" role="status"></div>
+                    </div>
+                }
+                else if (!btcQuotes.Any())
+                {
+                    <div class="d-flex justify-content-center align-items-center h-100 text-muted">
+                        @Loc["No data in period"]
+                    </div>
+                }
+                else
+                {
+                    <canvas id="btcChart"></canvas>
+                }
+            </div>
+        </div>
+    </div>
+</div>

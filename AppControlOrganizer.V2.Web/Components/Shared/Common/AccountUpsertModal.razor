@@ -1,0 +1,243 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="AccountUpsertModal.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@inherits UpsertModalBase
+@using Microsoft.AspNetCore.Components.Authorization
+@if (Visible)
+{
+    <div class="modal fade show d-block"
+         tabindex="-1"
+         style="background-color: rgba(0,0,0,0.5);"
+         @onclick="RequestClose"
+         @onkeydown="HandleKeyDown">
+
+        <div class="modal-dialog modal-lg modal-fullscreen-sm-down" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header lp-modal-header">
+                    <h5 class="modal-title text-white">@(IsEditing ? Loc["Edit Account"] : Loc["New Account"])</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="RequestClose" disabled="@IsSaving"></button>
+                </div>
+
+                <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+                    <LocalizedDataAnnotationsValidator />
+
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">@Loc["Name"]</label>
+                                <InputText class="form-control" @bind-Value="Model.Name" @oninput="MarkDirty" />
+                                <ValidationMessage For="() => Model.Name" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">@Loc["Institution Type"]</label>
+                                <SearchableDropdown TValue="InstitutionType"
+                                                    Items="@InstitutionTypeItems"
+                                                    @bind-Value="Model.InstitutionType"
+                                                    Placeholder='@Loc["Select institution type..."]'
+                                                    ShowClearButton="true"
+                                                    OnChange="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">@Loc["Agency"]</label>
+                                <InputText class="form-control" @bind-Value="Model.Agency" @oninput="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">@Loc["Number"]</label>
+                                <InputText class="form-control" @bind-Value="Model.NumberAccount" @oninput="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">@Loc["Bank Code"]</label>
+                                <InputText class="form-control" @bind-Value="Model.BankCode" @oninput="MarkDirty" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">@Loc["Account Type"]</label>
+                                <SearchableDropdown TValue="AccountType?"
+                                                    Items="@AccountTypeItems"
+                                                    @bind-Value="Model.AccountType"
+                                                    EmptyValue="@((AccountType?)null)"
+                                                    Placeholder='@Loc["Select account type..."]'
+                                                    OnChange="MarkDirty" />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">@Loc["Currency"]</label>
+
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    @foreach (Currency currency in Enum.GetValues<Currency>())
+                                    {
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="acc_currency_@currency"
+                                                   checked="@Model.SupportedCurrencies.Contains(currency)"
+                                                   @onchange="() => ToggleSupportedCurrency(currency)" />
+                                            <label class="form-check-label" for="acc_currency_@currency">
+                                                @currency.GetDisplayName()
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (Model.SupportedCurrencies.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1 mb-2">
+                                        @foreach (Currency curr in Model.SupportedCurrencies.ToList())
+                                        {
+                                            <span class="badge bg-info">
+                                                @curr.GetDisplayName()
+                                                <button type="button"
+                                                        class="btn-close btn-close-white ms-1"
+                                                        style="font-size: 0.6rem;"
+                                                        @onclick="() => ToggleSupportedCurrency(curr)"
+                                                        @onclick:stopPropagation="true">
+                                                </button>
+                                            </span>
+                                        }
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                @onclick="ClearSupportedCurrencies"
+                                                @onclick:stopPropagation="true"
+                                                disabled="@IsSaving">
+                                            @Loc["Clear All"]
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <small class="text-danger">@Loc["Select at least one currency"]</small>
+                                }
+                            </div>
+
+                            <div class="col-12">
+                                <hr class="mt-1 mb-2" />
+                                <small class="text-muted fw-semibold">@Loc["Balance reconciliation"]</small>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">@Loc["Balance calculation"]</label>
+                                <InputSelect class="form-select" @bind-Value="Model.BalanceMode" @onchange="MarkDirty">
+                                    <option value="@AccountBalanceMode.PositionBased">@Loc["Position based"]</option>
+                                    <option value="@AccountBalanceMode.LedgerBased">@Loc["Reconciled balance"]</option>
+                                    <option value="@AccountBalanceMode.ProviderBased">@Loc["External provider balance"]</option>
+                                </InputSelect>
+                                <div class="small text-muted mt-2">
+                                    <div><strong>@Loc["Position based"]:</strong> @Loc["Uses registered positions and allocations, ideal for investment accounts."]</div>
+                                    <div><strong>@Loc["Reconciled balance"]:</strong> @Loc["Uses a confirmed balance and then adds only later transactions."]</div>
+                                    <div><strong>@Loc["External provider balance"]:</strong> @Loc["Keeps the balance received from an external provider and does not recalculate it."]</div>
+                                </div>
+                            </div>
+
+                            @if (Model.BalanceMode == AccountBalanceMode.LedgerBased)
+                            {
+                                <div class="col-md-4">
+                                    <label class="form-label">@Loc["Confirmed balance"]</label>
+                                    <InputNumber class="form-control" @bind-Value="Model.OpeningBalance" @oninput="MarkDirty" />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">@Loc["Confirmed on"]</label>
+                                    <InputDate class="form-control" @bind-Value="Model.OpeningBalanceDate" @onchange="MarkDirty" />
+                                    <small class="text-muted d-block mt-1">
+                                        @Loc["Only transactions after this date affect the current balance."]
+                                    </small>
+                                </div>
+                            }
+
+                            <div class="col-12">
+                                <label class="form-label">@Loc["Logo"]</label>
+                                <InputFile class="form-control" OnChange="OnLogoSelected" accept="image/*" disabled="@IsSaving" />
+                                @if (!string.IsNullOrWhiteSpace(Model.Logo))
+                                {
+                                    <div class="mt-2">
+                                        <img src="@Helper.GetLogoDataUriOrDefault(Model.Logo)"
+                                             width="48" height="48"
+                                             alt="Preview"
+                                             class="border rounded" />
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <InputCheckbox class="form-check-input" @bind-Value="Model.AccountIsActive" @onchange="MarkDirty" />
+                                    <label class="form-check-label">@Loc["Is Active"]</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <InputCheckbox class="form-check-input" @bind-Value="Model.HasCard" @onchange="MarkDirty" />
+                                    <label class="form-check-label">@Loc["Has Card"]</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <InputCheckbox class="form-check-input" @bind-Value="Model.HasInvestments" @onchange="MarkDirty" />
+                                    <label class="form-check-label">@Loc["Has Investments"]</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <InputCheckbox class="form-check-input" @bind-Value="Model.HasFeesOrCharges" @onchange="MarkDirty" />
+                                    <label class="form-check-label">@Loc["Has Fees"]</label>
+                                </div>
+                            </div>
+
+                            @if (Model.HasFeesOrCharges)
+                            {
+                                <div class="col-md-6">
+                                    <label class="form-label">@Loc["Fee Type"]</label>
+                                    <InputText class="form-control" @bind-Value="Model.FeesOrChargesType" @oninput="MarkDirty" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">@Loc["Fee Value"]</label>
+                                    <InputNumber class="form-control" @bind-Value="Model.FeesOrChargesValue" @oninput="MarkDirty" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer lp-modal-footer">
+                        <button type="button" class="lp-modal-btn-cancel" @onclick="RequestClose" disabled="@IsSaving">
+                            @Loc["Cancel"]
+                        </button>
+
+                        <AuthorizeView Context="authContext">
+                            <Authorized>
+                                <button type="submit" class="lp-modal-btn-save" disabled="@IsSaving">
+                                    @if (IsSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                    }
+                                    @Loc["Save"]
+                                </button>
+                            </Authorized>
+                            <NotAuthorized>
+                                <button type="submit" class="lp-modal-btn-save" disabled="true">
+                                    @if (IsSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                    }
+                                    @Loc["Log in to Save"]
+                                </button>
+                            </NotAuthorized>
+                        </AuthorizeView>
+                    </div>
+
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}

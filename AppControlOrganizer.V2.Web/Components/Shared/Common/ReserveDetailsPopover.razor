@@ -1,0 +1,93 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="ReserveDetailsPopover.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@using AppControlOrganizer.V2.Web.Services.Financial
+@using AppControlOrganizer.V2.Web.Services.UI
+@implements IDisposable
+@inject ValuesVisibilityService ValuesVis
+
+<FinancialDetailsPopover
+  AriaLabel="@Loc["Reserve details"]"
+  Header="@Loc["Reserve details"]"
+  HeaderValue="@FormatAmount(Facts.EmergencyReserve)"
+  Rows="@BuildRows()" />
+
+@code {
+  /// <summary>Gets or sets the financial facts to explain.</summary>
+  [Parameter]
+  public FinancialFacts Facts { get; set; } = new FinancialFacts();
+
+  /// <inheritdoc />
+  public void Dispose()
+  {
+    ValuesVis.OnChange -= this.OnValuesVisibilityChanged;
+  }
+
+  /// <inheritdoc />
+  protected override void OnInitialized()
+  {
+    ValuesVis.OnChange += this.OnValuesVisibilityChanged;
+  }
+
+  private void OnValuesVisibilityChanged()
+  {
+    _ = this.InvokeAsync(this.StateHasChanged);
+  }
+
+  private string FormatAmount(decimal amount)
+  {
+    return ValuesVis.Mask(Helper.FormatBrl(amount));
+  }
+
+  private IReadOnlyList<FinancialDetailsPopoverRow> BuildRows()
+  {
+    return
+    [
+      new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-shield-check",
+        Title = Loc["Reserve value used"],
+        Detail = Loc["sum of listed reserve allocations"],
+        Amount = this.FormatAmount(this.Facts.EmergencyReserve),
+        Tone = this.Facts.EmergencyReserve >= this.Facts.EmergencyReserveTarget ? "positive" : "neutral",
+      },
+      ..this.GetReserveAllocationRows(),
+      new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-bullseye",
+        Title = Loc["Reserve target"],
+        Detail = Loc["annual plan assumption"],
+        Amount = this.FormatAmount(this.Facts.EmergencyReserveTarget),
+      },
+      new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-check2-circle",
+        Title = Loc["Reserve gap"],
+        Detail = Loc["current reserve minus target"],
+        Amount = this.FormatAmount(Math.Max(0m, this.Facts.EmergencyReserveTarget - this.Facts.EmergencyReserve)),
+        Tone = this.Facts.EmergencyReserve >= this.Facts.EmergencyReserveTarget ? "positive" : "negative",
+      },
+    ];
+  }
+
+  private IReadOnlyList<FinancialDetailsPopoverRow> GetReserveAllocationRows()
+  {
+    return this.Facts.EmergencyReserveAllocations
+      .Select(allocation => new FinancialDetailsPopoverRow
+      {
+        IconClass = "bi-pie-chart",
+        Title = allocation.AllocationName,
+        Detail = string.IsNullOrWhiteSpace(allocation.AccountName)
+          ? Loc[allocation.SourceKey]
+          : $"{allocation.AccountName} · {Loc[allocation.SourceKey]}",
+        Amount = this.FormatAmount(allocation.CurrentAmountBrl),
+        Tone = "positive",
+      })
+      .ToList();
+  }
+}

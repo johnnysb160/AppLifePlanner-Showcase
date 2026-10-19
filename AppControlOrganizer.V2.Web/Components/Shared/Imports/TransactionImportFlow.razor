@@ -1,0 +1,28 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="TransactionImportFlow.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@*
+    TransactionImportFlow.razor - Flow component that manages import and review modals.
+*@
+
+<TransactionImportModal 
+    IsVisible="@ShowImportModal"
+    Accounts="@Accounts"
+    CreditCards="@CreditCards"
+    ImportHandler="@HandleImport"
+    OnCancelled="@CloseImportModal"
+    OnImportCompleted="@OnImportCompleted" />
+
+<TransactionImportReviewModal
+    IsVisible="@ShowReviewModal"
+    PendingItems="@PendingItems"
+    Accounts="@Accounts"
+    CreditCards="@CreditCards"
+    AcceptHandler="@HandleAcceptPending"
+    OnClosed="@CloseReviewModal"
+    OnItemsAccepted="@OnReviewItemsAccepted" />

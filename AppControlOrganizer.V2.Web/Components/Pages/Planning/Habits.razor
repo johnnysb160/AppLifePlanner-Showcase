@@ -1,0 +1,398 @@
+﻿@*
+// <copyright file="Habits.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+*@
+
+@page "/planning/habits"
+@rendermode InteractiveServer
+@using AppControlOrganizer.V2.Shared.Entities
+@using AppControlOrganizer.V2.Shared.Enums
+@using AppControlOrganizer.V2.Web.Services.Planning
+
+<PageTitle>@Loc["Habits"] - Life Planner</PageTitle>
+
+<div class="lp-page-content">
+<div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2 mb-3">
+  <div>
+    <div class="lp-page-title"><i class="bi bi-check2-all me-2"></i>@Loc["Habits"]</div>
+    <div class="lp-page-subtitle">@Loc[currentMonth.ToString("MMMM", System.Globalization.CultureInfo.InvariantCulture)] @currentMonth.Year</div>
+  </div>
+  <div class="lp-action-bar">
+    <button class="lp-btn-ghost" @onclick="PrevMonth"><i class="bi bi-chevron-left"></i></button>
+    <button class="lp-btn-ghost" @onclick="NextMonth"><i class="bi bi-chevron-right"></i></button>
+    <AuthorizeView>
+      <Authorized>
+        <button class="lp-btn-primary" @onclick="AddHabit">
+          <i class="bi bi-plus-lg me-1"></i>@Loc["New Habit"]
+        </button>
+      </Authorized>
+      <NotAuthorized>
+        <button class="lp-btn-ghost" disabled title='@Loc["Log in to create"]'>
+          <i class="bi bi-lock me-1"></i>@Loc["Log in to create"]
+        </button>
+      </NotAuthorized>
+    </AuthorizeView>
+  </div>
+</div>
+
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+  <div class="alert alert-warning">@statusMessage</div>
+}
+
+@if (isLoading)
+{
+  <div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>
+}
+else if (!habits.Any())
+{
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>@Loc["No habits created. Click \"New Habit\" to get started."]
+  </div>
+}
+else
+{
+  @* ── Desktop table (sm+) ── *@
+  <div class="table-responsive d-none d-sm-block">
+    <table class="table table-sm habit-grid-table mb-0">
+      <thead>
+        <tr>
+          <th style="min-width:180px">@Loc["Habit"]</th>
+          @foreach (int day in daysInMonth)
+          {
+            <th class='text-center day-header @(IsToday(day) ? "today-col" : "")' style="min-width:32px">
+              <div class="day-num">@day</div>
+              <div class="day-wd" style="font-size:.55rem">@DayOfWeekLabel(day)</div>
+            </th>
+          }
+          <th style="min-width:60px" class="text-center">@Loc["Wk."]</th>
+          <th style="min-width:60px" class="text-center">@Loc["Mo."]</th>
+          <th style="min-width:60px" class="text-center">@Loc["Streak"]</th>
+          <th style="min-width:60px"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (HabitEntity habit in habits)
+        {
+          <tr>
+            <td class="fw-semibold small py-1">
+              @if (!string.IsNullOrEmpty(habit.IconCss))
+              {
+                <i class='@habit.IconCss me-1' style='color:@habit.ColorHex'></i>
+              }
+              else
+              {
+                <span class="habit-dot me-1" style='background:@habit.ColorHex'></span>
+              }
+              @habit.Name
+              @if (!string.IsNullOrEmpty(habit.FrequencyDays))
+              {
+                <i class="bi bi-repeat ms-1 text-primary" style="font-size:.65rem"
+                   title='@($"{Loc["Habit frequency"]} ({habit.FrequencyDays})")'></i>
+              }
+            </td>
+            @foreach (int day in daysInMonth)
+            {
+              bool done = IsDone(habit.Id, day);
+              bool future = IsFutureDay(day);
+              <td class='text-center p-0 habit-cell @(IsToday(day) ? "today-col" : "")'>
+                @if (!future)
+                {
+                  <AuthorizeView Context="habitToggleAuth">
+                    <Authorized>
+                      <button class='btn btn-sm habit-toggle p-0 @(done ? "done" : "not-done")'
+                              @onclick='async () => await ToggleHabit(habit.Id, day)'
+                              title='@(done ? Loc["Done"] : Loc["Not done"])'>
+                        @if (done)
+                        {
+                          <i class="bi bi-check-lg"></i>
+                        }
+                        else
+                        {
+                          <span class="habit-empty"></span>
+                        }
+                      </button>
+                    </Authorized>
+                    <NotAuthorized>
+                      <button class='btn btn-sm habit-toggle p-0 @(done ? "done" : "not-done")' disabled>
+                        @if (done)
+                        {
+                          <i class="bi bi-check-lg"></i>
+                        }
+                        else
+                        {
+                          <span class="habit-empty"></span>
+                        }
+                      </button>
+                    </NotAuthorized>
+                  </AuthorizeView>
+                }
+                else
+                {
+                  <span class="text-muted" style="font-size:.6rem">-</span>
+                }
+              </td>
+            }
+            <td class="text-center small">
+              @{ HabitMetrics? m = GetMetrics(habit.Id); }
+              @if (m != null)
+              {
+                <span class='badge @PercentBadge(m.WeeklyPercent)'>@m.WeeklyPercent.ToString("0")%</span>
+              }
+            </td>
+            <td class="text-center small">
+              @if (m != null)
+              {
+                <span class='badge @PercentBadge(m.MonthlyPercent)'>@m.MonthlyPercent.ToString("0")%</span>
+              }
+            </td>
+            <td class="text-center small">
+              @if (m != null && m.CurrentStreak > 0)
+              {
+                <span class="badge bg-warning text-dark"><i class="bi bi-fire me-1"></i>@m.CurrentStreak</span>
+              }
+              else
+              {
+                <span class="text-muted">0</span>
+              }
+            </td>
+            <td class="text-end py-0">
+              <AuthorizeView Context="habitRowAuth">
+                <Authorized>
+                  <button class="lp-tx-action-btn" @onclick='() => EditHabit(habit)' title='@Loc["Edit"]'>
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick='() => ConfirmDeleteHabit(habit)' title='@Loc["Delete"]'>
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </Authorized>
+                <NotAuthorized>
+                  <button class="lp-tx-action-btn" disabled><i class="bi bi-pencil"></i></button>
+                  <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled><i class="bi bi-trash"></i></button>
+                </NotAuthorized>
+              </AuthorizeView>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @* ── Mobile calendar view (< sm) ── *@
+  <div class="d-block d-sm-none">
+    @{
+      int calFirstDow = (int)new DateTime(currentMonth.Year, currentMonth.Month, 1).DayOfWeek;
+      int calTotalDays = DateTime.DaysInMonth(currentMonth.Year, currentMonth.Month);
+      int calTotalCells = (int)Math.Ceiling((calFirstDow + calTotalDays) / 7.0) * 7;
+      string[] calDowLabels = { "Do", "Se", "Te", "Qa", "Qi", "Sx", "Sa" };
+    }
+    @foreach (HabitEntity habit in habits)
+    {
+      HabitMetrics? mobM = GetMetrics(habit.Id);
+      <div class="habit-mob-card">
+        <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+          <div class="d-flex align-items-center gap-2 flex-grow-1 min-w-0">
+            @if (!string.IsNullOrEmpty(habit.IconCss))
+            {
+              <i class='@habit.IconCss flex-shrink-0' style='color:@habit.ColorHex;font-size:1rem'></i>
+            }
+            else
+            {
+              <span class="habit-dot flex-shrink-0" style='background:@habit.ColorHex'></span>
+            }
+            <span class="fw-semibold text-truncate" style="font-size:.9rem">@habit.Name</span>
+          </div>
+          <AuthorizeView Context="habitMobRowAuth">
+            <Authorized>
+              <div class="d-flex gap-1 flex-shrink-0">
+                <button class="lp-tx-action-btn" @onclick='() => EditHabit(habit)' title='@Loc["Edit"]'>
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="lp-tx-action-btn lp-tx-action-btn-danger" @onclick='() => ConfirmDeleteHabit(habit)' title='@Loc["Delete"]'>
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </Authorized>
+          </AuthorizeView>
+        </div>
+
+        <div class="habit-cal-grid mb-2">
+          @foreach (string dow in calDowLabels)
+          {
+            <div class="habit-cal-dow">@dow</div>
+          }
+          @for (int cell = 0; cell < calTotalCells; cell++)
+          {
+            int dayNum = cell - calFirstDow + 1;
+            if (dayNum < 1 || dayNum > calTotalDays)
+            {
+              <div></div>
+            }
+            else
+            {
+              bool calDone = IsDone(habit.Id, dayNum);
+              bool calFuture = IsFutureDay(dayNum);
+              bool calToday = IsToday(dayNum);
+              <div class="habit-cal-cell @(calToday ? "habit-cal-today" : "")">
+                <span class="habit-cal-daynum">@dayNum</span>
+                @if (!calFuture)
+                {
+                  <AuthorizeView Context="habitCalAuth">
+                    <Authorized>
+                      <button class='habit-cal-toggle @(calDone ? "done" : "not-done")'
+                              @onclick='async () => await ToggleHabit(habit.Id, dayNum)'>
+                        @if (calDone) { <i class="bi bi-check" style="font-size:.6rem"></i> }
+                      </button>
+                    </Authorized>
+                    <NotAuthorized>
+                      <button class='habit-cal-toggle @(calDone ? "done" : "not-done")' disabled>
+                        @if (calDone) { <i class="bi bi-check" style="font-size:.6rem"></i> }
+                      </button>
+                    </NotAuthorized>
+                  </AuthorizeView>
+                }
+                else
+                {
+                  <div class="habit-cal-toggle future"></div>
+                }
+              </div>
+            }
+          }
+        </div>
+
+        @if (mobM != null)
+        {
+          <div class="d-flex gap-2 align-items-center">
+            <span class="habit-mob-stat-lbl">@Loc["Wk."]</span>
+            <span class='badge @PercentBadge(mobM.WeeklyPercent)' style="font-size:.65rem">@mobM.WeeklyPercent.ToString("0")%</span>
+            <span class="habit-mob-stat-lbl">@Loc["Mo."]</span>
+            <span class='badge @PercentBadge(mobM.MonthlyPercent)' style="font-size:.65rem">@mobM.MonthlyPercent.ToString("0")%</span>
+            @if (mobM.CurrentStreak > 0)
+            {
+              <span class="badge bg-warning text-dark" style="font-size:.65rem"><i class="bi bi-fire me-1"></i>@mobM.CurrentStreak</span>
+            }
+          </div>
+        }
+      </div>
+      <hr class="my-3" />
+    }
+  </div>
+}
+
+@* ── Habit Modal ──────────────────────────────────────────────────────────── *@
+@if (showHabitModal)
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-fullscreen-sm-down">
+      <div class="modal-content">
+        <div class="modal-header lp-modal-header">
+          <h5 class="modal-title text-white">@(editingHabit.Id == 0 ? Loc["New Habit"] : Loc["Edit Habit"])</h5>
+          <button type="button" class="btn-close btn-close-white" @onclick="CloseHabitModal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Name *"]</label>
+            <input class="form-control lp-modal-input" @bind="editingHabit.Name" placeholder='@Loc["e.g. Meditate, Exercise, Read..."]' />
+          </div>
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">@Loc["Description"]</label>
+            <textarea class="form-control lp-modal-input" rows="2" @bind="editingHabit.Description"></textarea>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Color"]</label>
+              <input type="color" class="form-control form-control-color" @bind="editingHabit.ColorHex" />
+            </div>
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Icon (Bootstrap Icons CSS)"]</label>
+              <input class="form-control lp-modal-input" @bind="editingHabit.IconCss" placeholder="bi bi-heart" />
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label class="form-label lp-modal-label">@Loc["Pillar"]</label>
+              <select class="form-select lp-modal-input" @bind="editingHabit.PillarId">
+                <option value="">@Loc["-- none --"]</option>
+                @foreach (PillarEntity p in pillars)
+                {
+                  <option value="@p.Id">@p.Name</option>
+                }
+              </select>
+            </div>
+            <div class="col-auto d-flex align-items-end">
+              <div class="form-check mb-0">
+                <input class="form-check-input" type="checkbox" id="habitActive" @bind="editingHabit.IsActive" />
+                <label class="form-check-label" for="habitActive">@Loc["Active"]</label>
+              </div>
+            </div>
+          </div>
+
+          @* ── Frequency days ────────────────────────────────────────────── *@
+          <div class="mb-3">
+            <label class="form-label lp-modal-label">
+              <i class="bi bi-repeat me-1 text-primary"></i>@Loc["Habit frequency"]
+            </label>
+            <div class="d-flex gap-1 flex-wrap">
+              @{
+                string[] dayLabels = Loc.Culture.DateTimeFormat.AbbreviatedDayNames;
+                for (int d = 0; d < 7; d++)
+                {
+                  int day = d;
+                  bool active = editingHabitDays.Contains(day);
+                  <button type="button"
+                          class='btn btn-sm @(active ? "btn-primary" : "btn-outline-secondary")'
+                          style="min-width:2.4rem"
+                          @onclick="() => ToggleFrequencyDay(day)">
+                    @dayLabels[d]
+                  </button>
+                }
+              }
+            </div>
+            @if (editingHabitDays.Count > 0)
+            {
+              <small class="text-muted mt-1 d-block">
+                <i class="bi bi-info-circle me-1"></i>@Loc["These days are used only for habit tracking."]
+              </small>
+            }
+          </div>
+        </div>
+        <div class="modal-footer lp-modal-footer">
+          <button class="lp-modal-btn-cancel" @onclick="CloseHabitModal">@Loc["Cancel"]</button>
+          <AuthorizeView>
+            <Authorized>
+              <button class="lp-modal-btn-save" @onclick="SaveHabit" disabled="@isSaving">
+                @(isSaving ? Loc["Saving..."] : Loc["Save"])
+              </button>
+            </Authorized>
+            <NotAuthorized>
+              <button class="lp-modal-btn-cancel" disabled>
+                <i class="bi bi-lock me-1"></i>@Loc["Log in to save"]
+              </button>
+            </NotAuthorized>
+          </AuthorizeView>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@* ── Delete Confirm Modal ─────────────────────────────────────────────────── *@
+@if (!string.IsNullOrEmpty(deleteMessage))
+{
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4">
+          <i class="bi bi-exclamation-triangle text-danger" style="font-size:2rem"></i>
+          <p class="mt-2 mb-0">@deleteMessage</p>
+        </div>
+        <div class="modal-footer justify-content-center border-0 pt-0">
+          <button class="lp-modal-btn-cancel" @onclick='() => deleteMessage = ""'>@Loc["Cancel"]</button>
+          <button class="btn btn-danger btn-sm" @onclick="ExecuteDelete" disabled="@isSaving">@Loc["Delete"]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+</div>

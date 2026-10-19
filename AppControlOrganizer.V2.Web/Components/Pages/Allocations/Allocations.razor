@@ -1,0 +1,384 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="Allocations.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/allocations"
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer
+
+<PageTitle>@Loc["Allocations"] - Life Planner</PageTitle>
+
+<!-- Page header -->
+<div class="lp-page-header mb-4">
+  <div>
+    <h1 class="lp-page-title mb-0 d-flex align-items-center">
+      <i class="bi bi-graph-up-arrow me-2"></i>@Loc["Allocations"]
+    </h1>
+    <p class="lp-page-subtitle mb-0">@Loc["Portfolio and allocations"]</p>
+  </div>
+
+  <div class="lp-action-bar" hidden="@isInitialAllocationsLoading">
+    <!-- View mode toggle -->
+    <div class="lp-view-toggle">
+      <button type="button"
+              class="lp-view-btn @(selectedViewMode == AllocationViewMode.List ? "lp-view-btn-active" : "")"
+              @onclick="() => SetViewMode(AllocationViewMode.List)"
+              title='@Loc["List"]'>
+        <i class="bi bi-list-ul"></i><span class="lp-action-label ms-1">@Loc["List"]</span>
+      </button>
+      <button type="button"
+              class="lp-view-btn @(selectedViewMode == AllocationViewMode.Grouped ? "lp-view-btn-active" : "")"
+              @onclick="() => SetViewMode(AllocationViewMode.Grouped)"
+              title='@Loc["Grouped"]'>
+        <i class="bi bi-grid-3x3-gap"></i><span class="lp-action-label ms-1">@Loc["Grouped"]</span>
+      </button>
+    </div>
+
+    <!-- Secondary actions -->
+    <a class="lp-btn-ghost"
+       href="accounts"
+       title='@Loc["Accounts"]'>
+      <i class="bi bi-bank"></i><span class="lp-action-label ms-1">@Loc["Accounts"]</span>
+    </a>
+    <button type="button"
+            class="lp-btn-ghost @(showQuotes ? "lp-btn-ghost-active" : "")"
+            @onclick="ToggleQuotes"
+            title='@Loc["Quotes"]'>
+      <i class="bi bi-graph-up"></i><span class="lp-action-label ms-1">@Loc["Quotes"]</span>
+    </button>
+    <button type="button"
+            class="lp-btn-ghost @(showFilters ? "lp-btn-ghost-active" : "")"
+            @onclick="() => showFilters = !showFilters"
+            title='@Loc["Filters"]'>
+      <i class="bi bi-funnel"></i><span class="lp-action-label ms-1">@Loc["Filters"]</span>
+    </button>
+    <button type="button"
+            class="lp-btn-ghost @(showFixedIncomeAudit ? "lp-btn-ghost-active" : "")"
+            @onclick="ToggleFixedIncomeAudit"
+            title='@Loc["Fixed income audit"]'>
+      <i class="bi bi-clipboard-pulse"></i><span class="lp-action-label ms-1">@Loc["Audit"]</span>
+    </button>
+    <WriteGuard>
+      <button type="button" class="lp-btn-primary" @onclick="OnNewAllocationClick">
+        <i class="bi bi-plus-circle me-1"></i>@Loc["New Allocation"]
+      </button>
+    </WriteGuard>
+  </div>
+</div>
+
+@if (isInitialAllocationsLoading && (accounts == null || !accounts.Any()))
+{
+  <div class="d-flex justify-content-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+}
+else
+{
+  <!-- Filters card -->
+  @if (showFilters)
+  {
+    <div class="lp-card mb-4 filter-card">
+      <div class="row g-3 align-items-end">
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label lp-form-label">@Loc["Account"]</label>
+          <SearchableDropdown TValue="int"
+                              Items="@FilterAccountItems"
+                              @bind-Value="selectedAccountId"
+                              @bind-Value:after="ApplyFiltersAndNavigate"
+                              EmptyValue="0"
+                              Placeholder='@Loc["All Accounts"]' />
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label lp-form-label">@Loc["Type"]</label>
+          <SearchableDropdown TValue="string"
+                              Items="@FilterAllocationTypeItems"
+                              @bind-Value="selectedType"
+                              @bind-Value:after="ApplyFiltersAndNavigate"
+                              EmptyValue='@("")'
+                              Placeholder='@Loc["All Types"]' />
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <label class="form-label lp-form-label">@Loc["Currency"]</label>
+          <SearchableDropdown TValue="string"
+                              Items="@FilterCurrencyItems"
+                              @bind-Value="selectedCurrency"
+                              @bind-Value:after="ApplyFiltersAndNavigate"
+                              EmptyValue='@("")'
+                              Placeholder='@Loc["All Currencies"]' />
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <label class="form-label lp-form-label">@Loc["Maturity"]</label>
+          <SearchableDropdown TValue="string"
+                              Items="@FilterExpirationItems"
+                              @bind-Value="selectedExpiration"
+                              @bind-Value:after="ApplyFiltersAndNavigate"
+                              EmptyValue='@("")'
+                              Placeholder='@Loc["All Maturities"]' />
+        </div>
+        <div class="col-lg-2 col-md-12">
+          <label class="form-label lp-form-label">@Loc["Quick Search"]</label>
+          <input class="form-control"
+                 placeholder='@Loc["Name / initials / notes..."]'
+                 @bind="quickSearch"
+                 @bind:event="oninput"
+                 @bind:after="ApplyFiltersAndNavigate" />
+        </div>
+      </div>
+      @if (selectedAccountId > 0 || !string.IsNullOrWhiteSpace(selectedType) || !string.IsNullOrWhiteSpace(selectedCurrency) || !string.IsNullOrWhiteSpace(selectedExpiration) || !string.IsNullOrWhiteSpace(quickSearch))
+      {
+        <div class="lp-filter-actions mt-3">
+          <button type="button" class="lp-filter-clear" @onclick="ClearAllocationFilters">
+            <i class="bi bi-x-circle me-1"></i>@Loc["Clear filters"]
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  @if (showQuotes)
+  {
+    <MarketQuotesChart FocusQuote="@focusedQuote" />
+  }
+
+  @if (showFixedIncomeAudit)
+  {
+    <div class="lp-card mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+        <div>
+          <h2 class="h6 mb-1">@Loc["Fixed income audit"]</h2>
+          <div class="text-muted small">
+            @Loc["Compares saved values with BACEN calculations and points to likely metadata issues."]
+          </div>
+        </div>
+        <button type="button"
+                class="btn btn-sm btn-outline-primary"
+                disabled="@isAuditingFixedIncome"
+                @onclick="RunFixedIncomeAudit">
+          @if (isAuditingFixedIncome)
+          {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          <i class="bi bi-arrow-clockwise me-1"></i>@Loc["Run audit"]
+        </button>
+      </div>
+
+      @if (!string.IsNullOrWhiteSpace(fixedIncomeAuditError))
+      {
+        <div class="alert alert-warning py-2 mb-3">@fixedIncomeAuditError</div>
+      }
+
+      @if (fixedIncomeAuditItems.Count == 0 && !isAuditingFixedIncome)
+      {
+        <div class="text-muted small">
+          @Loc["Run the audit to check fixed-income allocations in the current filters."]
+        </div>
+      }
+      else
+      {
+        <div class="d-flex flex-wrap gap-2 mb-3 small">
+          <span class="badge bg-secondary">@Loc["Audited:"] @fixedIncomeAuditItems.Count</span>
+          <span class="badge bg-danger">@Loc["Divergences:"] @fixedIncomeAuditItems.Count(item => item.HasDivergence)</span>
+          <span class="badge bg-success">@Loc["Close to BACEN:"] @fixedIncomeAuditItems.Count(item => item.CanCalculate && !item.HasDivergence)</span>
+        </div>
+
+        <div class="row g-2">
+          @foreach (FixedIncomeAuditItem audit in fixedIncomeAuditItems)
+          {
+            <div class="col-12 col-xl-6">
+              <div class="border rounded-2 p-3 h-100">
+                <div class="d-flex justify-content-between gap-2">
+                  <div class="min-w-0">
+                    <div class="fw-semibold text-truncate">@audit.Allocation.Name</div>
+                    <div class="text-muted small">
+                      @audit.Allocation.AllocationType.GetDisplayName()
+                      · @audit.Allocation.ProfitType @audit.Allocation.ProfitPercentage%
+                      · @Loc["Start:"] @(audit.Allocation.ProfitDate?.ToString("d", Loc.Culture) ?? "—")
+                    </div>
+                  </div>
+                  <span class="@GetAuditBadgeCss(audit)">@Loc[GetAuditStatusKey(audit)]</span>
+                </div>
+
+                <div class="row g-2 mt-2 small">
+                  <div class="col-6">
+                    <span class="text-muted d-block">@Loc["Applied total"]</span>
+                    <strong>@FormatMoneySafe(audit.Allocation.Currency, audit.AppliedTotal)</strong>
+                  </div>
+                  <div class="col-6">
+                    <span class="text-muted d-block">@Loc["Saved current"]</span>
+                    <strong>@FormatMoneySafe(audit.Allocation.Currency, audit.SavedCurrentTotal)</strong>
+                  </div>
+                  <div class="col-6">
+                    <span class="text-muted d-block">@Loc["BACEN expected"]</span>
+                    <strong>@(audit.ExpectedCurrentTotal.HasValue ? FormatMoneySafe(audit.Allocation.Currency, audit.ExpectedCurrentTotal.Value) : "—")</strong>
+                  </div>
+                  <div class="col-6">
+                    <span class="text-muted d-block">@Loc["Difference"]</span>
+                    <strong class="@GetAuditDifferenceCss(audit)">
+                      @(audit.Difference.HasValue ? FormatSignedMoney(audit.Allocation.Currency, audit.Difference.Value) : "—")
+                      @if (audit.DifferencePercentage.HasValue)
+                      {
+                        <span>(@FormatSignedPercent(audit.DifferencePercentage.Value))</span>
+                      }
+                    </strong>
+                  </div>
+                </div>
+
+                <div class="small mt-2">
+                  <span class="text-muted">@Loc["Diagnosis:"]</span>
+                  @Loc[audit.DiagnosticKey]
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2 small text-muted">
+                  <span>
+                    @Loc["BACEN base:"]
+                    @(audit.LastRateDate.HasValue ? audit.LastRateDate.Value.ToString("d", Loc.Culture) : "—")
+                    @if (audit.RateCount > 0)
+                    {
+                      <span>· @audit.RateCount @Loc["rates"]</span>
+                    }
+                  </span>
+                  <button type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          @onclick="() => ShowEditModal(audit.Allocation)">
+                    <i class="bi bi-pencil-square me-1"></i>@Loc["Adjust metadata"]
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (isLoadingList)
+  {
+    <div class="d-flex justify-content-center my-3">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+  else
+  {
+    @if (!accounts.Any())
+    {
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>@Loc["You need a financial account (bank/broker) to add allocations."]
+        <a href="accounts" class="alert-link">@Loc["Create a financial account"]</a>.
+      </div>
+    }
+
+    @if (!allocations.Any() && selectedViewMode is AllocationViewMode.List or AllocationViewMode.Grouped)
+    {
+      <div class="alert alert-info d-flex flex-wrap align-items-center gap-2">
+        <span><i class="bi bi-info-circle me-2"></i>@Loc["No allocations found."]</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ClearAllocationFilters">@Loc["Clear filters"]</button>
+        <a href="accounts" class="btn btn-sm btn-outline-secondary">@Loc["Accounts"]</a>
+        <a href='@GetAllocationsHref(panel: "quotes")' class="btn btn-sm btn-outline-secondary">@Loc["Quotes"]</a>
+      </div>
+    }
+
+    @if (selectedViewMode is AllocationViewMode.List or AllocationViewMode.Grouped)
+    {
+      <AllocationsPortfolioSummary IsLoadingSummary="@isLoadingSummary"
+                                   TotalInvested="@totalInvested"
+                                   TotalCurrent="@totalCurrent"
+                                   Profit="@profit"
+                                   ProfitPercentage="@profitPercentage"
+                                   HasMultipleCurrencies="@hasMultipleCurrencies"
+                                   HasUnconvertedCurrencies="@hasUnconvertedCurrencies"
+                                   TypeSummaries="@TypeSummaries"
+                                   AccountSummaries="@AccountSummaries"
+                                   CurrencySummaries="@CurrencySummaries"
+                                   TopPositions="@TopPositions"
+                                   UpcomingExpirations="@UpcomingExpirations"
+                                   AllAllocationsHref="@GetAllocationsHref(view: AllocationViewMode.List, clearFilters: true)"
+                                   DashboardHref="@GetAllocationsHref(view: selectedViewMode)"
+                                   OnOpenAllocation="OpenAllocationById" />
+    }
+
+    @switch (selectedViewMode)
+    {
+      case AllocationViewMode.List:
+        <AllocationsListView Allocations="@allocations"
+                             LatestQuotes="@latestQuotes"
+                             UsdBrlQuote="@usdBrlQuote"
+                             HasUsdBrlQuote="@hasUsdBrlQuote"
+                             QuotesHref='@GetAllocationsHref(panel: "quotes")'
+                             OnEdit="ShowEditModal"
+                             OnDelete="ConfirmDelete" />
+        break;
+
+      case AllocationViewMode.Grouped:
+        <AllocationsGroupedView Groups="@GroupedByType"
+                                CurrencySummaries="@CurrencySummaries"
+                                TotalCurrentApproxBrl="@totalCurrentApproxBrl"
+                                HasMultipleCurrencies="@hasMultipleCurrencies"
+                                HasUnconvertedCurrencies="@hasUnconvertedCurrencies"
+                                LatestQuotes="@latestQuotes"
+                                UsdBrlQuote="@usdBrlQuote"
+                                HasUsdBrlQuote="@hasUsdBrlQuote"
+                                TotalInvested="@totalInvested"
+                                TotalCurrent="@totalCurrent"
+                                Profit="@profit"
+                                ProfitPercentage="@profitPercentage"
+                                IsLoadingSummary="@isLoadingSummary"
+                                OnOpenAllocation="OpenAllocationById"
+                                OnEdit="ShowEditModal"
+                                OnDelete="ConfirmDelete" />
+        break;
+    }
+  }
+}
+
+<!-- Create/Edit Modal -->
+<AllocationUpsertModal Visible="@showModal"
+                       IsEditing="@isEditing"
+                       IsSaving="@isSaving"
+                       Model="@currentAllocation"
+                       Accounts="@accounts"
+                       LatestQuotes="@latestQuotes"
+                       OnValidSubmit="() => SaveAllocation()"
+                       OnRequestClose="RequestCloseModal"
+                       OnMarkDirty="MarkDirty" />
+
+<!-- Discard confirmation modal -->
+<AppConfirmModal Visible="@showConfirmDiscard"
+                 Title='@Loc["Confirm Close"]'
+                 ConfirmText='@Loc["Discard"]'
+                 CancelText='@Loc["Cancel"]'
+                 ConfirmButtonCss="btn-danger"
+                 IsBusy="@isSaving"
+                 DisableConfirm="@false"
+                 OnConfirm="ConfirmDiscard"
+                 OnCancel="CancelDiscard">
+  <Body>
+    <p>@Loc["You have unsaved changes. Do you want to close and discard changes?"]</p>
+  </Body>
+</AppConfirmModal>
+
+<!-- Delete confirmation modal -->
+<AppConfirmModal Visible="@showDeleteConfirm"
+                 Title='@Loc["Confirm Delete"]'
+                 ConfirmText='@Loc["Delete"]'
+                 CancelText='@Loc["Cancel"]'
+                 ConfirmButtonCss="btn-danger"
+                 IsBusy="@isSaving"
+                 OnConfirm="() => DeleteAllocation(CancellationToken.None)"
+                 OnCancel="() => showDeleteConfirm = false">
+  <Body>
+    <p>Do you really want to delete the allocation <strong>@allocationToDelete?.Name</strong>?</p>
+  </Body>
+</AppConfirmModal>
+
+<!-- Toast notification -->
+<AppToast Message="@message"
+          IsError="@isError"
+          OnDismiss="@(() => message = string.Empty)" />

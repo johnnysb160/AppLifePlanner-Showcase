@@ -1,0 +1,489 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="Home.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/"
+@rendermode InteractiveServer
+@inject AppControlOrganizer.V2.Web.Services.UI.ValuesVisibilityService ValuesVis
+
+<PageTitle>@Loc["Today"] - Life Planner</PageTitle>
+
+<TodayDashboard Greeting="@Greeting" DisplayName="@navDisplayName" />
+
+@* ═══════════════════════════════════════════════════════════════════
+   MOBILE LAYOUT  (< lg breakpoint)
+   ═══════════════════════════════════════════════════════════════════ *@
+<div class="d-block d-lg-none dash-mobile">
+
+  @if (isInitialDashboardLoading && !recentAccounts.Any())
+  {
+    @* Initial loading skeleton *@
+    <div class="dash-skeleton-card"></div>
+    <div class="dash-skeleton-chips">
+      <div class="dash-skeleton-chip"></div>
+      <div class="dash-skeleton-chip"></div>
+      <div class="dash-skeleton-chip"></div>
+    </div>
+    <div class="dash-skeleton-section"></div>
+  }
+  else
+  {
+    @* ── Balance hero card ── *@
+    <div class="dash-balance-card">
+      <div class="dash-balance-card-glow"></div>
+      <div class="dash-balance-period">
+        <a class="dash-balance-label dash-dashboard-link" href="@GetTransactionsHref()">@($"{Loc["Monthly result"]} · {GetMonthName(selectedMonth)} {selectedYear}")</a>
+        <div class="dash-period-group">
+          <div class="dropdown">
+            <button class="dash-period-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">@GetMonthName(selectedMonth)</button>
+            <ul class="dropdown-menu dash-period-dropdown-menu">
+              @for (int m = 1; m <= 12; m++)
+              {
+                int mv = m;
+                <li><button class='dropdown-item dash-period-dropdown-item @(selectedMonth == mv ? "active" : "")' @onclick="() => SelectMonth(mv)">@GetMonthName(mv)</button></li>
+              }
+            </ul>
+          </div>
+          <div class="dropdown">
+            <button class="dash-period-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">@selectedYear</button>
+            <ul class="dropdown-menu dash-period-dropdown-menu">
+              @for (int y = DateTime.Now.Year - 5; y <= DateTime.Now.Year + 1; y++)
+              {
+                int yv = y;
+                <li><button class='dropdown-item dash-period-dropdown-item @(selectedYear == yv ? "active" : "")' @onclick="() => SelectYear(yv)">@yv</button></li>
+              }
+            </ul>
+          </div>
+          <button class="dash-period-today" title="@Loc["Current Month"]" @onclick="() => GoToCurrentMonth()"><i class="bi bi-calendar-event"></i></button>
+        </div>
+      </div>
+      <div class="dash-balance-top">
+        @if (isLoadingIncomeExpense)
+        {
+          <span class="dash-balance-value dash-loading-pulse">---</span>
+        }
+        else
+        {
+          <a class="dash-balance-value dash-dashboard-link @(monthlyBalance >= 0 ? "positive" : "negative")" href="@GetTransactionsHref()">
+            @ValuesVis.Mask(Helper.FormatBrl(monthlyBalance))
+          </a>
+        }
+      </div>
+      <div class="dash-balance-divider"></div>
+      <div class="dash-balance-row">
+        @* Income *@
+        <a class="dash-balance-item dash-dashboard-link" href="@GetTransactionsHref(true)">
+          <span class="dash-balance-pill income">
+            <i class="bi bi-arrow-up-right"></i>
+          </span>
+          <div class="dash-balance-item-body">
+            <span class="dash-balance-item-label">@Loc["Operating income"]</span>
+            @if (isLoadingIncomeExpense)
+            {
+              <span class="dash-balance-item-value dash-loading-pulse">---</span>
+            }
+            else
+            {
+              <span class="dash-balance-item-value income">@ValuesVis.Mask(Helper.FormatBrl(monthlyIncome))</span>
+              <span class="dash-balance-item-count">@monthlyIncomeCount @Loc["transactions"]</span>
+            }
+          </div>
+        </a>
+        <div class="dash-balance-sep"></div>
+        @* Expense *@
+        <a class="dash-balance-item dash-dashboard-link" href="@GetTransactionsHref(false)">
+          <span class="dash-balance-pill expense">
+            <i class="bi bi-arrow-down-left"></i>
+          </span>
+          <div class="dash-balance-item-body">
+            <span class="dash-balance-item-label">@Loc["Expenses"]</span>
+            @if (isLoadingIncomeExpense)
+            {
+              <span class="dash-balance-item-value dash-loading-pulse">---</span>
+            }
+            else
+            {
+              <span class="dash-balance-item-value expense">@ValuesVis.Mask(Helper.FormatBrl(monthlyExpense))</span>
+              <span class="dash-balance-item-count">@monthlyExpenseCount @Loc["transactions"]</span>
+            }
+          </div>
+        </a>
+      </div>
+    </div>
+
+    @* ── Net worth card ── *@
+    @if (totalBalance != 0 || totalCurrentValue != 0 || canonicalNetWorth != 0)
+    {
+      <div class="dash-card mb-3">
+        <div class="dash-card-header">
+          <div class="dash-card-title">
+            <i class="bi bi-safe2-fill"></i>
+            @Loc["Net Worth"]
+          </div>
+        </div>
+        <div class="dash-card-body px-3 pb-3 pt-1">
+          <a class="d-flex justify-content-between align-items-center mb-2 dash-dashboard-link" href="accounts">
+            <span class="text-muted small">@Loc["Accounts"]</span>
+            <span class="fw-semibold">@ValuesVis.Mask(Helper.FormatBrl(totalBalance))</span>
+          </a>
+          <a class="d-flex justify-content-between align-items-center mb-2 dash-dashboard-link" href="allocations">
+            <span class="text-muted small">@Loc["Allocations"]</span>
+            <span class="fw-semibold text-success">@ValuesVis.Mask(Helper.FormatBrl(totalCurrentValue))</span>
+          </a>
+          <a class="border-top pt-2 d-flex justify-content-between align-items-center dash-dashboard-link" href="plan#finance">
+            <span class="fw-bold small">@Loc["Net Worth"]</span>
+            <span class="fw-bold @(canonicalNetWorth >= 0 ? "text-success" : "text-danger")">
+              @ValuesVis.Mask(Helper.FormatBrl(canonicalNetWorth))
+            </span>
+          </a>
+        </div>
+      </div>
+    }
+
+    @* ── Quick access chips ── *@
+    <div class="dash-chips-row">
+      <a href="accounts" class="dash-chip">
+        <span class="dash-chip-icon" style="background: linear-gradient(135deg,#1d4ed8,#4f46e5)">
+          <i class="bi bi-bank"></i>
+        </span>
+        <span class="dash-chip-label">@totalAccounts @Loc["Accounts"]</span>
+      </a>
+      <a href="allocations" class="dash-chip">
+        <span class="dash-chip-icon" style="background: linear-gradient(135deg,#059669,#0891b2)">
+          <i class="bi bi-graph-up-arrow"></i>
+        </span>
+        <span class="dash-chip-label">@totalAllocations @Loc["Allocations"]</span>
+      </a>
+      <a href="transactions" class="dash-chip">
+        <span class="dash-chip-icon" style="background: linear-gradient(135deg,#b45309,#dc2626)">
+          <i class="bi bi-cash-stack"></i>
+        </span>
+        <span class="dash-chip-label">@Loc["Transactions"]</span>
+      </a>
+    </div>
+
+  }
+
+</div>
+
+@* ═══════════════════════════════════════════════════════════════════
+   DESKTOP LAYOUT  (≥ lg breakpoint)
+   ═══════════════════════════════════════════════════════════════════ *@
+<div class="d-none d-lg-block desk-dash">
+
+  @if (isInitialDashboardLoading && !recentAccounts.Any())
+  {
+    <div class="d-flex justify-content-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+  else
+  {
+    @* ── Balance hero + 4 stat tiles ── *@
+    <div class="row g-2 mb-4">
+
+      @* Balance card — spans 2 columns *@
+      <div class="col-lg-6">
+        <div class="desk-balance-card">
+          <div class="desk-balance-card-glow"></div>
+          <div class="desk-balance-header">
+            <a class="desk-balance-label dash-dashboard-link" href="@GetTransactionsHref()">@($"{Loc["Monthly result"]} · {GetMonthName(selectedMonth)} {selectedYear}")</a>
+            <div class="desk-period-group">
+              <div class="dropdown">
+                <button class="desk-period-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">@GetMonthName(selectedMonth)</button>
+                <ul class="dropdown-menu desk-period-dropdown-menu">
+                  @for (int m = 1; m <= 12; m++)
+                  {
+                    int mv = m;
+                    <li><button class='dropdown-item desk-period-dropdown-item @(selectedMonth == mv ? "active" : "")' @onclick="() => SelectMonth(mv)">@GetMonthName(mv)</button></li>
+                  }
+                </ul>
+              </div>
+              <div class="dropdown">
+                <button class="desk-period-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">@selectedYear</button>
+                <ul class="dropdown-menu desk-period-dropdown-menu">
+                  @for (int y = DateTime.Now.Year - 5; y <= DateTime.Now.Year + 1; y++)
+                  {
+                    int yv = y;
+                    <li><button class='dropdown-item desk-period-dropdown-item @(selectedYear == yv ? "active" : "")' @onclick="() => SelectYear(yv)">@yv</button></li>
+                  }
+                </ul>
+              </div>
+              <button class="desk-period-btn" @onclick="() => GoToCurrentMonth()" title="@Loc["Current Month"]"><i class="bi bi-calendar-event"></i></button>
+            </div>
+          </div>
+          @if (isLoadingIncomeExpense)
+          {
+            <div class="desk-balance-value dash-loading-pulse">---</div>
+          }
+          else
+          {
+            <a class="desk-balance-value dash-dashboard-link @(monthlyBalance >= 0 ? "positive" : "negative")" href="@GetTransactionsHref()">
+              @ValuesVis.Mask(Helper.FormatBrl(monthlyBalance))
+            </a>
+          }
+          <div class="desk-balance-divider"></div>
+          <div class="desk-balance-row">
+            <a class="desk-balance-item dash-dashboard-link" href="@GetTransactionsHref(true)">
+              <span class="desk-balance-pill income"><i class="bi bi-arrow-up-right"></i></span>
+              <div>
+                <div class="desk-balance-item-label">@Loc["Operating income"]</div>
+                @if (isLoadingIncomeExpense)
+                {
+                  <div class="desk-balance-item-value dash-loading-pulse">---</div>
+                }
+                else
+                {
+                  <div class="desk-balance-item-value income">@ValuesVis.Mask(Helper.FormatBrl(monthlyIncome))</div>
+                  <div class="desk-balance-item-count">@monthlyIncomeCount @Loc["transactions"]</div>
+                }
+              </div>
+            </a>
+            <div class="desk-balance-sep"></div>
+            <a class="desk-balance-item dash-dashboard-link" href="@GetTransactionsHref(false)">
+              <span class="desk-balance-pill expense"><i class="bi bi-arrow-down-left"></i></span>
+              <div>
+                <div class="desk-balance-item-label">@Loc["Expenses"]</div>
+                @if (isLoadingIncomeExpense)
+                {
+                  <div class="desk-balance-item-value dash-loading-pulse">---</div>
+                }
+                else
+                {
+                  <div class="desk-balance-item-value expense">@ValuesVis.Mask(Helper.FormatBrl(monthlyExpense))</div>
+                  <div class="desk-balance-item-count">@monthlyExpenseCount @Loc["transactions"]</div>
+                }
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      @* 6 stat tiles — 3×2 grid *@
+      <div class="col-lg-6">
+        <div class="row g-2 h-100">
+          <div class="col-4">
+            <a href="accounts" class="desk-stat-tile h-100" style="--tile-color:#1d4ed8;--tile-color2:#4f46e5">
+              <span class="desk-stat-icon"><i class="bi bi-bank"></i></span>
+              <div class="desk-stat-info">
+                <span class="desk-stat-label">@Loc["Accounts"]</span>
+                <span class="desk-stat-value desk-stat-value-sm">@ValuesVis.Mask(Helper.FormatBrl(totalBalance))</span>
+              </div>
+              <i class="bi bi-arrow-right desk-stat-arrow"></i>
+            </a>
+          </div>
+          <div class="col-4">
+            <a href="allocations" class="desk-stat-tile h-100" style="--tile-color:#059669;--tile-color2:#0891b2">
+              <span class="desk-stat-icon"><i class="bi bi-graph-up-arrow"></i></span>
+              <div class="desk-stat-info">
+                <span class="desk-stat-label">@Loc["Allocations"]</span>
+                <span class="desk-stat-value desk-stat-value-sm">@ValuesVis.Mask(Helper.FormatBrl(totalCurrentValue))</span>
+              </div>
+              <i class="bi bi-arrow-right desk-stat-arrow"></i>
+            </a>
+          </div>
+          <div class="col-4">
+            <a href="plan#finance" class="desk-stat-tile h-100" style="--tile-color:#0f766e;--tile-color2:#0369a1">
+              <span class="desk-stat-icon"><i class="bi bi-safe2-fill"></i></span>
+              <div class="desk-stat-info">
+                <span class="desk-stat-label">@Loc["Net Worth"]</span>
+                <span class="desk-stat-value desk-stat-value-sm">@ValuesVis.Mask(Helper.FormatBrl(canonicalNetWorth))</span>
+              </div>
+              <i class="bi bi-arrow-right desk-stat-arrow"></i>
+            </a>
+          </div>
+          <div class="col-4">
+            <div class="desk-stat-tile desk-stat-tile-popover h-100" style="--tile-color:#d97706;--tile-color2:#16a34a" tabindex="0" aria-label="@Loc["Contribution details"]">
+              <span class="desk-stat-icon"><i class="bi bi-piggy-bank"></i></span>
+              <div class="desk-stat-info">
+                <span class="desk-stat-label">@Loc["Contributions"]</span>
+                <span class="desk-stat-value desk-stat-value-sm">@ValuesVis.Mask(Helper.FormatBrl(monthlyContributions))</span>
+              </div>
+              <i class="bi bi-list-ul desk-stat-arrow"></i>
+              <FinancialDetailsPopover
+                AriaLabel="@Loc["Contribution details"]"
+                Header="@Loc["Investment movements"]"
+                HeaderValue="@ValuesVis.Mask(Helper.FormatBrl(monthlyContributions))"
+                EmptyMessage="@Loc["No investment movements this month."]"
+                Rows="@GetContributionPopoverRows()" />
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="desk-stat-tile desk-stat-tile-popover h-100" style="--tile-color:#7c3aed;--tile-color2:#be185d" tabindex="0" aria-label="@Loc["Reserve details"]">
+              <span class="desk-stat-icon"><i class="bi bi-shield-check"></i></span>
+              <div class="desk-stat-info">
+                <span class="desk-stat-label">@Loc["Reserve"]</span>
+                <span class="desk-stat-value desk-stat-value-sm">@GetReserveTileValue()</span>
+              </div>
+              <a href="plan#finance" class="desk-stat-arrow" aria-label="@Loc["Open plan"]"><i class="bi bi-arrow-right"></i></a>
+              <ReserveDetailsPopover Facts="@financialFacts" />
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="desk-stat-tile desk-stat-tile-popover desk-stat-popover-end h-100" style="--tile-color:#be185d;--tile-color2:#9333ea" tabindex="0" aria-label="@Loc["Projection details"]">
+              <span class="desk-stat-icon"><i class="bi bi-flag"></i></span>
+              <div class="desk-stat-info">
+                <span class="desk-stat-label">@Loc["Annual projection"]</span>
+                <span class="desk-stat-value desk-stat-value-sm">@ValuesVis.Mask(Helper.FormatBrl(plannedYearEndNetWorth))</span>
+              </div>
+              <a href="plan#finance" class="desk-stat-arrow" aria-label="@Loc["Open plan"]"><i class="bi bi-arrow-right"></i></a>
+              <ProjectionDetailsPopover Facts="@financialFacts" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  }
+
+</div>
+
+@if (!isInitialDashboardLoading || recentAccounts.Any())
+{
+  <section class="dash-finance-details" aria-label="@Loc["Financial details"]">
+    <article class="dash-insight-card dash-spending-card">
+      <header class="dash-insight-header">
+        <div class="dash-insight-heading">
+          <span class="dash-insight-icon spending"><i class="bi bi-pie-chart-fill"></i></span>
+          <div>
+            <span class="dash-insight-eyebrow">@Loc["This month"]</span>
+            <h2>@Loc["Spending map"]</h2>
+            <p>@Loc["See where your money went."]</p>
+          </div>
+        </div>
+        <a class="dash-insight-action" href="@GetTransactionsHref(false)">
+          <span>@Loc["View all"]</span><i class="bi bi-arrow-up-right"></i>
+        </a>
+      </header>
+
+      @if (isLoadingExpensesByCategory)
+      {
+        <div class="dash-insight-loading" role="status">
+          <span class="spinner-border spinner-border-sm"></span>
+          <span>@Loc["Updating your month..."]</span>
+        </div>
+      }
+      else if (expensesByCategory.Any())
+      {
+        CategorySummary leader = expensesByCategory[0];
+        <div class="dash-spending-overview">
+          <div class="dash-spending-total">
+            <span>@Loc["Total spent"]</span>
+            <strong>@ValuesVis.Mask(Helper.FormatBrl(CategorizedExpenseTotal))</strong>
+            <small><i class="bi bi-receipt"></i>@monthlyExpenseCount @Loc["transactions"]</small>
+          </div>
+          <div class="dash-spending-donut"
+               style="--dash-chart-pct:@(Math.Min(leader.Percentage, 100m).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"
+               aria-label="@Loc[leader.CategoryName]">
+            <div><strong>@expensesByCategory.Count</strong><span>@Loc["categories"]</span></div>
+          </div>
+          <div class="dash-spending-leader">
+            <span>@Loc["Largest category"]</span>
+            <strong>@Loc[leader.CategoryName]</strong>
+            <small>@leader.Percentage.ToString("F0")% @Loc["of this month's spending"]</small>
+          </div>
+        </div>
+
+        <div class="dash-category-grid">
+          @foreach ((CategorySummary Category, int Index) item in expensesByCategory.Take(6).Select((category, index) => (category, index)))
+          {
+            <a class="dash-category-tile @GetCategoryTone(item.Index)" href="@GetTransactionsHref(false, item.Category.Category)">
+              <span class="dash-category-rank">@(item.Index + 1)</span>
+              <span class="dash-category-content">
+                <span class="dash-category-line">
+                  <strong>@Loc[item.Category.CategoryName]</strong>
+                  <small>@ValuesVis.Mask(Helper.FormatBrl(item.Category.Total))</small>
+                </span>
+                <span class="dash-category-track">
+                  <span style="width:@(Math.Min(item.Category.Percentage, 100m).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></span>
+                </span>
+              </span>
+              <span class="dash-category-percent">@item.Category.Percentage.ToString("F0")%</span>
+            </a>
+          }
+        </div>
+      }
+      else
+      {
+        <a class="dash-rich-empty" href="transactions">
+          <span class="dash-rich-empty-icon"><i class="bi bi-stars"></i></span>
+          <span><strong>@Loc["A clean month so far"]</strong><small>@Loc["No expenses recorded this month."]</small></span>
+          <i class="bi bi-arrow-right"></i>
+        </a>
+      }
+    </article>
+
+    <article class="dash-insight-card dash-accounts-card">
+      <header class="dash-insight-header">
+        <div class="dash-insight-heading">
+          <span class="dash-insight-icon accounts"><i class="bi bi-wallet2"></i></span>
+          <div>
+            <span class="dash-insight-eyebrow">@Loc["Financial structure"]</span>
+            <h2>@Loc["My Accounts"]</h2>
+            <p>@Loc["Your money, organized by institution."]</p>
+          </div>
+        </div>
+        <a class="dash-insight-action" href="accounts">
+          <span>@Loc["View all"]</span><i class="bi bi-arrow-up-right"></i>
+        </a>
+      </header>
+
+      <div class="dash-account-overview">
+        <div><span>@Loc["Active accounts"]</span><strong>@totalAccounts</strong></div>
+        <div><span>@Loc["Credit cards"]</span><strong>@totalCards</strong></div>
+        <div><span>@Loc["Allocations"]</span><strong>@totalAllocations</strong></div>
+      </div>
+
+      @if (recentAccounts.Any())
+      {
+        <div class="dash-account-grid">
+          @foreach (AccountSummary account in recentAccounts)
+          {
+            <a class="dash-account-tile" href="@GetAccountHref(account.Id)">
+              <span class="dash-account-tile-top">
+                <span class="dash-account-logo-wrap">
+                  <img src="@Helper.GetLogoDataUriOrDefault(account.Logo)" class="dash-account-logo" alt="@account.Name" />
+                </span>
+                <span class="dash-account-identity">
+                  <strong>@account.Name</strong>
+                  <small>@Loc[account.InstitutionType.GetDisplayName()] &middot; @account.Currency</small>
+                </span>
+                <i class="bi bi-arrow-up-right dash-account-arrow"></i>
+              </span>
+              <span class="dash-account-position">
+                <span><small>@Loc["Account position"]</small><strong>@ValuesVis.Mask(Helper.FormatCurrency(Currency.BRL, account.Balance + account.TotalInvested))</strong></span>
+                @if (account.CardCount > 0)
+                {
+                  <span class="dash-account-card-count"><i class="bi bi-credit-card"></i>@account.CardCount</span>
+                }
+              </span>
+              <span class="dash-account-composition">
+                <small><i class="bi bi-wallet2"></i>@Loc["Balance"] @ValuesVis.Mask(Helper.FormatCurrency(Currency.BRL, account.Balance))</small>
+                <small><i class="bi bi-graph-up-arrow"></i>@Loc["Invested"] @ValuesVis.Mask(Helper.FormatCurrency(Currency.BRL, account.TotalInvested))</small>
+              </span>
+            </a>
+          }
+          <a class="dash-account-tile dash-account-more" href="accounts">
+            <span class="dash-account-more-icon"><i class="bi bi-grid-3x3-gap"></i></span>
+            <span><strong>@Loc["View all accounts"]</strong><small>@Loc["Open your complete financial structure"]</small></span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      }
+      else
+      {
+        <a class="dash-rich-empty" href="accounts">
+          <span class="dash-rich-empty-icon"><i class="bi bi-plus-lg"></i></span>
+          <span><strong>@Loc["Add your first account"]</strong><small>@Loc["No accounts registered."]</small></span>
+          <i class="bi bi-arrow-right"></i>
+        </a>
+      }
+    </article>
+  </section>
+}

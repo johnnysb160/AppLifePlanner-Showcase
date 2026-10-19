@@ -1,0 +1,40 @@
+/*
+//-----------------------------------------------------------------------
+// <copyright file="TransactionImportModal.razor.css" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*/
+
+.import-context-link,
+.import-summary-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--lp-accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+  .import-context-link:hover,
+  .import-summary-link:hover {
+    color: var(--lp-accent-hover);
+  }
+
+.import-context-link img {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.import-summary-link {
+  white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+  .import-summary-link {
+    white-space: normal;
+  }
+}

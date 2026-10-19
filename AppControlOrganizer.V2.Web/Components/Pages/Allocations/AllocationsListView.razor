@@ -1,0 +1,255 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="AllocationsListView.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using AppControlOrganizer.V2.Web.Services.Financial
+
+<!-- Allocation list -->
+<div class="lp-card p-0 lp-alloc-table-card">
+  <!-- Desktop header -->
+  <div class="d-none d-md-flex lp-alloc-header">
+    <div class="lp-alloc-col-name">
+      <span style="width:24px; display:inline-block;">
+        @if (sortSteps.Count > 0)
+        {
+          <span role="button" class="lp-sort-clear" @onclick="ClearSort" title='@Loc["Clear Sort"]'>
+            <i class="bi bi-x-circle-fill"></i>
+          </span>
+        }
+      </span>
+      <span role="button" class="lp-tx-sortable" @onclick="OnNameClick">
+        @Loc["Name"] @SortIndicator(SortColumn.Name)
+      </span>
+    </div>
+    <div class="lp-alloc-col-account">
+      <span role="button" class="lp-tx-sortable" @onclick="OnAccountClick">
+        @Loc["Account"] @SortIndicator(SortColumn.Account)
+      </span>
+    </div>
+    <div class="lp-alloc-col-type text-center">
+      <span role="button" class="lp-tx-sortable" @onclick="OnTypeClick">
+        @Loc["Type"] @SortIndicator(SortColumn.Type)
+      </span>
+    </div>
+    <div class="lp-alloc-col-qty text-end">
+      <span role="button" class="lp-tx-sortable" @onclick="OnQtyClick">
+        @Loc["Qty"] @SortIndicator(SortColumn.Qty)
+      </span>
+    </div>
+    <div class="lp-alloc-col-num text-end">@Loc["Buy Unit"]</div>
+    <div class="lp-alloc-col-num text-end">@Loc["Cur. Unit"]</div>
+    <div class="lp-alloc-col-num text-end">
+      <span role="button" class="lp-tx-sortable" @onclick="OnInvestedClick">
+        @Loc["Invested"] @SortIndicator(SortColumn.Invested)
+      </span>
+    </div>
+
+    <div class="lp-alloc-col-type text-center">@Loc["Start"]</div>
+
+
+    <div class="lp-alloc-col-current text-center">
+      <span role="button" class="lp-tx-sortable" @onclick="OnCurrentClick">
+        @Loc["Current"] @SortIndicator(SortColumn.Current)
+      </span>
+    </div>
+    <div class="lp-alloc-col-actions text-end">@Loc["Actions"]</div>
+  </div>
+
+  <!-- Rows -->
+  @foreach (AllocationEntity alloc in GetSorted())
+  {
+    AllocationQuotePriceResult pricing = PricingService.Calculate(alloc, LatestQuotes);
+    decimal unitPrice = pricing.UnitPriceInAllocationCurrency;
+    FinancialAllocationPosition position = FinancialPositionCalculator.CalculateAllocationPosition(
+      alloc,
+      LatestQuotes,
+      PricingService,
+      FinancialFactsService.ResolvePurpose);
+    decimal invested = position.AppliedNativeAmount;
+    AllocationBrlConversionResult unitBrl = PricingService.ConvertAmountToBrl(alloc, unitPrice, LatestQuotes);
+    bool isBrlUnitFromQuote = unitBrl.IsConvertible && alloc.Currency != Currency.BRL;
+    decimal allocProfit = position.CurrentNativeAmount - invested;
+    string pricingTooltip = BuildPricingTooltip(pricing);
+
+    <div class="lp-tx-row lp-alloc-row-clickable"
+         role="button"
+         tabindex="0"
+         title='@Loc["Open allocation"]'
+         @onclick="() => OnEdit.InvokeAsync(alloc)">
+
+      <!-- Name -->
+      <div class="lp-alloc-col-name">
+        <div class="lp-alloc-name" title="@alloc.Name">@alloc.Name</div>
+        @if (!string.IsNullOrEmpty(alloc.Initials))
+        {
+          <a class="lp-alloc-initials lp-inline-link"
+             href="@GetSearchHref(alloc.Initials)"
+             title='@Loc["Search by ticker"]'
+             @onclick:stopPropagation="true">@alloc.Initials</a>
+        }
+        <div class="d-md-none lp-tx-meta mt-1">
+          <a class="lp-inline-link"
+             href="@GetAccountHref(alloc.AccountId)"
+             title='@Loc["Open account"]'
+             @onclick:stopPropagation="true">@alloc.Account?.Name</a>
+          <span class="lp-tx-meta-dot">•</span>
+          <a class="lp-inline-link"
+             href="@GetTypeHref(alloc.AllocationType)"
+             title='@Loc["Filter by type"]'
+             @onclick:stopPropagation="true">@alloc.AllocationType.GetDisplayName()</a>
+        </div>
+      </div>
+
+      <!-- Account (desktop) -->
+      <div class="lp-alloc-col-account d-none d-md-flex align-items-center">
+        <a class="account-circle me-1 flex-shrink-0"
+           href="@GetAccountHref(alloc.AccountId)"
+           title='@Loc["Open account"]'
+           @onclick:stopPropagation="true">
+          <img src="@Helper.GetLogoDataUriOrDefault(alloc.Account?.Logo)" alt="Logo" />
+        </a>
+        <a class="lp-alloc-account-name lp-inline-link"
+           href="@GetAccountHref(alloc.AccountId)"
+           title='@Loc["Open account"]'
+           @onclick:stopPropagation="true">@alloc.Account?.Name</a>
+      </div>
+
+      <!-- Type (desktop) -->
+      <div class="lp-alloc-col-type d-none d-md-flex align-items-center justify-content-center">
+        <a class="lp-tx-cat-badge lp-badge-link"
+           href="@GetTypeHref(alloc.AllocationType)"
+           title='@Loc["Filter by type"]'
+           @onclick:stopPropagation="true">@alloc.AllocationType.GetDisplayName()</a>
+      </div>
+
+      <!-- Qty (desktop) -->
+      <div class="lp-alloc-col-qty d-none d-md-flex align-items-center justify-content-end">
+        <small>@FormatQuantity(alloc.Quantity)</small>
+      </div>
+
+      <!-- Buy unit (desktop) -->
+      <div class="lp-alloc-col-num d-none d-md-flex align-items-center justify-content-end">
+        <small class="text-muted">@ValuesVis.Mask(Helper.FormatCurrency(alloc.Currency, alloc.BuyUnitValue))</small>
+      </div>
+
+      <!-- Current unit (desktop) -->
+      <div class="lp-alloc-col-num d-none d-md-flex align-items-center justify-content-end">
+        <small title="@pricingTooltip">
+          @if (isBrlUnitFromQuote)
+          {
+            @ValuesVis.Mask(Helper.FormatBrl(unitBrl.AmountBrl))
+            <a class="lp-quote-badge lp-quote-badge-live lp-badge-link ms-1"
+               href="@GetQuoteHref(alloc)"
+               title="@pricingTooltip"
+               @onclick:stopPropagation="true">Q</a>
+          }
+          else
+          {
+            @ValuesVis.Mask(Helper.FormatCurrency(alloc.Currency, unitPrice))
+            @if (pricing.UsedQuote && !pricing.UsedFallback)
+            {
+              <a class="lp-quote-badge lp-quote-badge-live lp-badge-link ms-1"
+                 href="@GetQuoteHref(alloc)"
+                 title="@pricingTooltip"
+                 @onclick:stopPropagation="true">Q</a>
+            }
+            else if (pricing.UsedFallback)
+            {
+              bool hasAutoCalc = !string.IsNullOrEmpty(alloc.ProfitType)
+                                 && alloc.ProfitPercentage.HasValue
+                                 && alloc.ProfitDate.HasValue;
+              if (hasAutoCalc)
+              {
+                <button type="button"
+                        class="lp-quote-badge lp-quote-badge-auto lp-badge-button ms-1"
+                        title="@BuildAutoCalcTooltip(alloc)"
+                        @onclick="() => OnEdit.InvokeAsync(alloc)"
+                        @onclick:stopPropagation="true">Auto</button>
+              }
+              else
+              {
+                <button type="button"
+                        class="lp-quote-badge lp-quote-badge-fallback lp-badge-button ms-1"
+                        title="@pricingTooltip"
+                        @onclick="() => OnEdit.InvokeAsync(alloc)"
+                        @onclick:stopPropagation="true">F</button>
+              }
+            }
+          }
+        </small>
+      </div>
+
+      <!-- Invested (desktop) -->
+      <div class="lp-alloc-col-num d-none d-md-flex align-items-center justify-content-end">
+        <span>@ValuesVis.Mask(Helper.FormatCurrency(alloc.Currency, invested))</span>
+      </div>
+
+      <!-- Start date (desktop) -->
+      <div class="lp-alloc-col-type d-none d-md-flex align-items-center justify-content-center">
+        @if (alloc.ProfitDate.HasValue)
+        {
+          <small class="text-muted" title="@(Loc["Application:"] + " " + alloc.ProfitDate.Value.ToString("d", Loc.Culture))">
+            @alloc.ProfitDate.Value.ToString("d", Loc.Culture)
+          </small>
+        }
+        else
+        {
+          <small class="text-muted">—</small>
+        }
+      </div>
+
+      <!-- Current value -->
+      <div class="lp-alloc-col-current d-flex align-items-center justify-content-center">
+        @if (position.CurrentIsConvertible)
+        {
+          <span class="lp-alloc-current @(allocProfit >= 0 ? "lp-tx-amount-income" : "lp-tx-amount-expense")">
+            @ValuesVis.Mask(Helper.FormatBrl(position.CurrentAmountBrl))
+          </span>
+        }
+        else
+        {
+          <span class="text-muted" title="@LocalizeNote(position.Note)">—</span>
+        }
+        <div class="d-md-none lp-tx-meta ms-2">
+                <a class="lp-inline-link"
+                   href="@GetCurrencyHref(alloc.Currency)"
+                   title='@Loc["Filter by currency"]'
+                   @onclick:stopPropagation="true">@alloc.Currency</a>
+                <span class="lp-tx-meta-dot">•</span>
+                @Loc["Qty"]: @FormatQuantity(alloc.Quantity)
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="lp-alloc-col-actions d-flex align-items-center justify-content-end gap-1">
+        <button class="lp-tx-action-btn"
+                @onclick="() => OnEdit.InvokeAsync(alloc)"
+                @onclick:stopPropagation="true"
+                title='@Loc["Edit"]'>
+          <i class="bi bi-pencil"></i>
+        </button>
+        <AuthorizeView Context="authContext">
+          <Authorized>
+            <button class="lp-tx-action-btn lp-tx-action-btn-danger"
+                    @onclick="() => OnDelete.InvokeAsync(alloc)"
+                    @onclick:stopPropagation="true"
+                    title='@Loc["Delete"]'>
+              <i class="bi bi-trash"></i>
+            </button>
+          </Authorized>
+          <NotAuthorized>
+            <button class="lp-tx-action-btn lp-tx-action-btn-danger" disabled title='@Loc["Log in to Delete"]'>
+              <i class="bi bi-trash"></i>
+            </button>
+          </NotAuthorized>
+        </AuthorizeView>
+      </div>
+
+    </div>
+  }
+</div>

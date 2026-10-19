@@ -1,0 +1,401 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="Vehicles.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/routine/vehicles"
+@rendermode InteractiveServer
+@using AppControlOrganizer.V2.Web.Services.Vehicles
+
+<PageTitle>@Loc["Vehicles"] - Life Planner</PageTitle>
+
+<div class="vehicles-page">
+  <header class="lp-page-header vehicles-header mb-4">
+    <div>
+      <h1 class="lp-page-title mb-1"><i class="bi bi-car-front me-2"></i>@Loc["Vehicles"]</h1>
+      <p class="lp-page-subtitle mb-0">@Loc["Keep maintenance, odometer, fuel and reminders close to your routine."]</p>
+    </div>
+    <div class="lp-action-bar vehicles-actions">
+      @if (state.Vehicles.Count > 0)
+      {
+        <select class="form-select vehicles-selector" value="@selectedVehicleId" @onchange="SelectVehicleAsync">
+          @foreach (VehicleSummary summary in state.Vehicles)
+          {
+            <option value="@summary.Vehicle.Id">@summary.Vehicle.Name</option>
+          }
+        </select>
+      }
+      <WriteGuard>
+        <button class="lp-btn-ghost" type="button" @onclick="NewVehicle">
+          <i class="bi bi-plus-lg me-1"></i>@Loc["Vehicle"]
+        </button>
+        <button class="lp-btn-primary" type="button" disabled="@(!selectedVehicleId.HasValue)" @onclick="NewRecord">
+          <i class="bi bi-plus-circle me-1"></i>@Loc["Record"]
+        </button>
+      </WriteGuard>
+    </div>
+  </header>
+
+  @if (isLoading)
+  {
+    <div class="lp-card vehicles-loading">
+      <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+      <span>@Loc["Loading vehicles..."]</span>
+    </div>
+  }
+  else if (state.Vehicles.Count == 0)
+  {
+    <section class="lp-card vehicles-empty">
+      <i class="bi bi-car-front"></i>
+      <h2>@Loc["No vehicles yet"]</h2>
+      <p>@Loc["Add your car or motorcycle to start tracking maintenance, oil, fuel and odometer reminders."]</p>
+      <WriteGuard>
+        <button class="lp-btn-primary" type="button" @onclick="NewVehicle">
+          <i class="bi bi-plus-lg me-1"></i>@Loc["New vehicle"]
+        </button>
+      </WriteGuard>
+    </section>
+  }
+  else
+  {
+    <section class="vehicles-card-strip" aria-label="@Loc["Vehicles"]">
+      @foreach (VehicleSummary summary in state.Vehicles)
+      {
+        <button class="vehicle-card @(summary.Vehicle.Id == selectedVehicleId ? "active" : null)"
+                type="button"
+                style="--vehicle-color:@summary.Vehicle.ColorHex"
+                @onclick="() => SelectVehicleCardAsync(summary.Vehicle.Id)">
+          @if (!string.IsNullOrWhiteSpace(summary.Vehicle.ImageDataUrl))
+          {
+            <span class="vehicle-card-backdrop" aria-hidden="true">
+              <img alt="" src="@summary.Vehicle.ImageDataUrl" />
+            </span>
+          }
+          <span class="vehicle-card-icon">
+            @if (string.IsNullOrWhiteSpace(summary.Vehicle.ImageDataUrl))
+            {
+              <i class="@summary.Vehicle.IconCss"></i>
+            }
+            else
+            {
+              <img alt="" src="@summary.Vehicle.ImageDataUrl" />
+            }
+          </span>
+          <span class="vehicle-card-main">
+            <strong>@summary.Vehicle.Name</strong>
+            <small>@BuildVehicleSubtitle(summary.Vehicle)</small>
+          </span>
+          <span class="vehicle-card-stat">
+            <strong>@FormatOdometer(summary.CurrentOdometer)</strong>
+            <small>@Loc["Current km"]</small>
+          </span>
+          <span class="vehicle-card-stat">
+            <strong>@FormatMoney(summary.MonthCost)</strong>
+            <small>@Loc["This month"]</small>
+          </span>
+          <span class="vehicle-card-next @GetDueClass(summary.NextReminder?.DueState)">
+            @if (summary.NextReminder == null)
+            {
+              <strong>@Loc["No reminder"]</strong>
+              <small>@Loc["Open"]</small>
+            }
+            else
+            {
+              <strong>@Loc[summary.NextReminder.Reminder.Title]</strong>
+              <small>@BuildReminderDueText(summary.NextReminder)</small>
+            }
+          </span>
+        </button>
+      }
+    </section>
+
+    <section class="vehicles-workspace">
+      <div class="vehicles-main">
+        <div class="vehicles-toolbar">
+          <div class="vehicles-tabs" role="tablist" aria-label="@Loc["Vehicle record filters"]">
+            @foreach (string tab in Tabs)
+            {
+              <button class="vehicles-tab @(activeTab == tab ? "active" : null)"
+                      type="button"
+                      role="tab"
+                      aria-selected="@(activeTab == tab)"
+                      @onclick="() => activeTab = tab">
+                @Loc[tab]
+              </button>
+            }
+          </div>
+          <WriteGuard>
+            <button class="lp-btn-ghost" type="button" disabled="@(!selectedVehicleId.HasValue)" @onclick="NewReminder">
+              <i class="bi bi-bell me-1"></i>@Loc["Reminder"]
+            </button>
+          </WriteGuard>
+        </div>
+
+        @if (activeTab == RemindersTab)
+        {
+          <div class="vehicle-reminder-list">
+            @foreach (VehicleReminderView reminder in state.Reminders)
+            {
+              <article class="vehicle-reminder-row @GetDueClass(reminder.DueState)">
+                <div>
+                  <span class="vehicle-row-kicker">@Loc[reminder.Reminder.Status.ToString()]</span>
+                  <h2>@Loc[reminder.Reminder.Title]</h2>
+                  <p>@BuildReminderDueText(reminder)</p>
+                </div>
+                <div class="vehicle-row-actions">
+                  <WriteGuard>
+                    @if (reminder.Reminder.Status == VehicleReminderStatus.Open)
+                    {
+                      <button class="lp-tx-action-btn" type="button" title="@Loc["Done"]" @onclick="() => CompleteReminderAsync(reminder.Reminder.Id)">
+                        <i class="bi bi-check-lg"></i>
+                      </button>
+                      <button class="lp-tx-action-btn" type="button" title="@Loc["Dismiss"]" @onclick="() => DismissReminderAsync(reminder.Reminder.Id)">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    }
+                    <button class="lp-tx-action-btn" type="button" title="@Loc["Edit"]" @onclick="() => EditReminder(reminder.Reminder)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="lp-tx-action-btn lp-tx-action-btn-danger" type="button" title="@Loc["Delete"]" @onclick="() => DeleteReminderAsync(reminder.Reminder.Id)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </WriteGuard>
+                </div>
+              </article>
+            }
+            @if (state.Reminders.Count == 0)
+            {
+              <p class="vehicle-empty-line">@Loc["No reminders for this vehicle."]</p>
+            }
+          </div>
+        }
+        else
+        {
+          <div class="vehicle-timeline">
+            @foreach (VehicleRecordEntity record in FilteredRecords)
+            {
+              <article class="vehicle-record-row">
+                <div class="vehicle-record-icon @GetRecordClass(record.RecordType)">
+                  <i class="@GetRecordIcon(record.RecordType)"></i>
+                </div>
+                <div class="vehicle-record-content">
+                  <span class="vehicle-row-kicker">@Loc[record.RecordType.ToString()] · @record.RecordDate.ToString("d", Loc.Culture)</span>
+                  <h2>@record.Title</h2>
+                  <p>@BuildRecordMeta(record)</p>
+                  @if (!string.IsNullOrWhiteSpace(record.Notes))
+                  {
+                    <small>@record.Notes</small>
+                  }
+                </div>
+                <div class="vehicle-row-actions">
+                  <WriteGuard>
+                    <button class="lp-tx-action-btn" type="button" title="@Loc["Edit"]" @onclick="() => EditRecord(record)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="lp-tx-action-btn lp-tx-action-btn-danger" type="button" title="@Loc["Delete"]" @onclick="() => DeleteRecordAsync(record.Id)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </WriteGuard>
+                </div>
+              </article>
+            }
+            @if (!FilteredRecords.Any())
+            {
+              <p class="vehicle-empty-line">@Loc["No records for this view."]</p>
+            }
+          </div>
+        }
+      </div>
+
+      <aside class="vehicles-side">
+        <section class="lp-card vehicle-side-card">
+          <span>@Loc["Selected vehicle"]</span>
+          <h2>@SelectedVehicle?.Vehicle.Name</h2>
+          <dl>
+            <div><dt>@Loc["Current km"]</dt><dd>@FormatOdometer(SelectedVehicle?.CurrentOdometer ?? 0m)</dd></div>
+            <div><dt>@Loc["This month"]</dt><dd>@FormatMoney(state.SelectedMonthCost)</dd></div>
+            <div><dt>@Loc["This year"]</dt><dd>@FormatMoney(state.SelectedYearCost)</dd></div>
+            <div><dt>@Loc["Last service"]</dt><dd>@(SelectedVehicle?.LastService?.Title ?? Loc["None"])</dd></div>
+          </dl>
+          <WriteGuard>
+            <div class="vehicle-side-actions">
+              <button class="lp-btn-ghost" type="button" @onclick="EditSelectedVehicle">
+                <i class="bi bi-pencil me-1"></i>@Loc["Edit"]
+              </button>
+              <button class="lp-btn-ghost vehicle-danger-action" type="button" @onclick="DeleteSelectedVehicleAsync">
+                <i class="bi bi-trash me-1"></i>@Loc["Delete"]
+              </button>
+            </div>
+          </WriteGuard>
+        </section>
+      </aside>
+    </section>
+  }
+</div>
+
+@if (showVehicleModal)
+{
+  <div class="modal fade show d-block vehicles-modal-backdrop" tabindex="-1" role="dialog" @onclick="CloseVehicleModal">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" role="document" @onclick:stopPropagation="true">
+      <div class="modal-content vehicles-modal">
+        <div class="modal-header">
+          <div><span class="vehicles-modal-label">@Loc["Vehicle"]</span><h2 class="modal-title">@(editingVehicle.Id == 0 ? Loc["New vehicle"] : Loc["Edit vehicle"])</h2></div>
+          <button class="btn-close" type="button" aria-label="Close" @onclick="CloseVehicleModal"></button>
+        </div>
+        <div class="modal-body vehicles-form">
+          <label>@Loc["Name"]<input class="form-control" maxlength="120" @bind="editingVehicle.Name" @bind:event="oninput" /></label>
+          <label>@Loc["Type"]
+            <select class="form-select" @bind="editingVehicle.VehicleType">
+              <option value="@VehicleType.Car">@Loc["Car"]</option>
+              <option value="@VehicleType.Motorcycle">@Loc["Motorcycle"]</option>
+            </select>
+          </label>
+          <div class="vehicles-form-row">
+            <label>@Loc["Brand"]<input class="form-control" maxlength="80" @bind="editingVehicle.Brand" @bind:event="oninput" /></label>
+            <label>@Loc["Model"]<input class="form-control" maxlength="120" @bind="editingVehicle.Model" @bind:event="oninput" /></label>
+          </div>
+          <div class="vehicles-form-row">
+            <label>@Loc["Year"]<input class="form-control" type="number" min="1900" max="2100" @bind="editingVehicle.Year" /></label>
+            <label>@Loc["Plate"]<input class="form-control" maxlength="40" @bind="editingVehicle.Plate" @bind:event="oninput" /></label>
+          </div>
+          <div class="vehicles-form-row">
+            <label>@Loc["Current km"]<input class="form-control" type="number" step="1" min="0" @bind="editingVehicle.CurrentOdometer" /></label>
+            <label>@Loc["Color"]<input class="form-control" maxlength="16" placeholder="@Loc["Color example"]" @bind="editingVehicle.ColorHex" @bind:event="oninput" /></label>
+          </div>
+          <div class="vehicles-image-field">
+            <label>@Loc["Vehicle image"]<InputFile class="form-control" accept="image/png,image/jpeg,image/webp" OnChange="OnVehicleImageSelectedAsync" /></label>
+            @if (!string.IsNullOrWhiteSpace(editingVehicle.ImageDataUrl))
+            {
+              <div class="vehicles-image-preview">
+                <img alt="" src="@editingVehicle.ImageDataUrl" />
+                <button class="lp-btn-ghost" type="button" @onclick="RemoveVehicleImage">@Loc["Remove Photo"]</button>
+              </div>
+            }
+          </div>
+          <label>@Loc["Notes"]<textarea class="form-control" rows="2" maxlength="1000" @bind="editingVehicle.Notes"></textarea></label>
+        </div>
+        <div class="modal-footer vehicles-modal-actions">
+          <button class="lp-btn-ghost" type="button" @onclick="CloseVehicleModal">@Loc["Cancel"]</button>
+          <button class="lp-btn-primary" type="button" disabled="@isSaving" @onclick="SaveVehicleAsync">@Loc["Save"]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showRecordModal)
+{
+  <div class="modal fade show d-block vehicles-modal-backdrop" tabindex="-1" role="dialog" @onclick="CloseRecordModal">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" role="document" @onclick:stopPropagation="true">
+      <div class="modal-content vehicles-modal">
+        <div class="modal-header">
+          <div><span class="vehicles-modal-label">@Loc["Record"]</span><h2 class="modal-title">@(editingRecord.Id == 0 ? Loc["New record"] : Loc["Edit record"])</h2></div>
+          <button class="btn-close" type="button" aria-label="Close" @onclick="CloseRecordModal"></button>
+        </div>
+        <div class="modal-body vehicles-form">
+          <div class="vehicle-service-groups">
+            <div>
+              <span>@Loc["Common"]</span>
+              <div class="vehicle-quick-types" role="group" aria-label="@Loc["Common"]">
+                @foreach (string item in CommonServiceItems)
+                {
+                  <button class="vehicle-quick-type @(selectedServiceItems.Contains(item) ? "active" : null)"
+                          type="button"
+                          @onclick="() => ToggleServiceItem(item)">
+                    <i class="@GetServiceIcon(item)"></i>
+                    <span>@Loc[item]</span>
+                  </button>
+                }
+              </div>
+            </div>
+            <div>
+              <span>@Loc[SelectedVehicle?.Vehicle.VehicleType == VehicleType.Motorcycle ? "Motorcycle" : "Car"]</span>
+              <div class="vehicle-quick-types" role="group" aria-label="@Loc["Vehicle services"]">
+                @foreach (string item in VehicleSpecificServiceItems)
+                {
+                  <button class="vehicle-quick-type @(selectedServiceItems.Contains(item) ? "active" : null)"
+                          type="button"
+                          @onclick="() => ToggleServiceItem(item)">
+                    <i class="@GetServiceIcon(item)"></i>
+                    <span>@Loc[item]</span>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+          <label>@Loc["Other service"]<input class="form-control" maxlength="120" placeholder="@Loc["Describe another service"]" @bind="customServiceItem" @bind:event="oninput" /></label>
+          <div class="vehicle-quick-types vehicle-record-kinds" role="group" aria-label="@Loc["Type"]">
+            @foreach (VehicleRecordType type in Enum.GetValues<VehicleRecordType>())
+            {
+              <button class="vehicle-quick-type @(editingRecord.RecordType == type ? "active" : null)"
+                      type="button"
+                      @onclick="() => editingRecord.RecordType = type">
+                <i class="@GetRecordIcon(type)"></i>
+                <span>@Loc[type.ToString()]</span>
+              </button>
+            }
+          </div>
+          <label>@Loc["Title"]<input class="form-control" maxlength="160" @bind="editingRecord.Title" @bind:event="oninput" /></label>
+          <div class="vehicles-form-row">
+            <label>@Loc["Date"]<input class="form-control" type="date" @bind="recordDateInput" /></label>
+            <label>@Loc["Km"]<input class="form-control" type="number" step="1" min="0" @bind="editingRecord.Odometer" /></label>
+          </div>
+          <div class="vehicles-form-row">
+            <label>@Loc["Category"]<input class="form-control" maxlength="80" @bind="editingRecord.Category" @bind:event="oninput" /></label>
+            <label>@Loc["Amount"]<input class="form-control" type="number" step="0.01" min="0" @bind="editingRecord.Amount" /></label>
+          </div>
+          <div class="vehicles-form-row">
+            <label>@Loc["Quantity"]<input class="form-control" type="number" step="0.001" min="0" @bind="editingRecord.Quantity" /></label>
+            <label>@Loc["Location"]<input class="form-control" maxlength="160" @bind="editingRecord.Location" @bind:event="oninput" /></label>
+          </div>
+          <label>@Loc["Notes"]<textarea class="form-control" rows="2" maxlength="1000" @bind="editingRecord.Notes"></textarea></label>
+        </div>
+        <div class="modal-footer vehicles-modal-actions">
+          <button class="lp-btn-ghost" type="button" @onclick="CloseRecordModal">@Loc["Cancel"]</button>
+          <button class="lp-btn-primary" type="button" disabled="@isSaving" @onclick="SaveRecordAsync">@Loc["Save"]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showReminderModal)
+{
+  <div class="modal fade show d-block vehicles-modal-backdrop" tabindex="-1" role="dialog" @onclick="CloseReminderModal">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" role="document" @onclick:stopPropagation="true">
+      <div class="modal-content vehicles-modal">
+        <div class="modal-header">
+          <div><span class="vehicles-modal-label">@Loc["Reminder"]</span><h2 class="modal-title">@(editingReminder.Id == 0 ? Loc["New reminder"] : Loc["Edit reminder"])</h2></div>
+          <button class="btn-close" type="button" aria-label="Close" @onclick="CloseReminderModal"></button>
+        </div>
+        <div class="modal-body vehicles-form">
+          <label>@Loc["Title"]<input class="form-control" maxlength="160" @bind="editingReminder.Title" @bind:event="oninput" /></label>
+          <label>@Loc["Category"]<input class="form-control" maxlength="80" @bind="editingReminder.Category" @bind:event="oninput" /></label>
+          <div class="vehicles-form-row">
+            <label>@Loc["Due date"]<input class="form-control" type="date" @bind="reminderDueDateInput" /></label>
+            <label>@Loc["Due km"]<input class="form-control" type="number" step="1" min="0" @bind="editingReminder.DueOdometer" /></label>
+          </div>
+          <label>@Loc["Status"]
+            <select class="form-select" @bind="editingReminder.Status">
+              <option value="@VehicleReminderStatus.Open">@Loc["Open"]</option>
+              <option value="@VehicleReminderStatus.Done">@Loc["Done"]</option>
+              <option value="@VehicleReminderStatus.Dismissed">@Loc["Dismissed"]</option>
+            </select>
+          </label>
+          <label>@Loc["Notes"]<textarea class="form-control" rows="2" maxlength="1000" @bind="editingReminder.Notes"></textarea></label>
+        </div>
+        <div class="modal-footer vehicles-modal-actions">
+          <button class="lp-btn-ghost" type="button" @onclick="CloseReminderModal">@Loc["Cancel"]</button>
+          <button class="lp-btn-primary" type="button" disabled="@isSaving" @onclick="SaveReminderAsync">@Loc["Save"]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<AppToast Message="@message"
+          IsError="@hasError"
+          OnDismiss="@(() => message = string.Empty)" />

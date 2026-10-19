@@ -1,0 +1,409 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="Accounts.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@page "/accounts"
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer
+@inject AppControlOrganizer.V2.Web.Services.UI.ValuesVisibilityService ValuesVis
+
+<PageTitle>@Loc["Accounts"] - Life Planner</PageTitle>
+
+<!-- Page header -->
+<div class="lp-page-header mb-4">
+  <div>
+    <h1 class="lp-page-title mb-0 d-flex align-items-center">
+      <i class="bi bi-bank me-2"></i>@Loc["Accounts"]
+    </h1>
+    <p class="lp-page-subtitle mb-0">@Loc["Bank accounts, institutions and Cards"]</p>
+  </div>
+  <div class="lp-action-bar" hidden="@isInitialAccountsLoading">
+    <WriteGuard>
+      <ImapSyncButton OnSynced="LoadAccounts" LabelCssClass="ms-1" />
+      <button type="button" class="lp-btn-primary" @onclick="ShowCreateModal">
+        <i class="bi bi-plus-circle me-1"></i>@Loc["New Account"]
+      </button>
+    </WriteGuard>
+  </div>
+</div>
+
+@if (isInitialAccountsLoading && (accounts == null || !accounts.Any()))
+{
+  <div class="d-flex justify-content-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+}
+else if (!accounts.Any())
+{
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>@Loc["No accounts registered. Click \"New Account\" to get started."]
+  </div>
+}
+else
+{
+  <!-- Accounts cards grid -->
+  <div class="row g-3">
+    @foreach (AccountEntity account in accounts)
+    {
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="lp-account-card @(account.AccountIsActive ? "" : "lp-account-card-inactive")"
+             draggable="true"
+             style="@(hoveredAccountId == account.Id ? "z-index: 1050;" : "")"
+             @ondragstart="(e) => OnAccountDragStart(account.Id)"
+             @ondragover:preventDefault="true" @ondragover="(e) => OnAccountDragOver(e)"
+             @ondrop="(e) => OnAccountDrop(account.Id)">
+
+          <!-- Card header with bank banner -->
+          <div class="lp-account-header" style="@Helper.GetBannerStyle(account.Name, account.AccountIsActive)">
+            <div class="d-flex align-items-center gap-2 min-w-0">
+              <div class="account-circle flex-shrink-0">
+                <img src="@Helper.GetLogoDataUriOrDefault(account.Logo)" alt="Logo" />
+              </div>
+              <span class="lp-account-name">
+                @account.Name
+                @if (!account.AccountIsActive)
+                {
+                  <span class="lp-account-inactive-badge ms-1">@Loc["Inactive"]</span>
+                }
+              </span>
+            </div>
+            <div class="dropdown" @ondragstart:stopPropagation="true" @ondrop:stopPropagation="true" @ondragover:stopPropagation="true">
+              <button class="lp-account-menu-btn" data-bs-toggle="dropdown" @onclick:stopPropagation="true">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="javascript:void(0)" @onclick="() => ShowEditModal(account)"><i class="bi bi-pencil me-2"></i>@Loc["Edit"]</a></li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <AuthorizeView Context="authContext">
+                    <Authorized>
+                      <a class="dropdown-item text-danger" href="javascript:void(0)" @onclick="() => ConfirmDelete(account)">
+                        <i class="bi bi-trash me-2"></i>@Loc["Delete"]
+                      </a>
+                    </Authorized>
+                    <NotAuthorized>
+                      <a class="dropdown-item text-muted">
+                        <i class="bi bi-trash me-2"></i>@Loc["Log in to Delete"]
+                      </a>
+                    </NotAuthorized>
+                  </AuthorizeView>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Card body -->
+          <div class="lp-account-body">
+            <!-- Type badges -->
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <span class="lp-acct-badge lp-acct-badge-type">@account.InstitutionType.GetDisplayName()</span>
+              @if (account.AccountType.HasValue)
+              {
+                <span class="lp-acct-badge lp-acct-badge-secondary">@account.AccountType.Value.GetDisplayName()</span>
+              }
+              @foreach (Currency curr in Helper.GetAccountDisplayCurrencies(account))
+              {
+                <span class="lp-acct-badge lp-acct-badge-currency">@curr.GetDisplayName()</span>
+              }
+            </div>
+
+            <!-- Bank details -->
+            @if (!string.IsNullOrEmpty(account.Agency) || !string.IsNullOrEmpty(account.NumberAccount) || !string.IsNullOrEmpty(account.BankCode))
+            {
+              <div class="lp-account-details mb-3">
+                @if (!string.IsNullOrEmpty(account.BankCode))
+                {
+                  <span class="me-2">@Loc["Code:"] @account.BankCode</span>
+                }
+                @if (!string.IsNullOrEmpty(account.Agency))
+                {
+                  <span class="me-2">@Loc["Agency:"] @account.Agency</span>
+                }
+                @if (!string.IsNullOrEmpty(account.NumberAccount))
+                {
+                  <span>@Loc["Account:"] @account.NumberAccount</span>
+                }
+              </div>
+            }
+
+            <!-- Stats row -->
+            <div class="lp-account-stats">
+              <div class="position-relative"
+                   @onmouseenter="() => hoveredAccountId = account.Id"
+                   @onmouseleave="() => hoveredAccountId = null">
+                <div class="lp-stat-label">@Loc["Allocations"]</div>
+                <div class="lp-stat-value" style="cursor: pointer;">@account.Allocations.Count</div>
+                @if (hoveredAccountId == account.Id && account.Allocations.Any())
+                {
+                  <div class="lp-alloc-popup">
+                    <div class="lp-alloc-popup-title">@Loc["Allocations"]</div>
+                    <div class="lp-alloc-popup-list">
+                      @foreach (AllocationEntity alloc in account.Allocations.Take(10))
+                      {
+                        <div class="lp-alloc-row">
+                          <div>
+                            <div class="lp-alloc-name">@alloc.Name</div>
+                            <div class="lp-alloc-type">@alloc.AllocationType.GetDisplayName()</div>
+                          </div>
+                          <div class="text-end">
+                            <div class="lp-alloc-value">
+                              @{
+                                decimal finalValue = alloc.Quantity * (alloc.CurrentUnitValue ?? alloc.BuyUnitValue);
+                                string display = finalValue > 0
+                                  ? finalValue.ToString(finalValue < 1 ? "N8" : "N2")
+                                  : alloc.Quantity.ToString();
+                              }
+                              @display
+                            </div>
+                            <div class="lp-alloc-currency">@alloc.Currency.GetDisplayName()</div>
+                          </div>
+                        </div>
+                      }
+                      @if (account.Allocations.Count > 10)
+                      {
+                        <div class="lp-alloc-more">...and @(account.Allocations.Count - 10) more</div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+              <div>
+                <div class="lp-stat-label">@Loc["Cards"]</div>
+                <div class="lp-stat-value">@account.Cards.Count</div>
+              </div>
+            </div>
+
+            <!-- Balance / Invested -->
+            <div class="lp-account-balance">
+              @if (account.Balance != 0)
+              {
+                <div>
+                  <div class="lp-stat-label">@Loc["Balance"]</div>
+                  <div class="lp-stat-value @(account.Balance >= 0 ? "lp-value-positive" : "lp-value-negative")">
+                    @ValuesVis.Mask(Helper.FormatCurrency(Currency.BRL, account.Balance))
+                  </div>
+                </div>
+              }
+              @if (account.TotalInvested > 0)
+              {
+                <div>
+                  <div class="lp-stat-label">@Loc["Invested"]</div>
+                  <div class="lp-stat-value lp-value-accent">
+                    @ValuesVis.Mask(Helper.FormatCurrency(Currency.BRL, account.TotalInvested))
+                  </div>
+                </div>
+              }
+              @if (account.TotalInvested == 0 && account.Balance == 0)
+              {
+                <div>
+                  <div class="lp-stat-label">@Loc["Balance"]</div>
+                  <div class="lp-stat-value lp-value-positive">
+                    @ValuesVis.Mask(Helper.FormatCurrency(Currency.BRL, 0))
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Card footer -->
+          <div class="lp-account-footer">
+            <i class="bi bi-calendar3 me-1"></i>@Loc["Created at"] @account.CreationDate.ToString("d", Loc.Culture)
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Cards section header -->
+  <div class="lp-page-header mt-5 mb-4">
+    <div>
+      <h2 class="lp-page-title mb-0 d-flex align-items-center">
+        <i class="bi bi-credit-card me-2"></i>@Loc["Cards"]
+      </h2>
+      <p class="lp-page-subtitle mb-0">@Loc["Manage your credit and debit cards"]</p>
+    </div>
+    <div class="lp-action-bar" hidden="@isInitialCardsLoading">
+      <WriteGuard>
+        <button type="button"
+                class="lp-btn-primary"
+                disabled="@(!accounts.Any())"
+                @onclick="ShowCreateCardModal">
+          <i class="bi bi-plus-circle me-1"></i>@Loc["New Card"]
+        </button>
+      </WriteGuard>
+    </div>
+  </div>
+
+  @if (!accounts.Any())
+  {
+    <div class="alert alert-warning">
+      <i class="bi bi-exclamation-triangle me-2"></i>@Loc["You need to register at least one account before adding cards."]
+    </div>
+  }
+  else if (!cards.Any())
+  {
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>@Loc["Cards.NoRecords"]
+    </div>
+  }
+  else
+  {
+    <!-- Cards grid -->
+    <div class="row g-3">
+      @foreach (CreditCardEntity card in cards)
+      {
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <div class="lp-credit-card @(card.Status ? "" : "lp-account-card-inactive")"
+               draggable="true"
+               @ondragstart="(e) => OnCardDragStart(card.Id, card.AccountId)"
+               @ondragover:preventDefault="true" @ondragover="(e) => OnCardDragOver(e)"
+               @ondrop="(e) => OnCardDrop(card.Id, card.AccountId)">
+
+            <div class="lp-credit-card-header" style="@Helper.GetCardBannerStyle(card.Account?.Name, card.CardType == CardType.Credit)">
+              <span class="lp-credit-card-flag">
+                <i class="bi bi-credit-card me-1"></i>@card.Flag.GetDisplayName()
+              </span>
+              <div class="dropdown" @ondragstart:stopPropagation="true" @ondrop:stopPropagation="true" @ondragover:stopPropagation="true">
+                <button class="lp-account-menu-btn lp-account-menu-btn-light" data-bs-toggle="dropdown" @onclick:stopPropagation="true">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="javascript:void(0)" @onclick="() => ShowEditCardModal(card)"><i class="bi bi-pencil me-2"></i>@Loc["Edit"]</a></li>
+                  <WriteGuard>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item text-danger" href="javascript:void(0)" @onclick="() => ConfirmDeleteCard(card)"><i class="bi bi-trash me-2"></i>@Loc["Delete"]</a></li>
+                  </WriteGuard>
+                </ul>
+              </div>
+            </div>
+
+            <div class="lp-credit-card-body">
+              <div class="lp-credit-card-holder">@card.HolderName</div>
+              <div class="lp-credit-card-account">
+                <img src="@Helper.GetLogoDataUriOrDefault(card.Account?.Logo)" width="14" height="14" class="me-1" alt="Logo" />
+                @card.Account?.Name
+              </div>
+
+              <div class="d-flex flex-wrap gap-1 mt-2 mb-2">
+                <span class="lp-acct-badge @(card.CardType == CardType.Credit ? "lp-acct-badge-type" : "lp-acct-badge-currency")">
+                  @card.CardType.GetDisplayName()
+                </span>
+                <span class="lp-acct-badge lp-acct-badge-secondary">@card.Currency.GetDisplayName()</span>
+                @if (!card.Status)
+                {
+                  <span class="lp-acct-badge lp-acct-badge-muted">@Loc["Inactive"]</span>
+                }
+              </div>
+
+              @if (!string.IsNullOrEmpty(card.Number))
+              {
+                <div class="lp-account-details">**** @(card.Number.Length >= 4 ? card.Number[^4..] : card.Number)</div>
+              }
+
+              @if (card.HasLimit && card.LimitValue.HasValue)
+              {
+                <div class="lp-account-details mt-1">
+                  @Loc["Limit:"] <strong>@ValuesVis.Mask(Helper.FormatCurrency(card.Currency, card.LimitValue.Value))</strong>
+                </div>
+              }
+            </div>
+
+            <div class="lp-account-footer">
+              <i class="bi bi-calendar3 me-1"></i>@Loc["Created at"] @card.CreationDate.ToString("d", Loc.Culture)
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+}
+
+<!-- Account Create/Edit Modal -->
+<AccountUpsertModal Visible="@showModal"
+                    IsEditing="@isEditing"
+                    IsSaving="@isSaving"
+                    Model="@currentAccount"
+                    OnValidSubmit="SaveAccount"
+                    OnRequestClose="RequestCloseModal"
+                    OnMarkDirty="MarkDirty"
+                    OnLogoSelected="OnAccountLogoSelected" />
+
+<!-- Account discard confirmation -->
+<AppConfirmModal Visible="@showConfirmDiscard"
+                 Title='@Loc["Confirm Close"]'
+                 ConfirmText='@Loc["Discard"]'
+                 CancelText='@Loc["Cancel"]'
+                 ConfirmButtonCss="btn-danger"
+                 IsBusy="@isSaving"
+                 DisableConfirm="@false"
+                 OnConfirm="ConfirmDiscard"
+                 OnCancel="CancelDiscard">
+  <Body>
+    <p>@Loc["You have unsaved changes. Do you want to close and discard changes?"]</p>
+  </Body>
+</AppConfirmModal>
+
+<!-- Account delete confirmation -->
+<AppConfirmModal Visible="@showDeleteConfirm"
+                 Title='@Loc["Confirm Delete"]'
+                 ConfirmText='@Loc["Delete"]'
+                 CancelText='@Loc["Cancel"]'
+                 ConfirmButtonCss="btn-danger"
+                 IsBusy="@isSaving"
+                 OnConfirm="() => DeleteAccountAsync(CancellationToken.None)"
+                 OnCancel="() => showDeleteConfirm = false">
+  <Body>
+    <p>Do you really want to delete the account <strong>@accountToDelete?.Name</strong>?</p>
+  </Body>
+</AppConfirmModal>
+
+<!-- Card Create/Edit Modal -->
+<CardUpsertModal Visible="@showCardModal"
+                 IsEditing="@isCardEditing"
+                 IsSaving="@isCardSaving"
+                 Model="@currentCard"
+                 AccountItems="@AccountDropdownItems"
+                 AccountsLookup="@accounts"
+                 OnValidSubmit="SaveCard"
+                 OnRequestClose="RequestCloseCardModal"
+                 OnMarkDirty="MarkCardDirty" />
+
+<!-- Card discard confirmation -->
+<AppConfirmModal Visible="@showCardConfirmDiscard"
+                 Title='@Loc["Confirm Close"]'
+                 ConfirmText='@Loc["Discard"]'
+                 CancelText='@Loc["Cancel"]'
+                 ConfirmButtonCss="btn-danger"
+                 IsBusy="@isCardSaving"
+                 DisableConfirm="@false"
+                 OnConfirm="ConfirmCardDiscard"
+                 OnCancel="CancelCardDiscard">
+  <Body>
+    <p>@Loc["You have unsaved changes. Do you want to close and discard changes?"]</p>
+  </Body>
+</AppConfirmModal>
+
+<!-- Card delete confirmation -->
+<AppConfirmModal Visible="@showCardDeleteConfirm"
+                 Title='@Loc["Confirm Delete"]'
+                 ConfirmText='@Loc["Delete"]'
+                 CancelText='@Loc["Cancel"]'
+                 ConfirmButtonCss="btn-danger"
+                 IsBusy="@isCardSaving"
+                 OnConfirm="() => DeleteCardAsync(CancellationToken.None)"
+                 OnCancel="() => showCardDeleteConfirm = false">
+  <Body>
+    <p>Do you really want to delete the card <strong>@cardToDelete?.HolderName</strong>?</p>
+  </Body>
+</AppConfirmModal>
+
+<!-- Toast notification -->
+<AppToast Message="@message"
+          IsError="@isError"
+          OnDismiss="@(() => message = string.Empty)" />

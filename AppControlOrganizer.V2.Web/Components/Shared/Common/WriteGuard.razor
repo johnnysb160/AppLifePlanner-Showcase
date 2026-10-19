@@ -1,0 +1,25 @@
+@*
+//-----------------------------------------------------------------------
+// <copyright file="WriteGuard.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@* Renders write affordances only for authenticated profiles. Anonymous visitors browse a
+   read-only demonstration tenant, so create, edit and delete controls are never offered to them. *@
+
+<AuthorizeView Context="writeGuardAuth">
+  <Authorized>@ChildContent</Authorized>
+  <NotAuthorized>@NotAuthorizedContent</NotAuthorized>
+</AuthorizeView>
+
+@code {
+  /// <summary>Gets or sets the write controls rendered for authenticated profiles.</summary>
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+
+  /// <summary>Gets or sets the optional replacement rendered for anonymous (demonstration) sessions.</summary>
+  [Parameter]
+  public RenderFragment? NotAuthorizedContent { get; set; }
+}

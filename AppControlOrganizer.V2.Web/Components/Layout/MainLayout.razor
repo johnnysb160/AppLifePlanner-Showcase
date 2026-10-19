@@ -1,0 +1,465 @@
+﻿@*
+//-----------------------------------------------------------------------
+// <copyright file="MainLayout.razor" company="AppLifePlanner">
+// Copyright (c) App Life Planner.
+// </copyright>
+//-----------------------------------------------------------------------
+*@
+
+@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="d-flex flex-column min-vh-100">
+
+    @* ── Desktop navbar (lg+ only) ── *@
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 d-none d-lg-flex fixed-top">
+        <div class="container-fluid">
+
+            <a class="navbar-brand" href="/">
+                <img src="/Files/Logo.png" alt="Logo" height="60" class="me-2" />
+            </a>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                @* ── Navigation links ── *@
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                            <i class="bi bi-sun me-1"></i><span>@Loc["Today"]</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-calendar-week me-1"></i>@Loc["Routine"]
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <NavLink class="dropdown-item" href="routine">
+                                    <i class="bi bi-calendar-week me-2"></i>@Loc["Weekly routine"]
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="routine/vehicles">
+                                    <i class="bi bi-car-front me-2"></i>@Loc["Vehicles"]
+                                </NavLink>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-compass me-1"></i>@Loc["Year"]
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <NavLink class="dropdown-item" href="plan">
+                                    <i class="bi bi-compass me-2"></i>@Loc["Plan"]
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="finance/year-review">
+                                    <i class="bi bi-calendar-range me-2"></i>@Loc["Financial year"]
+                                </NavLink>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="transactions">
+                            <i class="bi bi-cash-stack me-1"></i>@Loc["Transactions"]
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="allocations">
+                            <i class="bi bi-graph-up-arrow me-1"></i>@Loc["Allocations"]
+                        </NavLink>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bullseye me-1"></i>@Loc["Planning"]
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <NavLink class="dropdown-item" href="planning/okrs">
+                                    <i class="bi bi-bullseye me-2"></i>OKRs
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="planning/quarters">
+                                    <i class="bi bi-calendar3 me-2"></i>@Loc["Quarters"]
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="planning/reviews">
+                                    <i class="bi bi-journal-check me-2"></i>@Loc["Reviews"]
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="planning/risks">
+                                    <i class="bi bi-shield-exclamation me-2"></i>@Loc["Risks"]
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="dropdown-item" href="planning/habits">
+                                    <i class="bi bi-check2-all me-2"></i>@Loc["Habits"]
+                                </NavLink>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                @* ── Desktop profile dropdown ── *@
+                <div class="d-flex align-items-center gap-3">
+                    <DatabaseStatusBanner />
+                    @if (ShowValuesToggle)
+                    {
+                        <div class="header-values-toggle">
+                            <ValuesToggleButton />
+                        </div>
+                    }
+                    <AuthorizeView>
+                        <NotAuthorized>
+                            <a class="btn btn-outline-light border-opacity-25 btn-sm" style="--bs-btn-border-color: rgba(255, 255, 255, 0.25);" href="/demo/system-status">
+                                <i class="bi bi-activity me-1"></i>@Loc["System status"]
+                            </a>
+                            <a class="btn btn-outline-light border-opacity-25 btn-sm" style="--bs-btn-border-color: rgba(255, 255, 255, 0.25);" href="/auth/login">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>@Loc["Login"]
+                            </a>
+                        </NotAuthorized>
+                        <Authorized>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2"
+                                        style="--bs-btn-border-color: rgba(255, 255, 255, 0.25);"
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="navbar-avatar">
+                                        @if (!string.IsNullOrEmpty(profilePhotoData))
+                                        {
+                                            <img src="@profilePhotoData" alt="avatar" />
+                                        }
+                                        else
+                                        {
+                                            <span>@navInitials</span>
+                                        }
+                                    </span>
+                                    <span>@navDisplayName</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end mt-2">
+                                    <li class="dropdown-header d-flex align-items-center gap-2 py-2">
+                                        <span class="navbar-avatar navbar-avatar-header">
+                                            @if (!string.IsNullOrEmpty(profilePhotoData))
+                                            {
+                                                <img src="@profilePhotoData" alt="avatar" />
+                                            }
+                                            else
+                                            {
+                                                <span>@navInitials</span>
+                                            }
+                                        </span>
+                                        <div>
+                                            <div class="fw-semibold text-dark">@navDisplayName</div>
+                                            <small class="text-muted">@context.User.Identity?.Name</small>
+                                            <AuthorizeView Roles="Admin">
+                                                <Authorized Context="adminCtx">
+                                                    <span class="badge text-bg-primary ms-1">@Loc["Admin"]</span>
+                                                </Authorized>
+                                            </AuthorizeView>
+                                        </div>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <a class="dropdown-item" href="/account/profile">
+                                            <i class="bi bi-person-gear me-1"></i>@Loc["Profile"]
+                                        </a>
+                                    </li>
+                                    <AuthorizeView Roles="Admin">
+                                        <Authorized Context="adminStatusCtx">
+                                            <li>
+                                                <a class="dropdown-item" href="/account/system-status">
+                                                    <i class="bi bi-activity me-1"></i>@Loc["System status"]
+                                                </a>
+                                            </li>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="/auth/logout" target="_top">
+                                            <i class="bi bi-box-arrow-right me-1"></i>@Loc["Logout"]
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    @* ── Mobile header (below lg only) ── *@
+    <header class="mobile-header d-flex d-lg-none align-items-center px-4 fixed-top">
+        <a class="mobile-header-logo me-auto" href="/">
+            <img src="/Files/Logo.png" alt="Logo" height="54" />
+        </a>
+        <DatabaseStatusBanner />
+        @if (ShowValuesToggle)
+        {
+            <div class="header-values-toggle m-3">
+                <ValuesToggleButton />
+            </div>
+        }
+        <AuthorizeView>
+            <Authorized>
+                <div class="mobile-header-greet me-3">
+                    <span class="mobile-header-greeting">@Greeting</span>
+                    <span class="mobile-header-name">@navDisplayName</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn p-0 border-0" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            style="line-height:0">
+                        <span class="navbar-avatar navbar-avatar-mobile">
+                            @if (!string.IsNullOrEmpty(profilePhotoData))
+                            {
+                                <img src="@profilePhotoData" alt="avatar" />
+                            }
+                            else
+                            {
+                                <span>@navInitials</span>
+                            }
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end mt-2">
+                        <li class="dropdown-header d-flex align-items-center gap-2 py-2">
+                            <span class="navbar-avatar navbar-avatar-header">
+                                @if (!string.IsNullOrEmpty(profilePhotoData))
+                                {
+                                    <img src="@profilePhotoData" alt="avatar" />
+                                }
+                                else
+                                {
+                                    <span>@navInitials</span>
+                                }
+                            </span>
+                            <div>
+                                <div class="fw-semibold text-dark">@navDisplayName</div>
+                                <small class="text-muted">@context.User.Identity?.Name</small>
+                                <AuthorizeView Roles="Admin">
+                                    <Authorized Context="adminCtx">
+                                        <span class="badge text-bg-primary ms-1">@Loc["Admin"]</span>
+                                    </Authorized>
+                                </AuthorizeView>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <a class="dropdown-item" href="/account/profile">
+                                <i class="bi bi-person-gear me-1"></i>@Loc["Profile"]
+                            </a>
+                        </li>
+                        <AuthorizeView Roles="Admin">
+                            <Authorized Context="adminStatusCtx">
+                                <li>
+                                    <a class="dropdown-item" href="/account/system-status">
+                                        <i class="bi bi-activity me-1"></i>@Loc["System status"]
+                                    </a>
+                                </li>
+                            </Authorized>
+                        </AuthorizeView>
+                        <li>
+                            <a class="dropdown-item text-danger" href="/auth/logout" target="_top">
+                                <i class="bi bi-box-arrow-right me-1"></i>@Loc["Logout"]
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="mobile-header-greet me-3">
+                    <span class="mobile-header-greeting">@Greeting</span>
+                    <span class="mobile-header-name">@navDisplayName</span>
+                </div>
+                <a class="btn btn-outline-light btn-sm" href="/auth/login">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>@Loc["Login"]
+                </a>
+            </NotAuthorized>
+        </AuthorizeView>
+    </header>
+
+    @* ── Main content ── *@
+    <main class="flex-grow-1 pt-5 mt-4 mt-lg-1">
+        <div class="container-fluid py-4 mobile-main-content">
+            <LanguageLoader Language="@userLanguage" />
+            @Body
+        </div>
+    </main>
+
+    @* ── Footer (desktop only) ── *@
+    <footer class="bg-light py-3 mt-auto d-none d-lg-block">
+        <div class="container text-center">
+            <small class="text-muted">Life Planner &#169; @DateTime.Now.Year</small>
+        </div>
+    </footer>
+
+    @* ── Mobile bottom navigation bar (below lg only) ── *@
+    <nav class="mobile-bottom-nav d-lg-none" aria-label="Mobile navigation">
+        <NavLink class="mobile-nav-item" href="" Match="NavLinkMatch.All">
+            <span class="mobile-nav-icon">
+                <i class="bi bi-sun"></i>
+            </span>
+            <span class="mobile-nav-label">@Loc["Today"]</span>
+        </NavLink>
+        <button class="mobile-nav-item mobile-nav-more-btn"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#mobileRoutineOffcanvas"
+                aria-controls="mobileRoutineOffcanvas">
+            <span class="mobile-nav-icon">
+                <i class="bi bi-calendar-week"></i>
+            </span>
+            <span class="mobile-nav-label">@Loc["Routine"]</span>
+        </button>
+        <button class="mobile-nav-item mobile-nav-more-btn"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#mobilePlanOffcanvas"
+                aria-controls="mobilePlanOffcanvas">
+            <span class="mobile-nav-icon">
+                <i class="bi bi-compass"></i>
+            </span>
+            <span class="mobile-nav-label">@Loc["Year"]</span>
+        </button>
+        <button class="mobile-nav-item mobile-nav-more-btn"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#mobileMoreOffcanvas"
+                aria-controls="mobileMoreOffcanvas">
+            <span class="mobile-nav-icon">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+            </span>
+            <span class="mobile-nav-label">@Loc["More"]</span>
+        </button>
+    </nav>
+
+    @* ── Mobile "Routine" offcanvas — slides up from the bottom (below lg only) ── *@
+    <div class="offcanvas offcanvas-bottom mobile-more-offcanvas d-lg-none"
+         tabindex="-1"
+         id="mobileRoutineOffcanvas"
+         aria-labelledby="mobileRoutineLabel">
+        <div class="offcanvas-body pt-3">
+            <div class="mobile-more-grid">
+                <a class="mobile-more-item" href="routine"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileRoutineOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-calendar-week"></i>
+                    </div>
+                    <span>@Loc["Weekly routine"]</span>
+                </a>
+                <a class="mobile-more-item" href="routine/vehicles"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileRoutineOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-car-front"></i>
+                    </div>
+                    <span>@Loc["Vehicles"]</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @* ── Mobile "Plan" offcanvas — slides up from the bottom (below lg only) ── *@
+    <div class="offcanvas offcanvas-bottom mobile-more-offcanvas d-lg-none"
+         tabindex="-1"
+         id="mobilePlanOffcanvas"
+         aria-labelledby="mobilePlanLabel">
+        <div class="offcanvas-body pt-3">
+            <div class="mobile-more-grid">
+                <a class="mobile-more-item" href="plan"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobilePlanOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-compass"></i>
+                    </div>
+                    <span>@Loc["Plan"]</span>
+                </a>
+                <a class="mobile-more-item" href="finance/year-review"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobilePlanOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-calendar-range"></i>
+                    </div>
+                    <span>@Loc["Financial year"]</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @* ── Mobile "More" offcanvas — slides up from the bottom (below lg only) ── *@
+    <div class="offcanvas offcanvas-bottom mobile-more-offcanvas d-lg-none"
+         tabindex="-1"
+         id="mobileMoreOffcanvas"
+         aria-labelledby="mobileMoreLabel">
+        <div class="offcanvas-body pt-3">
+            <div class="mobile-more-grid">
+                <a class="mobile-more-item" href="transactions"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <span>@Loc["Transactions"]</span>
+                </a>
+                <a class="mobile-more-item" href="allocations"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <span>@Loc["Allocations"]</span>
+                </a>
+                <a class="mobile-more-item" href="planning/reviews"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <span>@Loc["Reviews"]</span>
+                </a>
+                <a class="mobile-more-item" href="planning/habits"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-check2-all"></i>
+                    </div>
+                    <span>@Loc["Habits"]</span>
+                </a>
+                <a class="mobile-more-item" href="planning/quarters"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-calendar-range"></i>
+                    </div>
+                    <span>@Loc["Quarters"]</span>
+                </a>
+                <a class="mobile-more-item" href="planning/okrs"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-bullseye"></i>
+                    </div>
+                    <span>OKRs</span>
+                </a>
+                <a class="mobile-more-item" href="planning/risks"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-shield-exclamation"></i>
+                    </div>
+                    <span>@Loc["Risks"]</span>
+                </a>
+                <a class="mobile-more-item" href="/demo/system-status"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-activity"></i>
+                    </div>
+                    <span>@Loc["System status"]</span>
+                </a>
+                <a class="mobile-more-item" href="accounts"
+                       onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreOffcanvas'))?.hide()">
+                    <div class="mobile-more-icon">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <span>@Loc["Accounts"]</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
