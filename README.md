@@ -17,6 +17,28 @@ AppLifePlanner is a personal operating system for finances, investments, routine
 
 Most personal-finance applications stop at reporting, while planning tools require the user to manually repeat information that already exists elsewhere. AppLifePlanner connects both sides: canonical financial facts drive annual projections, weekly focus, and small actionable recommendations without creating a second ledger or requiring a paid AI service.
 
+## End-to-end product flow
+
+1. **Capture and reconcile reality.** Accounts, cards, transactions, allocations, statement imports, and e-mail-originated entries converge on one owner-scoped financial model. Deterministic matching prevents duplicate ledger entries and sends ambiguous records to review.
+2. **Price and classify the position.** Market providers, currency conversion, allocation history, and fixed-income formulas calculate the current position while preserving the last known good quote when an external provider fails.
+3. **Turn facts into a plan.** Net worth, reserves, contributions, operating cash flow, and allocation performance feed annual projections and financial key results without asking the user to type the same numbers again.
+4. **Connect the year to this week.** Annual plans, pillars, OKRs, quarterly tasks, risks, habits, reviews, and a three-item weekly focus create a traceable line from long-term intent to current commitments.
+5. **Make today executable.** The Today experience combines the current routine block, next events, financial pulse, weekly focus, and deterministic action cards that explain the evidence behind each suggested next step.
+6. **Extend without duplicating the engine.** Windows and iOS/Scriptable companions consume narrow, paired Today and routine APIs; they never connect directly to the database or implement a second planning model.
+
+## Product depth
+
+| Area | Capabilities |
+|---|---|
+| Personal finance | Accounts, credit cards, transactions, categories, balances, allocations, invested-capital history, soft deletion, and financial privacy masking |
+| Imports and reconciliation | Bank CSV/OFX, Nubank invoice CSV semantics, IMAP ingestion, deterministic identity, duplicate detection, review queue, and one-to-one reconciliation |
+| Investments | B3, US, crypto, FX, and fixed-income pricing with provider fallback, CDI/SELIC/IPCA calculations, currency conversion, and quote history |
+| Planning | Annual plans, pillars, objectives, key results, quarterly tasks, weekly focus, compact and advanced reviews, habits, risks, and snapshots |
+| Daily execution | Time-based routine, action center, explainable local recommendations, direct links to the smallest next action, and current-week context |
+| Life administration | Vehicle records, service history, odometer and cost summaries, due/overdue reminders, and oil-change follow-up |
+| Companion surfaces | WPF Windows overlay, revocable widget pairing, routine lock-screen snapshots, Scriptable iOS runtime, and native WidgetKit source |
+| Operations | Admin system-status case study, database and provider health, safe structured logging, access analytics, Docker deployment, and automated PostgreSQL backup workflow |
+
 ## Highlights
 
 - **Today dashboard** combining current routine, timeline, weekly focus, financial position, and deterministic action cards.
@@ -27,6 +49,14 @@ Most personal-finance applications stop at reporting, while planning tools requi
 - **Companion experiences** for Windows and iOS/Scriptable using paired, revocable device tokens.
 - **Privacy and tenancy** through ASP.NET Core Identity, owner-scoped data, encryption, rate limits, and safe logging.
 - **Resilient integrations** with local fallbacks for market data, email ingestion, and optional AI-provider connectivity checks.
+
+## Rules that keep the product coherent
+
+- Planning reads from a canonical financial-facts layer; pages cannot invent their own net-worth or projection formulas.
+- Reliable values are derived before the user is asked for input, keeping plans synchronized with real financial activity.
+- Recommendations are deterministic, local, and explainable; paid AI is not required for the core experience.
+- The anonymous demo is a real synthetic tenant, and write attempts are rejected in the persistence layer rather than hidden only by disabled buttons.
+- Background work preserves tenant ownership and failure isolation across market data, e-mail sync, planning actions, analytics, and health checks.
 
 ## Architecture
 
@@ -105,4 +135,3 @@ All demo identities, balances, transactions, goals, and timelines in this reposi
 ## Source availability
 
 This repository is published for portfolio review. No open-source license is granted unless a license file is added later.
-
