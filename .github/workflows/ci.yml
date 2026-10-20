@@ -33,6 +33,8 @@ jobs:
 
       - name: Audit dependencies
         shell: pwsh
+        env:
+          EnableWindowsTargeting: "true"
         run: |
           $auditOutput = dotnet list AppControlOrganizer.V2.sln package --vulnerable --include-transitive 2>&1 | Out-String
           Write-Output $auditOutput
