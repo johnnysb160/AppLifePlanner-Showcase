@@ -32,4 +32,18 @@ jobs:
         run: dotnet test AppControlOrganizer.V2.sln --configuration Release --no-build --nologo -p:EnableWindowsTargeting=true
 
       - name: Audit dependencies
-        run: dotnet list AppControlOrganizer.V2.sln package --vulnerable --include-transitive
+        shell: pwsh
+        run: |
+          $auditOutput = dotnet list AppControlOrganizer.V2.sln package --vulnerable --include-transitive 2>&1 | Out-String
+          Write-Output $auditOutput
+
+          if ($auditOutput -match 'has the following vulnerable packages') {
+            Write-Error 'Vulnerable NuGet packages were detected.'
+            exit 1
+          }
+
+          $cleanProjects = ([regex]::Matches($auditOutput, 'has no vulnerable packages')).Count
+          if ($cleanProjects -ne 4) {
+            Write-Error "The dependency audit reported $cleanProjects of 4 projects as clean."
+            exit 1
+          }
